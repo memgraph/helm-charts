@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  memgraph:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-07-17T16:08:33.454451+02:00"
+    description: A Helm chart for Kubernetes
+    digest: c2e0d0e212a4241df73d66e188201306193d5f0273f156a0666cb99ed9fd3160
+    name: memgraph
+    type: application
+    urls:
+    - https://memgraph.github.io/helm-charts/memgraph-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-07-17T16:08:33.453831+02:00"
