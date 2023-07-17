@@ -1,0 +1,65 @@
+name: Bug Report
+description: File a bug report 
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - katarinasupe
+  - antejavor
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Chart type
+      description: With which chart did you experience issues?
+      options:
+        - Standalone
+    validations:
+      required: true      
+  - type: dropdown
+    id: version
+    attributes:
+      label: Chart version
+      description: Which version of the chart are you running?
+      options:
+        - 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Environment
+      multiple: true
+      options:
+        - Local Machine
+        - Google Cloud Platform
+        - Amazon Web Services
+        - Microsoft Azure
+        - My environment is not listed
+    validations:
+      required: true        
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
