@@ -24,7 +24,7 @@ jobs:
 
       - name: Render Helm Templates
         run: |
-          helm template ./ > rendered-templates.yaml
+          helm template memgraph/ > rendered-templates.yaml
 
       - name: Install kubeval
         run: |
