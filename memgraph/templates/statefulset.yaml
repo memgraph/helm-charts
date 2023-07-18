@@ -4,20 +4,21 @@ kind: StatefulSet
 metadata:
   name: {{ include "memgraph.fullname" . }}
   labels:
-    {{- include "memgraph.labels" . | nindent 4 }}   
+    app.kubernetes.io/name: memgraph
+    app.kubernetes.io/managed-by: Helm 
 spec:
   replicas: {{ .Values.replicaCount }}
   serviceName: {{ include "memgraph.fullname" . }}-svc
   selector:
     matchLabels:
-    {{- include "memgraph.selectorLabels" . | nindent 4 }}
+      app.kubernetes.io/name: memgraph
   podManagementPolicy: OrderedReady
   updateStrategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        {{- include "memgraph.labels" . | nindent 4 }}
+         app.kubernetes.io/name: memgraph
     spec:
       securityContext:
       volumes:
