@@ -31,3 +31,6 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: true
+          CR_GIT_BASE_URL: "https://github.com/memgraph/helm-charts/"
+          CR_GIT_UPLOAD_URL: "https://${{ secrets.GITHUB_TOKEN }}@github.com/memgraph/helm-charts/"
+
