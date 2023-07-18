@@ -9,6 +9,7 @@ keywords:
  - graph 
  - database 
  - cypher
+ - analytics
 sources: 
   - https://github.com/memgraph/memgraph
 
