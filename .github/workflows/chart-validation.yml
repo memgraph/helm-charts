@@ -1,0 +1,23 @@
+name: Chart Validation
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      - name: Validate Helm Charts
+        run: |
+          helm repo add stable https://charts.helm.sh/stable
+          helm repo update
+          helm lint https://github.com/memgraph/helm-charts/tree/main/memgraph
