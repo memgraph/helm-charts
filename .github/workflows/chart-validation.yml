@@ -20,4 +20,4 @@ jobs:
         run: |
           helm repo add stable https://charts.helm.sh/stable
           helm repo update
-          helm lint https://github.com/memgraph/helm-charts/tree/main/memgraph
+          helm lint ./
