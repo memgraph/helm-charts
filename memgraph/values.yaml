@@ -4,6 +4,16 @@
 
 replicaCount: 1
 
+service:
+  type: NodePort
+  port: 7687
+  targetPort: 7687
+  protocol: TCP
+
+persistentVolumeClaim:
+  storageSize: 500Mi
+
+
 image:
   repository: nginx
   pullPolicy: IfNotPresent
@@ -36,9 +46,9 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 80
+# service:
+#   type: ClusterIP
+#   port: 80
 
 ingress:
   enabled: false
