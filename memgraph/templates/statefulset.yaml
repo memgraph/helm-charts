@@ -1,0 +1,44 @@
+# templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "memgraph.fullname" . }}
+  labels:
+    {{- include "memgraph.labels" . | nindent 4 }}   
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "memgraph.fullname" . }}-svc
+  selector:
+    matchLabels:
+    {{- include "memgraph.selectorLabels" . | nindent 4 }}
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "memgraph.labels" . | nindent 4 }}
+    spec:
+      securityContext:
+      volumes:
+        - name: memgraph-lib-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-lib-storage
+        - name: memgraph-log-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-log-storage
+      containers:
+        - name: memgraph
+          image: "memgraph/memgraph:latest"
+          args: ["--also-log-to-stderr=true"]
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 0
+          ports:
+            - name: memgraph
+              containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: memgraph-lib-storage
+              mountPath: /var/lib/memgraph
+            - name: memgraph-log-storage
+              mountPath: /var/log/memgraph
