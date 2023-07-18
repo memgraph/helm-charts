@@ -24,13 +24,13 @@ jobs:
         run: |
           helm repo add stable https://charts.helm.sh/stable
           helm repo update
-          helm lint memgraph/
+          helm lint charts/
       # The Helm templates are rendered using the helm template command, 
       # and the output is stored in a file named rendered-templates.yaml. 
       # This step ensures that there are no syntax or rendering errors in the templates.
       - name: Render Helm Templates
         run: |
-          helm template memgraph/ > rendered-templates.yaml
+          helm template charts/ > rendered-templates.yaml
       # The kubeval tool is installed to validate the rendered templates against the Kubernetes API schemas.
       - name: Install kubeval
         run: |
