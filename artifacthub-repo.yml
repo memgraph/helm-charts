@@ -1,4 +1,4 @@
-# repositoryID: The ID of the Artifact Hub repository where the packages will be published to (optional, but it enables verified publisher)
+repositoryID: 1585cfbc-12cc-4b3d-a853-d312c12e0a5f
 owners: # (optional, used to claim repository ownership)
   - name: katarinasupe
     email: katarina.supe@memgraph.io
