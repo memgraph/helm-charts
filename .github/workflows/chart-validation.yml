@@ -21,3 +21,17 @@ jobs:
           helm repo add stable https://charts.helm.sh/stable
           helm repo update
           helm lint memgraph/
+
+      - name: Render Helm Templates
+        run: |
+          helm template ./ > rendered-templates.yaml
+
+      - name: Install kubeval
+        run: |
+          curl -LO "https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz"
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo mv kubeval /usr/local/bin/
+
+      - name: Validate Rendered Templates
+        run: |
+          kubeval rendered-templates.yaml
