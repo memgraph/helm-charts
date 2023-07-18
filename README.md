@@ -53,7 +53,7 @@ App Version: 2.8.0
 For detailed information and usage instructions for each chart, please refer to the chart's individual README file.
 
 ## Contributing
-Contributions are welcome! If you have any improvements, bug fixes, or new charts to add, please follow the contribution guidelines outlined in the `CONTRIBUTING.md` file.
+Contributions are welcome! If you have any improvements, bug fixes, or new charts to add, please follow the contribution guidelines outlined in the [`CONTRIBUTING.md`](https://github.com/memgraph/helm-charts/blob/main/CONTRIBUTING.md) file.
 
 ## License
 This repository is licensed under the [Apache 2.0 License](https://github.com/memgraph/helm-charts/blob/main/LICENSE).
