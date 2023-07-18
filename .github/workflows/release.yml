@@ -1,15 +1,15 @@
 name: Release Charts
 
-
 on:
-  workflow_run:
-    workflows: ["Chart Validation"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+  workflow_dispatch:
 
 jobs:
   release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
     # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     permissions:
