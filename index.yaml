@@ -3,9 +3,9 @@ entries:
   memgraph:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-07-18T13:15:51.136063+02:00"
+    created: "2023-07-18T15:12:57.040072+02:00"
     description: MemgraphDB Helm Chart
-    digest: 7405885a346a3365595b0987bd4932534a7586169f0d21490e6acdbf023c317c
+    digest: 0df947851569f4b989e3bd9c1d7609fd8c5b7b52ad1a2258baffb28ac7193fd7
     home: https://memgraph.com/
     keywords:
     - graph
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://memgraph.github.io/helm-charts/memgraph-0.1.0.tgz
     version: 0.1.0
-generated: "2023-07-18T13:15:51.135548+02:00"
+generated: "2023-07-18T15:12:57.039368+02:00"
