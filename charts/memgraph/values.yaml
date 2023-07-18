@@ -11,4 +11,4 @@ service:
   protocol: TCP
 
 persistentVolumeClaim:
-  storageSize: 500Mi
+  storageSize: 1Gi

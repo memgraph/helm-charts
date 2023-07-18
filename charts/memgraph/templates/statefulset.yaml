@@ -22,24 +22,24 @@ spec:
     spec:
       securityContext:
       volumes:
-        # - name: memgraph-lib-storage
-        #   persistentVolumeClaim:
-        #     claimName: {{ include "memgraph.fullname" . }}-lib-storage
-        # - name: memgraph-log-storage
-        #   persistentVolumeClaim:
-        #     claimName: {{ include "memgraph.fullname" . }}-log-storage
+        - name: memgraph-lib-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-lib-storage
+        - name: memgraph-log-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-log-storage
       containers:
         - name: memgraph
           image: "memgraph/memgraph:latest"
           args: ["--also-log-to-stderr=true"]
           imagePullPolicy: Always
-          # securityContext:
-          #   runAsUser: 0
+          securityContext:
+            runAsUser: 0
           ports:
             - name: memgraph
               containerPort: {{ .Values.service.port }}
-          # volumeMounts:
-          #   - name: memgraph-lib-storage
-          #     mountPath: /var/lib/memgraph
-          #   - name: memgraph-log-storage
-          #     mountPath: /var/log/memgraph
+          volumeMounts:
+            - name: memgraph-lib-storage
+              mountPath: /var/lib/memgraph
+            - name: memgraph-log-storage
+              mountPath: /var/log/memgraph
