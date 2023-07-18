@@ -3,7 +3,8 @@ kind: Service
 metadata:
   name: {{ include "memgraph.fullname" . }}
   labels:
-    {{- include "memgraph.labels" . | nindent 4 }}
+    app.kubernetes.io/name: memgraph
+    app.kubernetes.io/managed-by: Helm
 spec:
   type: {{ .Values.service.type }}
   ports:
