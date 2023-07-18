@@ -1,6 +1,6 @@
-# Memgraph Helm Chart Repository
+# Memgraph Helm Charts Repository
 
-Welcome to the Memgraph Helm chart repository. This repository provides Helm charts for deploying Memgraph, an open-source in-memory graph database.
+Welcome to the Memgraph Helm Charts Repository. This repository provides Helm charts for deploying Memgraph, an open-source in-memory graph database.
 
 ## Prerequisites
 Helm version 3 or above installed.
