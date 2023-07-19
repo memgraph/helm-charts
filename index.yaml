@@ -3,6 +3,27 @@ entries:
   memgraph:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2023-07-19T11:40:09.074746294Z"
+    description: MemgraphDB Helm Chart
+    digest: 6dddde3ae339c6cdab00e804299572ebd0d70efd7fa521a0c3d9028bd4dcd128
+    home: https://memgraph.com/
+    keywords:
+    - graph
+    - database
+    - cypher
+    - analytics
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    name: memgraph
+    sources:
+    - https://github.com/memgraph/memgraph
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-0.1.1/memgraph-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2023-07-18T16:50:13.478246+02:00"
     description: MemgraphDB Helm Chart
     digest: 86e7ae0178fe0e961a74b7e85afb549ca00680dc022c0460ca611b8a63a5adf1
@@ -22,4 +43,4 @@ entries:
     urls:
     - https://github.com/memgraph/helm-charts/releases/download/memgraph-0.1.0/memgraph-0.1.0.tgz
     version: 0.1.0
-generated: "2023-07-18T16:50:13.477708+02:00"
+generated: "2023-07-19T11:40:09.076111699Z"
