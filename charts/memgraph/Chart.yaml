@@ -10,9 +10,9 @@ keywords:
  - database 
  - cypher
  - analytics
+icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
 sources: 
   - https://github.com/memgraph/memgraph
-
 maintainers:
  - name: Memgraph 
    email: tech@memgraph.com

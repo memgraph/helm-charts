@@ -1,5 +1,3 @@
-
-
 image: memgraph/memgraph:latest
 
 replicaCount: 1
@@ -14,4 +12,6 @@ persistentVolumeClaim:
   storagePVC: true
   storagePVCSize: 1Gi
   logPVC: true
-  logPVCSize: 256Mi
+  logPVCSize: 256Mi 
+
+memgraphConfig: ["--also-log-to-stderr=true"]

@@ -31,3 +31,6 @@ parameter | description | default
 `service.type` | Kubernetes service type | `NodePort`
 `service.port` | Kubernetes service port | `7687`
 `service.targetPort` | Kubernetes service target port | `7687`
+`memgraphConfig` | Memgraph configuration settings | ["--also-log-to-stderr=true"]
+
+> The `memgraphConfig` parameter should be a list of strings defining the values of Memgraph configuration settings. For available settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).
