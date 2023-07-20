@@ -30,7 +30,7 @@ spec:
             claimName: {{ include "memgraph.fullname" . }}-log-storage
       containers:
         - name: memgraph
-          image: "memgraph/memgraph:latest"
+          image: {{ .Values.image }}
           args: ["--also-log-to-stderr=true"]
           imagePullPolicy: Always
           securityContext:
