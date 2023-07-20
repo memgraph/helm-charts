@@ -4,9 +4,9 @@ A Helm Chart for deploying Memgraph database on Kubernetes.
 ## Installing the Memgraph Helm Chart
 To install the Memgraph Helm Chart, follow the steps below:
 ```
-helm install <resource-name> memgraph/memgraph
+helm install <release-name> memgraph/memgraph
 ```
-Replace `<resource-name>` with a name of your choice for the release.
+Replace `<release-name>` with a name of your choice for the release.
 
 ## Changing the default chart values
 To change the default chart values, run the command with the specified set of flags:
@@ -23,7 +23,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 
 parameter | description | default
 --- | --- | ---
-`image.repository` | Memgraph Docker image repository | `memgraph`
+`image` | Memgraph Docker image repository | `memgraph`
 `persistanceVolumeClaim.storageSize` | Size of the persistent volume claim | `1Gi`
 `service.type` | Kubernetes service type | `NodePort`
 `service.port` | Kubernetes service port | `7687`
