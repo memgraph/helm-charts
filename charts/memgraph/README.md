@@ -33,4 +33,10 @@ parameter | description | default
 `service.targetPort` | Kubernetes service target port | `7687`
 `memgraphConfig` | Memgraph configuration settings | `["--also-log-to-stderr=true"]`
 
-> The `memgraphConfig` parameter should be a list of strings defining the values of Memgraph configuration settings. For available settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).
+The `memgraphConfig` parameter should be a list of strings defining the values of Memgraph configuration settings. For example, this is how you can define `memgraphConfig` parameter in your `values.yaml`:
+```
+memgraphConfig: 
+  - "--also-log-to-stderr=true"
+  - "--log-level=TRACE"
+```
+For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

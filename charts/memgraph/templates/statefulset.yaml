@@ -35,7 +35,10 @@ spec:
       containers:
         - name: memgraph
           image: {{ .Values.image }}
-          args: {{ .Values.memgraphConfig }}
+          args: 
+          {{- range .Values.memgraphConfig }}
+          - {{ . | quote }}
+          {{- end }}
           imagePullPolicy: Always
           securityContext:
             runAsUser: 0
