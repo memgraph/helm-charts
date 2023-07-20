@@ -14,4 +14,5 @@ persistentVolumeClaim:
   logPVC: true
   logPVCSize: 256Mi 
 
-memgraphConfig: ["--also-log-to-stderr=true"]
+memgraphConfig: 
+  - "--also-log-to-stderr=true"
