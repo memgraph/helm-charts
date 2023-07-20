@@ -1,5 +1,5 @@
-## Memgraph Kubernetes Helm Charts
-A Helm Chart for deploying Memgraph database on Kubernetes.
+## Memgraph Standalone Kubernetes Helm Chart
+A Helm Chart for deploying standalone Memgraph database on Kubernetes.
 
 ## Installing the Memgraph Helm Chart
 To install the Memgraph Helm Chart, follow the steps below:
