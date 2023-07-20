@@ -24,7 +24,10 @@ The following table lists the configurable parameters of the Memgraph chart and 
 parameter | description | default
 --- | --- | ---
 `image` | Memgraph Docker image repository | `memgraph`
-`persistanceVolumeClaim.storageSize` | Size of the persistent volume claim | `1Gi`
+`persistentVolumeClaim.storagePVC` | Enable persistent volume claim for storage | `true`
+`persistanceVolumeClaim.storagePVCSize` | Size of the persistent volume claim for storage | `1Gi`
+`persistentVolumeClaim.logPVC` | Enable persistent volume claim for logs | `true`
+`persistanceVolumeClaim.logPVCSize` | Size of the persistent volume claim for logs | `256Mi`
 `service.type` | Kubernetes service type | `NodePort`
 `service.port` | Kubernetes service port | `7687`
 `service.targetPort` | Kubernetes service target port | `7687`

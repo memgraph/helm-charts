@@ -1,5 +1,7 @@
-# templates/persistentvolumeclaim.yaml
+
+{{ if .Values.persistentVolumeClaim.storagePVC }}
 apiVersion: v1
+
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "memgraph.fullname" . }}-lib-storage
@@ -8,8 +10,10 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.persistentVolumeClaim.storageSize }}
+      storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
+{{ end }}
 ---
+{{ if .Values.persistentVolumeClaim.logPVC }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -19,4 +23,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.persistentVolumeClaim.storageSize }}
+      storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
+{{end}}
