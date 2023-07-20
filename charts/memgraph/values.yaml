@@ -11,4 +11,7 @@ service:
   protocol: TCP
 
 persistentVolumeClaim:
-  storageSize: 1Gi
+  storagePVC: true
+  storagePVCSize: 1Gi
+  logPVC: true
+  logPVCSize: 256Mi
