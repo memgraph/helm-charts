@@ -3,10 +3,11 @@ entries:
   memgraph:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-07-19T13:37:36.173969+02:00"
+    created: "2023-07-21T08:39:52.133849+02:00"
     description: MemgraphDB Helm Chart
-    digest: 7ef3f35794c1235cf3fde64e124c71293824ecc6ed969e701fd79fde8c74feb9
+    digest: d09182554cbece1d321cfd212dc43f8ff8fddd8cfd54036153de787123c4c4ce
     home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
     keywords:
     - graph
     - database
@@ -20,6 +21,6 @@ entries:
     - https://github.com/memgraph/memgraph
     type: application
     urls:
-    https://github.com/memgraph/helm-charts/releases/download/memgraph-0.1.0/memgraph-0.1.1.tgz
-    version: 0.1.1
-generated: "2023-07-19T13:37:36.173151+02:00"
+    - https://memgraph.github.io/helm-charts/memgraph-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-07-21T08:39:52.130559+02:00"
