@@ -3,8 +3,11 @@ kind: Service
 metadata:
   name: {{ include "memgraph.fullname" . }}
   labels:
-    app.kubernetes.io/name: memgraph
-    app.kubernetes.io/managed-by: Helm
+    {{- include "memgraph.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,5 +15,5 @@ spec:
       targetPort: {{ .Values.service.targetPort}}
       protocol: {{ .Values.service.protocol }}
       name: bolt
-  selector:
-    app.kubernetes.io/name: memgraph
+  selector: 
+    {{- include "memgraph.selectorLabels" . | nindent 4 }}

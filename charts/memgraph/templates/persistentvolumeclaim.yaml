@@ -1,7 +1,6 @@
 
 {{ if .Values.persistentVolumeClaim.storagePVC }}
 apiVersion: v1
-
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "memgraph.fullname" . }}-lib-storage
@@ -24,4 +23,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
-{{end}}
+{{ end }}
