@@ -1,4 +1,8 @@
-image: memgraph/memgraph:latest
+image:
+  repository: memgraph/memgraph
+  # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
+  tag: ""
+  pullPolicy: IfNotPresent
 
 replicaCount: 1
 
@@ -7,12 +11,40 @@ service:
   port: 7687
   targetPort: 7687
   protocol: TCP
+  annotations: {}
 
 persistentVolumeClaim:
   storagePVC: true
   storagePVCSize: 1Gi
   logPVC: true
-  logPVCSize: 256Mi 
+  logPVCSize: 256Mi
 
-memgraphConfig: 
+memgraphConfig:
   - "--also-log-to-stderr=true"
+
+# Annotations to add to the statefulSet
+statefulSetAnnotations: {}
+# Annotations to add to the Pod
+podAnnotations: {}
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
