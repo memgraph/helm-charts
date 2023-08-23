@@ -42,6 +42,7 @@ body:
       description: Which version of the chart are you running?
       options:
         - 0.1.0
+        - 0.1.1
     validations:
       required: true
   - type: dropdown
