@@ -25,8 +25,10 @@ parameter | description | default
 --- | --- | ---
 `image` | Memgraph Docker image repository | `memgraph`
 `persistentVolumeClaim.storagePVC` | Enable persistent volume claim for storage | `true`
+`persistanceVolumeClaim.storagePVCClassName` | Storage class name for the persistent volume claim for storage. If not specified, default will be used | `""`
 `persistanceVolumeClaim.storagePVCSize` | Size of the persistent volume claim for storage | `1Gi`
 `persistentVolumeClaim.logPVC` | Enable persistent volume claim for logs | `true`
+`persistanceVolumeClaim.logPVCClassName` | Storage class name for the persistent volume claim for logs. If not specified, default will be used | `""`
 `persistanceVolumeClaim.logPVCSize` | Size of the persistent volume claim for logs | `256Mi`
 `service.type` | Kubernetes service type | `NodePort`
 `service.port` | Kubernetes service port | `7687`

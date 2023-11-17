@@ -72,6 +72,9 @@ spec:
     spec:
       accessModes:
       - "ReadWriteOnce"
+      {{- if .Values.persistentVolumeClaim.storagePVCClassName }}
+      storageClassName: {{ .Values.persistentVolumeClaim.storagePVCClassName }}
+      {{- end }}
       resources: 
         requests:
           storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
@@ -82,6 +85,9 @@ spec:
     spec:
       accessModes:
       - "ReadWriteOnce"
+      {{- if .Values.persistentVolumeClaim.logPVCClassName }}
+      storageClassName: {{ .Values.persistentVolumeClaim.logPVCClassName }}
+      {{- end }}
       resources: 
         requests:
           storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
