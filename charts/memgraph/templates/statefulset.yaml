@@ -58,10 +58,31 @@ spec:
           {{- end }}
           volumeMounts:
           {{- if .Values.persistentVolumeClaim.storagePVC }}
-            - name: memgraph-lib-storage
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
           {{- end }}
           {{- if .Values.persistentVolumeClaim.logPVC }}
-            - name: memgraph-log-storage
+            - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
+  volumeClaimTemplates:
+  {{- if .Values.persistentVolumeClaim.storagePVC }}
+  - metadata:
+      name: {{ include "memgraph.fullname" . }}-lib-storage
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources: 
+        requests:
+          storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
+  {{- end }}
+  {{- if .Values.persistentVolumeClaim.logPVC }}
+  - metadata:
+      name: {{ include "memgraph.fullname" . }}-log-storage
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources: 
+        requests:
+          storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
+  {{- end }}
