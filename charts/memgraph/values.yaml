@@ -14,8 +14,10 @@ service:
   annotations: {}
 
 persistentVolumeClaim:
+  storagePVCClassName: ""
   storagePVC: true
   storagePVCSize: 1Gi
+  logPVCClassName: ""
   logPVC: true
   logPVCSize: 256Mi
 
