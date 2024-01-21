@@ -2,17 +2,17 @@ apiVersion: v2
 name: memgraph
 home: https://memgraph.com/
 type: application
-version: 0.1.1
-appVersion: "2.10.0"
+version: 0.1.2
+appVersion: 2.13.0
 description: MemgraphDB Helm Chart
 keywords:
-  - graph
-  - database
-  - cypher
-  - analytics
+- graph
+- database
+- cypher
+- analytics
 icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
 sources:
-  - https://github.com/memgraph/memgraph
+- https://github.com/memgraph/memgraph
 maintainers:
-  - name: Memgraph
-    email: tech@memgraph.com
+- name: Memgraph
+  email: tech@memgraph.com
