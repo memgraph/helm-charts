@@ -1,0 +1,71 @@
+# templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "memgraph-platform.fullname" . }}
+  labels:
+    {{- include "memgraph-platform.labels" . | nindent 4 }}
+  {{- with .Values.statefulSetAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "memgraph-platform.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "memgraph-platform.selectorLabels" . | nindent 6 }}
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "memgraph-platform.labels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+    spec:
+      securityContext:
+      volumes:
+      {{- if .Values.persistentVolumeClaim.storagePVC }}
+        - name: memgraph-lib-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph-platform.fullname" . }}-lib-storage
+      {{- end }}
+      {{- if .Values.persistentVolumeClaim.logPVC }}
+        - name: memgraph-log-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph-platform.fullname" . }}-log-storage
+      {{- end }}
+      containers:
+        - name: memgraph-platform
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: 
+          {{- range .Values.memgraphConfig }}
+          - {{ . | quote }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          ports:
+            - containerPort: {{ .Values.service.portBolt }}
+              name: bolt
+            - containerPort: {{ .Values.service.portLab }}
+              name: lab
+            - containerPort: {{ .Values.service.portLog }}
+              name: log
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.persistentVolumeClaim.storagePVC }}
+            - name: memgraph-lib-storage
+              mountPath: /var/lib/memgraph
+          {{- end }}
+          {{- if .Values.persistentVolumeClaim.logPVC }}
+            - name: memgraph-log-storage
+              mountPath: /var/log/memgraph
+          {{- end }}
