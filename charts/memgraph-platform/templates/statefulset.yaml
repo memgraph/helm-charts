@@ -46,6 +46,11 @@ spec:
           {{- range .Values.memgraphConfig }}
           - {{ . | quote }}
           {{- end }}
+          env:
+          {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}          
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             runAsUser: 0

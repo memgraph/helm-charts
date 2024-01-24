@@ -8,6 +8,7 @@ Welcome to the Memgraph Helm Charts repository. This repository provides Helm ch
 
 ## Available charts
 - [**Memgraph standalone**](#memgraph-standalone)
+- [**Memgraph Platform**](#memgraph-platform)
 
 ## Prerequisites
 Helm version 3 or above installed.
@@ -25,6 +26,17 @@ Make sure to update the repository to fetch the latest Helm charts available:
 ```
 helm repo update
 ```
+
+## Memgraph Platform
+Deploys Memgraph Platform.
+For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-platform/README.md).
+
+To install Memgraph Platform, run the following command:
+
+```
+helm install my-release memgraph/memgraph-platform
+```
+Replace `my-release` with a name of your choice for the release.
 
 ## Memgraph standalone
 Deploys standalone Memgraph.

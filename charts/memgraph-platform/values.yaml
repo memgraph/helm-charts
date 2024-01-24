@@ -45,6 +45,10 @@ service:
   portLab: 3000
   portLog: 7444
 
+
+env:
+  MEMGRAPH: "--bolt-server-name-for-init=Neo4j/"
+
 persistentVolumeClaim:
   storagePVC: true
   storagePVCSize: 1Gi
