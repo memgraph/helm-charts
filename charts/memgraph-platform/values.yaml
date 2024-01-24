@@ -46,8 +46,8 @@ service:
   portLog: 7444
 
 
-env:
-  MEMGRAPH: "--bolt-server-name-for-init=Neo4j/"
+env: {}
+# MEMGRAPH: "--bolt-server-name-for-init=Neo4j/"
 
 persistentVolumeClaim:
   storagePVC: true
