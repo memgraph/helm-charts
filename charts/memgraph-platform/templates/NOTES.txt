@@ -1,0 +1,12 @@
+Thank you for installing Memgraph! 🎉
+
+Connect to Memgraph via Lab, mgconsole, or any other client to your Memgraph instance. By default Memgraph listens on port 7687 for a bolt connection inside the cluster.
+Make sure your are connecting to the correct ip address of your instance. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
+
+If you are connecting via mgconsole, you can use the following command:
+
+mgconsole --host <your-instance-ip> --port <your-instance-port> 
+
+If you are connecting via Lab, specify your instance ip address and port in Memgraph Lab GUI. 
+
+

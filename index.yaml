@@ -16,6 +16,8 @@ entries:
     maintainers:
     - email: tech@memgraph.com
       name: Memgraph
+    - email: tewnut@gmail.com
+      name: tewnut
     name: memgraph
     sources:
     - https://github.com/memgraph/memgraph

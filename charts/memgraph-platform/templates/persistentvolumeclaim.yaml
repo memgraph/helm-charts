@@ -1,0 +1,26 @@
+
+{{ if .Values.persistentVolumeClaim.storagePVC }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "memgraph-platform.fullname" . }}-lib-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
+{{ end }}
+---
+{{ if .Values.persistentVolumeClaim.logPVC }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "memgraph-platform.fullname" . }}-log-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
+{{ end }}
