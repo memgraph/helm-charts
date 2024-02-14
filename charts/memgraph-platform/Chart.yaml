@@ -4,7 +4,7 @@ home: https://memgraph.com/
 type: application
 description: Memgraph Platform is a single docker image containing Memgraph, query modules from Memgraph Mage and Memgraph Lab.
 
-version: 0.1.0
+version: 0.1.1
 appVersion: "latest"
 
 keywords:
