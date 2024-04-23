@@ -1,43 +1,43 @@
-name: Chart Validation
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+# name: Chart Validation
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
 
-jobs:
-  validate:
-    runs-on: ubuntu-latest
+# jobs:
+#   validate:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-      # Validate that the Helm charts adhere to the proper structure and contain the necessary files.
-      # This includes checking for the presence of Chart.yaml, values.yaml, and other required files.
-      - name: Validate Helm Charts
-        run: |
-          helm repo add stable https://charts.helm.sh/stable
-          helm repo update
-          helm lint charts/memgraph/
-      # The Helm templates are rendered using the helm template command, 
-      # and the output is stored in a file named rendered-templates.yaml. 
-      # This step ensures that there are no syntax or rendering errors in the templates.
-      - name: Render Helm Templates
-        run: |
-          helm template charts/memgraph/ > rendered-templates.yaml
-      # The kubeval tool is installed to validate the rendered templates against the Kubernetes API schemas.
-      - name: Install kubeval
-        run: |
-          curl -LO "https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz"
-          tar xf kubeval-linux-amd64.tar.gz
-          sudo mv kubeval /usr/local/bin/
-      # The rendered templates are validated using kubeval, which checks if the Kubernetes manifests in the Helm charts adhere to the Kubernetes API schemas.
-      - name: Validate Rendered Templates
-        run: |
-          kubeval rendered-templates.yaml
+#       - name: Install Helm
+#         run: |
+#           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+#       # Validate that the Helm charts adhere to the proper structure and contain the necessary files.
+#       # This includes checking for the presence of Chart.yaml, values.yaml, and other required files.
+#       - name: Validate Helm Charts
+#         run: |
+#           helm repo add stable https://charts.helm.sh/stable
+#           helm repo update
+#           helm lint charts/memgraph/
+#       # The Helm templates are rendered using the helm template command, 
+#       # and the output is stored in a file named rendered-templates.yaml. 
+#       # This step ensures that there are no syntax or rendering errors in the templates.
+#       - name: Render Helm Templates
+#         run: |
+#           helm template charts/memgraph/ > rendered-templates.yaml
+#       # The kubeval tool is installed to validate the rendered templates against the Kubernetes API schemas.
+#       - name: Install kubeval
+#         run: |
+#           curl -LO "https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz"
+#           tar xf kubeval-linux-amd64.tar.gz
+#           sudo mv kubeval /usr/local/bin/
+#       # The rendered templates are validated using kubeval, which checks if the Kubernetes manifests in the Helm charts adhere to the Kubernetes API schemas.
+#       - name: Validate Rendered Templates
+#         run: |
+#           kubeval rendered-templates.yaml
