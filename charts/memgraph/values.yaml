@@ -4,7 +4,7 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-replicaCount: 1
+replicaCount: 1 # Can be increased to more but there is no replication or HA support in this chart.
 
 service:
   type: NodePort

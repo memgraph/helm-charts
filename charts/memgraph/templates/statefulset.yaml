@@ -28,17 +28,6 @@ spec:
       {{- end }}
     spec:
       securityContext:
-      volumes:
-      {{- if .Values.persistentVolumeClaim.storagePVC }}
-        - name: memgraph-lib-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-lib-storage
-      {{- end }}
-      {{- if .Values.persistentVolumeClaim.logPVC }}
-        - name: memgraph-log-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-log-storage
-      {{- end }}
       containers:
         - name: memgraph
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
