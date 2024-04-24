@@ -35,7 +35,7 @@ parameter | description | default
 
 The `memgraphConfig` parameter should be a list of strings defining the values of Memgraph configuration settings. For example, this is how you can define `memgraphConfig` parameter in your `values.yaml`:
 ```
-memgraphConfig: 
+memgraphConfig:
   - "--also-log-to-stderr=true"
   - "--log-level=TRACE"
 ```

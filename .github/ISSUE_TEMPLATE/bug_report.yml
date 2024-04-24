@@ -1,5 +1,5 @@
 name: Bug Report
-description: File a bug report 
+description: File a bug report
 title: "[Bug]: "
 labels: ["bug"]
 assignees:
@@ -34,7 +34,7 @@ body:
       options:
         - Standalone
     validations:
-      required: true      
+      required: true
   - type: dropdown
     id: version
     attributes:
@@ -57,7 +57,7 @@ body:
         - Microsoft Azure
         - My environment is not listed
     validations:
-      required: true        
+      required: true
   - type: textarea
     id: logs
     attributes:

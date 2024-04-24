@@ -5,8 +5,6 @@ Make sure your are connecting to the correct ip address of your instance. For de
 
 If you are connecting via mgconsole, you can use the following command:
 
-mgconsole --host <your-instance-ip> --port <your-instance-port> 
+mgconsole --host <your-instance-ip> --port <your-instance-port>
 
-If you are connecting via Lab, specify your instance ip address and port in Memgraph Lab GUI. 
-
-
+If you are connecting via Lab, specify your instance ip address and port in Memgraph Lab GUI.

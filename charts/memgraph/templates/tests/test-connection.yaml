@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: "{{ .Release.Name }}-memgraph-test"
-  labels: 
+  labels:
     {{- include "memgraph.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
@@ -11,11 +11,10 @@ spec:
     spec:
       containers:
       - name: memgraph-test
-        image: memgraph/memgraph:2.16.0  
+        image: memgraph/memgraph:2.16.0
         command: ["/bin/sh", "-c"]
         args:
           - |
             echo "RETURN 0;" | mgconsole --host {{ include "memgraph.fullname" . }} --port 7687
       restartPolicy: Never
   backoffLimit: 4
-  
