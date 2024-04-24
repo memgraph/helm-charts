@@ -18,3 +18,4 @@ spec:
             echo "RETURN 0;" | mgconsole --host {{ include "memgraph.fullname" . }} --port 7687
       restartPolicy: Never
   backoffLimit: 4
+  
