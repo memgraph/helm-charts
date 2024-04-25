@@ -38,6 +38,6 @@ Both types of fixes should be applied to the `main` branch.
 
 In order for a pull request to be merged, a review by two code owners is required and the tests need to pass remotely.
 
-## Contact 
+## Contact
 
-If you need help with contributing to the Memgraph Helm Charts Repository, join our [Discord server](https://discord.gg/memgraph) or contact us at <tech@memgraph.com>. 
+If you need help with contributing to the Memgraph Helm Charts Repository, join our [Discord server](https://discord.gg/memgraph) or contact us at <tech@memgraph.com>.
