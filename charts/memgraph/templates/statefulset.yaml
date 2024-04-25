@@ -28,17 +28,6 @@ spec:
       {{- end }}
     spec:
       securityContext:
-      volumes:
-      {{- if .Values.persistentVolumeClaim.storagePVC }}
-        - name: memgraph-lib-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-lib-storage
-      {{- end }}
-      {{- if .Values.persistentVolumeClaim.logPVC }}
-        - name: memgraph-log-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-log-storage
-      {{- end }}
       containers:
         - name: memgraph
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -58,10 +47,37 @@ spec:
           {{- end }}
           volumeMounts:
           {{- if .Values.persistentVolumeClaim.storagePVC }}
-            - name: memgraph-lib-storage
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
           {{- end }}
           {{- if .Values.persistentVolumeClaim.logPVC }}
-            - name: memgraph-log-storage
+            - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
+  volumeClaimTemplates:
+  {{- if .Values.persistentVolumeClaim.storagePVC }}
+  - metadata:
+      name: {{ include "memgraph.fullname" . }}-lib-storage
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      {{- if .Values.persistentVolumeClaim.storagePVCClassName }}
+      storageClassName: {{ .Values.persistentVolumeClaim.storagePVCClassName }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
+  {{- end }}
+  {{- if .Values.persistentVolumeClaim.logPVC }}
+  - metadata:
+      name: {{ include "memgraph.fullname" . }}-log-storage
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      {{- if .Values.persistentVolumeClaim.logPVCClassName }}
+      storageClassName: {{ .Values.persistentVolumeClaim.logPVCClassName }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
+  {{- end }}

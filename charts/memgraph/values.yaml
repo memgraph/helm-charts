@@ -4,6 +4,7 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
+# Can be increased to more but there is no replication or HA support in this chart.
 replicaCount: 1
 
 service:
@@ -14,8 +15,10 @@ service:
   annotations: {}
 
 persistentVolumeClaim:
+  storagePVCClassName: ""
   storagePVC: true
   storagePVCSize: 1Gi
+  logPVCClassName: ""
   logPVC: true
   logPVCSize: 256Mi
 
