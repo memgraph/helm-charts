@@ -52,5 +52,4 @@ Contributions are welcome! If you have any improvements, bug fixes, or new chart
 </p>
 
 ## License
-This repository is licensed under the [Apache 2.0 License](https://github.com/memgraph/helm-charts/blob/main/LICENSE). 
-
+This repository is licensed under the [Apache 2.0 License](https://github.com/memgraph/helm-charts/blob/main/LICENSE).
