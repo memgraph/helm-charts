@@ -64,7 +64,7 @@ spec:
       {{- if .Values.persistentVolumeClaim.storagePVCClassName }}
       storageClassName: {{ .Values.persistentVolumeClaim.storagePVCClassName }}
       {{- end }}
-      resources: 
+      resources:
         requests:
           storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
   {{- end }}
@@ -77,7 +77,7 @@ spec:
       {{- if .Values.persistentVolumeClaim.logPVCClassName }}
       storageClassName: {{ .Values.persistentVolumeClaim.logPVCClassName }}
       {{- end }}
-      resources: 
+      resources:
         requests:
           storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
   {{- end }}
