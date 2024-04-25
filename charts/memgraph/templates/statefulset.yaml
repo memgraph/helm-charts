@@ -31,7 +31,7 @@ spec:
       containers:
         - name: memgraph
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          args: 
+          args:
           {{- range .Values.memgraphConfig }}
           - {{ . | quote }}
           {{- end }}

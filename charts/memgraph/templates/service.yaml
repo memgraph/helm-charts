@@ -15,5 +15,5 @@ spec:
       targetPort: {{ .Values.service.targetPort}}
       protocol: {{ .Values.service.protocol }}
       name: bolt
-  selector: 
+  selector:
     {{- include "memgraph.selectorLabels" . | nindent 4 }}
