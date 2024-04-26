@@ -34,7 +34,7 @@ There are two main types of contributions:
 1. **Bug fixes**
 2. **New features**
 
-Both types of fixes should be applied to the `main` branch.
+Both types of fixes should be applied to the `release` branch, that is currently active based on the upcoming [milestone](https://github.com/memgraph/helm-charts/milestone/2) for example `release-0.1.3` branch.
 
 In order for a pull request to be merged, a review by two code owners is required and the tests need to pass remotely.
 
