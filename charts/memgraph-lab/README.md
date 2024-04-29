@@ -20,7 +20,7 @@ helm install <resource-name> memgraph/memgraph-lab -f values.yaml
 
 ## Configuration Options
 
-The following table lists the configurable parameters of the Memgraph chart and their default values.
+The following table lists the configurable parameters of the Memgraph Lab chart and their default values.
 
 | Parameter                    | Description                                                                                             | Default                                |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
@@ -39,15 +39,13 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `serviceAccount.annotations` | Annotations to add to the service account                                                               | `{}`                                   |
 | `serviceAccount.name`        | The name of the service account to use. If not set and create is true, a name is generated.             | `""`                                   |
 
-**Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
+Memgraph Lab can be further configured with environment variables in your `values.yaml` file.
 
 ```yaml
-resources:
-  limits:
-    cpu: "100m"
-    memory: "128Mi"
-  requests:
-    cpu: "100m"
-    memory: "128Mi"
-
+env: 
+  - name: QUICK_CONNECT_MG_HOST
+    value: memgraph
+  - name: QUICK_CONNECT_MG_PORT
+    value: "7687"
 ```
+Check all supported environemnt variables from the Memgraph website, [Data Visualization Section](https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables)
