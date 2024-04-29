@@ -48,7 +48,7 @@ env:
   - name: QUICK_CONNECT_MG_HOST
     value: memgraph
   - name: QUICK_CONNECT_MG_PORT
-    value: 7687
+    value: "7687"
 
 podSecurityContext: {}
   # fsGroup: 2000

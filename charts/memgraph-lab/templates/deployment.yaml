@@ -51,7 +51,7 @@ spec:
           env: 
             {{- range . }}
             - name: {{ .name }}
-              value: {{ .value }}
+              value: "{{ .value  }}"
             {{- end }}   
           {{- end }}
 
