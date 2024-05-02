@@ -1,0 +1,29 @@
+{{- range $index, $coord := .Values.memgraph.coordinators }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "memgraph.fullname" $ }}-coordinator-{{ $coord.id }}
+spec:
+  serviceName: {{ include "memgraph.fullname" $ }}-coordinator-{{ $coord.id }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "memgraph.fullname" $ }}-coordinator
+      coordinator-id: "{{ $coord.id }}"
+  template:
+    metadata:
+      labels:
+        app: {{ include "memgraph.fullname" $ }}-coordinator
+        coordinator-id: "{{ $coord.id }}"
+    spec:
+      containers:
+      - name: memgraph-coordinator-{{ $coord.id }}
+        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
+        imagePullPolicy: "{{ $.Values.memgraph.image.pullPolicy }}"
+        args: {{ toYaml $coord.args | nindent 10 }}
+        ports:
+        - name: coord-port
+          containerPort: {{ $coord.port }}
+...
+{{- end }}

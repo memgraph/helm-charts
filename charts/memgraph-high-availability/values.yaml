@@ -3,19 +3,57 @@
 # Declare variables to be passed into your templates.
 
 memgraph:
-  replicaCount: 3
   image:
     repository: memgraph/memgraph
+    tag: 2.16.0
     pullPolicy: IfNotPresent
-    tag: "2.16.0"
-  memgraphConfig:
-  - "--also-log-to-stderr=true"
-  service:
-    type: ClusterIP
-    port: 7687
-  persistentVolumeClaim:
-    storagePVC: true
-    logPVC: true
+
+
+  main:
+    memgraphConfig:
+    - "--experimental-enabled=high-availability"
+    - "--management-port=19001"
+    - "--bolt-port=7687"
+
+  replica:
+    memgraphConfig:
+    - "--experimental-enabled=high-availability"
+    - "--management-port=19002"
+    - "--bolt-port=7688"
+
+  coordinators:
+  - id: 1
+    port: 20001
+    args:
+    - "--experimental-enabled=high-availability"
+    - "--coordinator-id=1"
+    - "--coordinator-port=20001"
+  - id: 2
+    port: 20002
+    args:
+    - "--experimental-enabled=high-availability"
+    - "--coordinator-id=2"
+    - "--coordinator-port=20002"
+  - id: 3
+    port: 20003
+    args:
+    - "--experimental-enabled=high-availability"
+    - "--coordinator-id=3"
+    - "--coordinator-port=20003"
+
+
+
+# ha:
+#   main:
+#     args:
+#     - "--experimental-enabled=high-availability"
+#     - "--management-port=19001"
+#     - "--bolt-port=7687"
+#   replica:
+#     args:
+#     - "--experimental-enabled=high-availability"
+#     - "--management-port=19002"
+#     - "--bolt-port=7688"
 
 
 # replicaCount: 1

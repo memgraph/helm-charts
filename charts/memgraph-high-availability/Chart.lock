@@ -3,4 +3,4 @@ dependencies:
   repository: file://../memgraph
   version: 0.1.2
 digest: sha256:adc3cf9945b8b2cd9bfc23cb257bf0990fde78f12620d95f8955345f799d408c
-generated: "2024-04-30T14:15:55.895968+02:00"
+generated: "2024-05-02T14:40:10.824062+02:00"
