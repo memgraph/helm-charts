@@ -48,11 +48,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.env }}
-          env: 
+          env:
             {{- range . }}
             - name: {{ .name }}
               value: "{{ .value  }}"
-            {{- end }}   
+            {{- end }}
           {{- end }}
 
       {{- with .Values.nodeSelector }}

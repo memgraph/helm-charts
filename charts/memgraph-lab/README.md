@@ -42,7 +42,7 @@ The following table lists the configurable parameters of the Memgraph Lab chart 
 Memgraph Lab can be further configured with environment variables in your `values.yaml` file.
 
 ```yaml
-env: 
+env:
   - name: QUICK_CONNECT_MG_HOST
     value: memgraph
   - name: QUICK_CONNECT_MG_PORT

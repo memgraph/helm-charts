@@ -45,7 +45,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # Supported env variables: https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables
-env: 
+env:
   - name: QUICK_CONNECT_MG_HOST
     value: memgraph
   - name: QUICK_CONNECT_MG_PORT
