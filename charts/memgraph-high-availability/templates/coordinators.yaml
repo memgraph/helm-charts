@@ -21,6 +21,9 @@ spec:
         ports:
         - containerPort: {{ $coordinator.boltPort }}
         - containerPort: {{ $coordinator.coordinatorPort }}
-        args: {{ $coordinator.args }}
+        args:
+        {{- range $arg := $coordinator.args }}
+        - "{{ $arg }}"
+        {{- end }}
 ---
 {{- end }}

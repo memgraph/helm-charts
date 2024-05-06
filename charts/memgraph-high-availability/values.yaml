@@ -1,6 +1,6 @@
 # Default values for memgraph-high-availability.
 # This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Declare variables to be passed into your templates.|
 
 memgraph:
   image:
@@ -12,17 +12,21 @@ data:
 - id: "0"
   boltPort: 7687
   managementPort: 19001
-  memgraphConfig:
+  args:
   - "--experimental-enabled=high-availability"
   - "--management-port=19001"
   - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
 - id: "1"
   boltPort: 7688
   managementPort: 19002
-  memgraphConfig:
+  args:
   - "--experimental-enabled=high-availability"
   - "--management-port=19002"
   - "--bolt-port=7688"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
 
 coordinators:
 - id: "1"
@@ -33,6 +37,8 @@ coordinators:
   - "--coordinator-id=1"
   - "--coordinator-port=20001"
   - "--bolt-port=17687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
 - id: "2"
   boltPort: 17690
   coordinatorPort: 20002
@@ -41,6 +47,8 @@ coordinators:
   - "--coordinator-id=2"
   - "--coordinator-port=20002"
   - "--bolt-port=17690"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
 - id: "3"
   boltPort: 17691
   coordinatorPort: 20003
@@ -49,6 +57,8 @@ coordinators:
   - "--coordinator-id=3"
   - "--coordinator-port=20003"
   - "--bolt-port=17691"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
 
 
 

@@ -21,6 +21,9 @@ spec:
         ports:
         - containerPort: {{ $data.boltPort }}
         - containerPort: {{ $data.managementPort }}
-        args: {{ $data.memgraphConfig }}
+        args:
+        {{- range $arg := $data.args }}
+        - "{{ $arg }}"
+        {{- end }}
 ---
 {{- end }}
