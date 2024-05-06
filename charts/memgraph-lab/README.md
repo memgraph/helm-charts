@@ -1,5 +1,5 @@
-## Memgraph Lab Standalone Kubernetes Helm Chart
-A Helm Chart for deploying standalone Memgraph Lab on Kubernetes.
+## Memgraph Lab Kubernetes Helm Chart
+A Helm Chart for deploying Memgraph Lab on Kubernetes.
 
 ## Installing the Memgraph Lab Helm Chart
 To install the Memgraph Lab Helm Chart, follow the steps below:
@@ -11,7 +11,7 @@ Replace `<release-name>` with a name of your choice for the release.
 ## Changing the default chart values
 To change the default chart values, run the command with the specified set of flags:
 ```
-helm install <resource-name> memgraph/memgraph --set <flag1>=<value1>,<flag2>=<value2>,...
+helm install <resource-name> memgraph/memgraph-lab --set <flag1>=<value1>,<flag2>=<value2>,...
 ```
 Or you can modify a `values.yaml` file and override the desired values:
 ```
@@ -48,4 +48,4 @@ env:
   - name: QUICK_CONNECT_MG_PORT
     value: "7687"
 ```
-Check all supported environemnt variables from the Memgraph website, [Data Visualization Section](https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables)
+Check all supported environment variables from the Memgraph website, [Data Visualization Section](https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables)
