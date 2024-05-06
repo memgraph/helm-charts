@@ -1,0 +1,23 @@
+apiVersion: v2
+name: memgraph-lab
+home: https://memgraph.com/
+type: application
+# Chart version, should be incremented each time the chart changes, including appVersion.
+version: 0.1.0
+# Version number of the docker image memgraph/lab.
+# Use it with quotes.
+appVersion: "2.13.0"
+description: Memgraph Lab Helm Chart
+keywords:
+- graph
+- database
+- cypher
+- analytics
+icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+sources:
+- https://github.com/memgraph/memgraph
+maintainers:
+- name: Memgraph
+  email: tech@memgraph.com
+- name: Phong Nguyen
+  email: tewnut@gmail.com
