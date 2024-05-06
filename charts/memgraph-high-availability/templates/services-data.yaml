@@ -1,0 +1,20 @@
+# Service for data instances
+{{- range .Values.data }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-data-{{ .id }}
+spec:
+  selector:
+    app: memgraph-data-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ .boltPort }}
+      targetPort: {{ .boltPort }}
+    - protocol: TCP
+      name: management
+      port: {{ .managementPort }}
+      targetPort: {{ .managementPort }}
+{{- end }}

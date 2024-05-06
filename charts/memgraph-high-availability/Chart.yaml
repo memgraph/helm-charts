@@ -5,11 +5,6 @@ description: A Helm chart for Kubernetes with Memgraph High availabiliy capabili
 version: 0.1.0
 appVersion: "2.16.0"
 
-dependencies:
-- name: memgraph
-  version: 0.1.2
-  repository: "file://../memgraph"
-
 type: application
 
 keywords:

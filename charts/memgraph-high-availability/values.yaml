@@ -8,38 +8,47 @@ memgraph:
     tag: 2.16.0
     pullPolicy: IfNotPresent
 
+data:
+- id: "0"
+  boltPort: 7687
+  managementPort: 19001
+  memgraphConfig:
+  - "--experimental-enabled=high-availability"
+  - "--management-port=19001"
+  - "--bolt-port=7687"
+- id: "1"
+  boltPort: 7688
+  managementPort: 19002
+  memgraphConfig:
+  - "--experimental-enabled=high-availability"
+  - "--management-port=19002"
+  - "--bolt-port=7688"
 
-  main:
-    memgraphConfig:
-    - "--experimental-enabled=high-availability"
-    - "--management-port=19001"
-    - "--bolt-port=7687"
-
-  replica:
-    memgraphConfig:
-    - "--experimental-enabled=high-availability"
-    - "--management-port=19002"
-    - "--bolt-port=7688"
-
-  coordinators:
-  - id: 1
-    port: 20001
-    args:
-    - "--experimental-enabled=high-availability"
-    - "--coordinator-id=1"
-    - "--coordinator-port=20001"
-  - id: 2
-    port: 20002
-    args:
-    - "--experimental-enabled=high-availability"
-    - "--coordinator-id=2"
-    - "--coordinator-port=20002"
-  - id: 3
-    port: 20003
-    args:
-    - "--experimental-enabled=high-availability"
-    - "--coordinator-id=3"
-    - "--coordinator-port=20003"
+coordinators:
+- id: "1"
+  boltPort: 17687
+  coordinatorPort: 20001
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=1"
+  - "--coordinator-port=20001"
+  - "--bolt-port=17687"
+- id: "2"
+  boltPort: 17690
+  coordinatorPort: 20002
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=2"
+  - "--coordinator-port=20002"
+  - "--bolt-port=17690"
+- id: "3"
+  boltPort: 17691
+  coordinatorPort: 20003
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=3"
+  - "--coordinator-port=20003"
+  - "--bolt-port=17691"
 
 
 

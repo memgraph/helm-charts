@@ -1,0 +1,26 @@
+{{- range $index, $data := .Values.data }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: memgraph-data-{{ $data.id }}
+spec:
+  serviceName: "memgraph-data-{{ $data.id }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memgraph-data-{{ $data.id }}
+  template:
+    metadata:
+      labels:
+        app: memgraph-data-{{ $data.id }}
+    spec:
+      containers:
+      - name: memgraph-data
+        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
+        imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $data.boltPort }}
+        - containerPort: {{ $data.managementPort }}
+        args: {{ $data.memgraphConfig }}
+---
+{{- end }}

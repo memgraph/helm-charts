@@ -1,0 +1,20 @@
+# Service for coordinator instances
+{{- range .Values.coordinators }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-coordinator-{{ .id }}
+spec:
+  selector:
+    app: memgraph-coordinator-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ .boltPort }}
+      targetPort: {{ .boltPort }}
+    - protocol: TCP
+      name: coordinator
+      port: {{ .coordinatorPort }}
+      targetPort: {{ .coordinatorPort }}
+{{- end }}
