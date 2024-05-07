@@ -7,6 +7,9 @@ memgraph:
     repository: memgraph/memgraph
     tag: 2.16.0
     pullPolicy: IfNotPresent
+  env:
+    MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
+    MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
 
 data:
 - id: "0"
