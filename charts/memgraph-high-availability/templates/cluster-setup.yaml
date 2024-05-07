@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: memgraph-setup
-        image: memgraph/memgraph:latest
+        image: memgraph/memgraph:2.16.0
         command: ["/bin/bash", "-c"]
         args:
         - |
@@ -27,6 +27,12 @@ spec:
 
           # Run the mgconsole commands
           echo "Running mgconsole commands..."
+          echo 'RETURN 0;' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
+          echo 'RETURN 0;' | mgconsole --host memgraph-coordinator-2.default.svc.cluster.local --port 17690
+          echo 'RETURN 0;' | mgconsole --host memgraph-coordinator-3.default.svc.cluster.local --port 17691
+          echo 'RETURN 0;' | mgconsole --host memgraph-data-0.default.svc.cluster.local --port 7687
+          echo 'RETURN 0;' | mgconsole --host memgraph-data-1.default.svc.cluster.local --port 7688
+
           echo 'ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "memgraph-coordinator-2.default.svc.cluster.local:17690", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:20002"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
           echo 'ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "memgraph-coordinator-3.default.svc.cluster.local:17691", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:20003"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
           echo 'REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "memgraph-data-0.default.svc.cluster.local:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:19001", "replication_server": "memgraph-data-0.default.svc.cluster.local:18001"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
