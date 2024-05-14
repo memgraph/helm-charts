@@ -20,6 +20,23 @@ memgraph:
     liveness:
       initialDelaySeconds: 30
       periodSeconds: 10
+  data:
+    volumeClaim:
+      storagePVCClassName: ""
+      storagePVC: true
+      storagePVCSize: "1Gi"
+      logPVCClassName: ""
+      logPVC: false
+      logPVCSize: "256Mi"
+  coordinators:
+    volumeClaim:
+      storagePVCClassName: ""
+      storagePVC: true
+      storagePVCSize: "1Gi"
+      logPVCClassName: ""
+      logPVC: false
+      logPVCSize: "256Mi"
+
 
 
 data:
@@ -34,6 +51,7 @@ data:
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
+
 - id: "1"
   boltPort: 7688
   managementPort: 19002
