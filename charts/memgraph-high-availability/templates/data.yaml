@@ -31,5 +31,29 @@ spec:
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
         - name: MEMGRAPH_ORGANIZATION_NAME
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ORGANIZATION_NAME }}"
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+          initialDelaySeconds: {{ $.Values.memgraph.probes.liveness.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.memgraph.probes.liveness.periodSeconds }}
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+          initialDelaySeconds: {{ $.Values.memgraph.probes.readiness.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.memgraph.probes.readiness.periodSeconds }}
+        startupProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+          failureThreshold: {{ $.Values.memgraph.probes.startup.failureThreshold }}
+          periodSeconds: {{ $.Values.memgraph.probes.startup.periodSeconds }}
 ---
 {{- end }}

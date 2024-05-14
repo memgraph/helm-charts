@@ -10,6 +10,17 @@ memgraph:
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
     MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
+  probes:
+    startup:
+      failureThreshold: 30
+      periodSeconds: 10
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    liveness:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
 
 data:
 - id: "0"
