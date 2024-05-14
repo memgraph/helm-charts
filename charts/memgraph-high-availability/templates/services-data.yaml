@@ -17,4 +17,8 @@ spec:
       name: management
       port: {{ .managementPort }}
       targetPort: {{ .managementPort }}
+    - protocol: TCP
+      name: replication
+      port: {{ .replicationPort }}
+      targetPort: {{ .replicationPort }}
 {{- end }}

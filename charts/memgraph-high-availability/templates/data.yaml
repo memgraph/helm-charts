@@ -21,6 +21,7 @@ spec:
         ports:
         - containerPort: {{ $data.boltPort }}
         - containerPort: {{ $data.managementPort }}
+        - containerPort: {{ $data.replicationPort }}
         args:
         {{- range $arg := $data.args }}
         - "{{ $arg }}"

@@ -15,15 +15,16 @@ spec:
           echo "Installing netcat..."
           apt-get update && apt-get install -y netcat-openbsd
 
-          # Wait until the services are available
-          echo "Waiting for services to become available..."
+          # Wait until the pods are available
+          echo "Waiting for pods to become available..."
           until nc -z memgraph-coordinator-1.default.svc.cluster.local 17687; do sleep 1; done
           until nc -z memgraph-coordinator-2.default.svc.cluster.local 17690; do sleep 1; done
           until nc -z memgraph-coordinator-3.default.svc.cluster.local 17691; do sleep 1; done
           until nc -z memgraph-data-0.default.svc.cluster.local 7687; do sleep 1; done
           until nc -z memgraph-data-1.default.svc.cluster.local 7688; do sleep 1; done
+          echo "Services are available!"
 
-          sleep 10
+          sleep 5
 
           # Run the mgconsole commands
           echo "Running mgconsole commands..."
@@ -32,6 +33,7 @@ spec:
           echo 'RETURN 0;' | mgconsole --host memgraph-coordinator-3.default.svc.cluster.local --port 17691
           echo 'RETURN 0;' | mgconsole --host memgraph-data-0.default.svc.cluster.local --port 7687
           echo 'RETURN 0;' | mgconsole --host memgraph-data-1.default.svc.cluster.local --port 7688
+
 
           echo 'ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "memgraph-coordinator-2.default.svc.cluster.local:17690", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:20002"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
           echo 'ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "memgraph-coordinator-3.default.svc.cluster.local:17691", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:20003"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 17687
