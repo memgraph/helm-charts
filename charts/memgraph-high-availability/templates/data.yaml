@@ -36,7 +36,7 @@ spec:
             command:
             - sh
             - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
           initialDelaySeconds: {{ $.Values.memgraph.probes.liveness.initialDelaySeconds }}
           periodSeconds: {{ $.Values.memgraph.probes.liveness.periodSeconds }}
         readinessProbe:
@@ -44,7 +44,7 @@ spec:
             command:
             - sh
             - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
           initialDelaySeconds: {{ $.Values.memgraph.probes.readiness.initialDelaySeconds }}
           periodSeconds: {{ $.Values.memgraph.probes.readiness.periodSeconds }}
         startupProbe:
@@ -52,7 +52,7 @@ spec:
             command:
             - sh
             - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }} | grep '+-*+\n| 0  |'
+            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
           failureThreshold: {{ $.Values.memgraph.probes.startup.failureThreshold }}
           periodSeconds: {{ $.Values.memgraph.probes.startup.periodSeconds }}
 ---
