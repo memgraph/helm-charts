@@ -5,7 +5,7 @@
 memgraph:
   image:
     repository: memgraph
-    tag: 2.16.0_65_bdff2fefa
+    tag: 2.16.0_73_535a6abea
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -23,7 +23,7 @@ memgraph:
   data:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: true
+      storagePVC: false
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false
@@ -31,7 +31,7 @@ memgraph:
   coordinators:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: true
+      storagePVC: false
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false
@@ -42,59 +42,59 @@ memgraph:
 data:
 - id: "0"
   boltPort: 7687
-  managementPort: 19001
-  replicationPort: 18001
+  managementPort: 10000
+  replicationPort: 20000
   args:
   - "--experimental-enabled=high-availability"
-  - "--management-port=19001"
+  - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
 
 - id: "1"
-  boltPort: 7688
-  managementPort: 19002
-  replicationPort: 18002
+  boltPort: 7687
+  managementPort: 10000
+  replicationPort: 20000
   args:
   - "--experimental-enabled=high-availability"
-  - "--management-port=19002"
-  - "--bolt-port=7688"
+  - "--management-port=10000"
+  - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
 
 coordinators:
 - id: "1"
-  boltPort: 17687
-  coordinatorPort: 20001
+  boltPort: 7687
+  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=1"
-  - "--coordinator-port=20001"
-  - "--bolt-port=17687"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
 - id: "2"
-  boltPort: 17690
-  coordinatorPort: 20002
+  boltPort: 7687
+  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=2"
-  - "--coordinator-port=20002"
-  - "--bolt-port=17690"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
 - id: "3"
-  boltPort: 17691
-  coordinatorPort: 20003
+  boltPort: 7687
+  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=3"
-  - "--coordinator-port=20003"
-  - "--bolt-port=17691"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
