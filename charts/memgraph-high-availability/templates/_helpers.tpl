@@ -30,3 +30,15 @@ helm.sh/chart: {{ include "memgraph.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "memgraph.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "memgraph.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
