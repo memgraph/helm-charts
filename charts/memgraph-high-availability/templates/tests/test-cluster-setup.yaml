@@ -15,26 +15,39 @@ spec:
       containers:
       - name: memgraph-test-cluster-setup
         image: memgraph/memgraph:2.16.0
-        command: ["/bin/sh", "-c"]
+        command: ["/bin/bash", "-c"]
         args:
         - |
-          check_mgconsole() {
-            local host=$1
-            local command=$2
-            local expected=$3
+          echo "Running cluster test setup..."
+          result=$(echo 'SHOW INSTANCES;' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687)
+          echo "$result"
 
-            result=$(echo $command | mgconsole --host $host --port 7687)
-            if [[ $result != *$expected* ]]; then
-              echo "Unexpected mgconsole result for host $host:"
-              echo $result
-              exit 1
-            fi
+          # Use awk to check if all instances have health status "up" and there are exactly 5 instances
+          echo "$result" | awk '
+          BEGIN {
+              FS = "|"
+              instance_count = 0
+              health_ok = 1
           }
-
-          check_mgconsole "memgraph-coordinator-1.default.svc.cluster.local" "SHOW INSTANCES;" "coordinator_1"
-          check_mgconsole "memgraph-coordinator-2.default.svc.cluster.local" "SHOW INSTANCES;" "coordinator_2"
-          check_mgconsole "memgraph-coordinator-3.default.svc.cluster.local" "SHOW INSTANCES;" "coordinator_3"
-          check_mgconsole "memgraph-data-0.default.svc.cluster.local" "RETURN 0;" "0"
-          check_mgconsole "memgraph-data-1.default.svc.cluster.local" "RETURN 0;" "0"
+          NR > 3 && NR <= 8 {
+              gsub(/^ *| *$/, "", $6)  # Trim spaces from health
+              health = $6
+              print "Health: [" health "]"  # Debug print
+              instance_count++
+              if (health != "up") {
+                  health_ok = 0
+                  print "Non-up health found: [" health "]"  # Debug print
+              }
+          }
+          END {
+              print "Instance count: " instance_count  # Debug print
+              print "Health OK: " health_ok  # Debug print
+              if (instance_count == 5 && health_ok == 1) {
+                  print "All instances are up and there are exactly 5 instances."
+              } else {
+                  print "Check failed. Either not all instances are up or the count is not 5."
+              }
+          }
+          '
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 3

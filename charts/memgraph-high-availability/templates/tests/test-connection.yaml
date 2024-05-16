@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Release.Name }}-memgraph-test"
+  name: "{{ .Release.Name }}-memgraph-test-connection"
   labels:
     {{- include "memgraph.labels" . | nindent 4 }}
   annotations:
@@ -15,6 +15,15 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo "RETURN 0;" | mgconsole --host {{ include "memgraph.fullname" . }} --port 7687
+            echo "Running connection test on data instances..."
+            echo "RETURN 0;" | mgconsole --host memgraph-data-0.default.svc.cluster.local --port 7687
+            echo "RETURN 0;" | mgconsole --host memgraph-data-1.default.svc.cluster.local --port 7687
+
+            echo "Running a connection test on coordinator instances..."
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-2.default.svc.cluster.local --port 7687
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-3.default.svc.cluster.local --port 7687
+
+
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 3
