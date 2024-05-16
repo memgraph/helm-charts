@@ -1,0 +1,43 @@
+# Service for data instances internal
+{{- range .Values.data }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-data-{{ .id }}
+spec:
+  type: ClusterIP
+  selector:
+    app: memgraph-data-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ .boltPort }}
+      targetPort: {{ .boltPort }}
+    - protocol: TCP
+      name: management
+      port: {{ .managementPort }}
+      targetPort: {{ .managementPort }}
+    - protocol: TCP
+      name: replication
+      port: {{ .replicationPort }}
+      targetPort: {{ .replicationPort }}
+{{- end }}
+
+# Service for data instances external
+{{- range .Values.data }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-data-{{ .id }}-external
+spec:
+  type: NodePort
+  selector:
+    app: memgraph-data-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ .boltPort }}
+      targetPort: {{ .boltPort }}
+{{- end }}
