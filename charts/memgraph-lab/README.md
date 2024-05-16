@@ -48,4 +48,4 @@ env:
   - name: QUICK_CONNECT_MG_PORT
     value: "7687"
 ```
-Check all supported environment variables from the Memgraph website, [Data Visualization Section](https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables)
+Check all supported environment variables from the Memgraph website, [Data Visualization Section](https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables).
