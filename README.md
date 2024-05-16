@@ -9,6 +9,7 @@ Welcome to the Memgraph Helm Charts repository. This repository provides Helm ch
 ## Available charts
 - [**Memgraph standalone**](#memgraph-standalone)
 - [**Memgraph Lab**](#memgraph-lab)
+- [**Memgraph high availability](#memgraph-high-availability)
 
 ## Prerequisites
 Helm version 3 or above installed.
@@ -58,6 +59,25 @@ Replace `my-release` with a name of your choice for the release.
 Refer to the [Data visualization in Memgraph Lab](https://memgraph.com/docs/data-visualization) for details on how to connect to and interact with Memgraph.
 
 To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgrade` or `helm uninstall` commands, respectively. Refer to the [Helm documentation](https://helm.sh/docs/) for more details on these commands.
+
+
+## Memgraph high availability
+Deploys high available Memgraph cluster, that includes two data instances and three coordinators.
+
+For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph/README.md).
+
+To install Memgraph standalone, run the following command:
+
+```
+helm install my-release memgraph/memgraph-high-availability --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>
+```
+Replace `my-release` with a name of your choice for the release.
+
+
+Once Memgraph cluster is up and running, you can access it using the provided services and endpoints. Refer to the [Memgraph documentation](https://memgraph.com/docs/memgraph/connect-to-memgraph) for details on how to connect to and interact with Memgraph.
+
+To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgrade` or `helm uninstall` commands, respectively. Refer to the [Helm documentation](https://helm.sh/docs/) for more details on these commands.
+
 
 ## Contributing
 Contributions are welcome! If you have any improvements, bug fixes, or new charts to add, please follow the contribution guidelines outlined in the [`CONTRIBUTING.md`](https://github.com/memgraph/helm-charts/blob/main/CONTRIBUTING.md) file. If you have questions and are unsure of how to contribute, please join our Discord server to get in touch with us.

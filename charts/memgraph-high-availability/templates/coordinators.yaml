@@ -1,0 +1,116 @@
+{{- range $index, $coordinator := .Values.coordinators }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: memgraph-coordinator-{{ $coordinator.id }}
+spec:
+  serviceName: "memgraph-coordinator-{{ $coordinator.id }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memgraph-coordinator-{{ $coordinator.id }}
+  template:
+    metadata:
+      labels:
+        app: memgraph-coordinator-{{ $coordinator.id }}
+    spec:
+      initContainers:
+      - name: init
+        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
+        volumeMounts:
+        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
+        - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
+          mountPath: /var/lib/memgraph
+        {{- end }}
+        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
+        - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
+          mountPath: /var/log/memgraph
+        {{- end }}
+        command: [ "/bin/sh","-c" ]
+        args: [ "chown -R memgraph:memgraph /var/log; chown -R memgraph:memgraph /var/lib" ]
+        securityContext:
+          privileged: true
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ "all" ]
+            add: [ "CHOWN" ]
+          runAsUser: 0
+          runAsNonRoot: false
+      containers:
+      - name: memgraph-coordinator
+        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
+        imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $coordinator.boltPort }}
+        - containerPort: {{ $coordinator.coordinatorPort }}
+        args:
+        {{- range $arg := $coordinator.args }}
+        - "{{ $arg }}"
+        {{- end }}
+        env:
+        - name: MEMGRAPH_ENTERPRISE_LICENSE
+          value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
+        - name: MEMGRAPH_ORGANIZATION_NAME
+          value: "{{ $.Values.memgraph.env.MEMGRAPH_ORGANIZATION_NAME }}"
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
+          initialDelaySeconds: {{ $.Values.memgraph.probes.liveness.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.memgraph.probes.liveness.periodSeconds }}
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
+          initialDelaySeconds: {{ $.Values.memgraph.probes.readiness.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.memgraph.probes.readiness.periodSeconds }}
+        startupProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
+          failureThreshold: {{ $.Values.memgraph.probes.startup.failureThreshold }}
+          periodSeconds: {{ $.Values.memgraph.probes.startup.periodSeconds }}
+        volumeMounts:
+        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
+          - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
+            mountPath: /var/lib/memgraph
+        {{- end }}
+        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC}}
+          - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
+            mountPath: /var/log/memgraph
+        {{- end }}
+  volumeClaimTemplates:
+    {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
+    - metadata:
+        name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVCClassName }}
+        storageClassName: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCSize }}
+    {{- end }}
+    {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
+    - metadata:
+        name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVCClassName }}
+        storageClassName: {{ $.Values.memgraph.coordinators.volumeClaim.logPVCClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVC.logPVCSize }}
+    {{- end }}
+---
+{{- end }}
