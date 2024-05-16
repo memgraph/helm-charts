@@ -4,8 +4,8 @@
 
 memgraph:
   image:
-    repository: memgraph
-    tag: 2.16.0_72_437f6f0b7
+    repository: memgraph/memgraph
+    tag: 2.17.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -23,7 +23,7 @@ memgraph:
   data:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: false
+      storagePVC: true
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false
@@ -31,7 +31,7 @@ memgraph:
   coordinators:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: false
+      storagePVC: true
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false

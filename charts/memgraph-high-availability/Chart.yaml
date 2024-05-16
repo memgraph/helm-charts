@@ -3,7 +3,7 @@ name: memgraph-high-availability
 description: A Helm chart for Kubernetes with Memgraph High availabiliy capabilites
 
 version: 0.1.0
-appVersion: "2.16.0"
+appVersion: "2.17.0"
 
 type: application
 
