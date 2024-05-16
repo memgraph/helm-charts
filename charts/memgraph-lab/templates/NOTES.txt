@@ -23,4 +23,4 @@ Thank you for installing Memgraph Lab! 🎉
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
 
-2. Specify your MemgraphDB instance ip address and port in Memgraph Lab GUI.
+2. Specify your MemgraphDB instance IP address and port in Memgraph Lab GUI.
