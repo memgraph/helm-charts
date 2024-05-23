@@ -1,0 +1,15 @@
+Thank you for installing the Memgraph High-availability cluster! 🎉
+
+Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job. The HA cluster is still work in progress and started with "--experimental-enabled=high-availability".
+The cluster is started in the configuration without the node selector, which means that in the current configuration, it is not highly available if the node fails.
+
+The cluster setup requires the proper enterprise license to work since HA is an enterprise feature.
+
+You can connect to Memgraph instances via Lab, mgconsole, or any other client. By default, all Memgraph instances (coordinators and data instances) listen on port 7687 for a bolt connection.
+Make sure your are connecting to the correct ip address and port. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
+
+If you are connecting via mgconsole, you can use the following command:
+
+mgconsole --host <your-instance-ip> --port <your-instance-port>
+
+If you are connecting via Lab, specify your instance IP address and port in Memgraph Lab GUI.

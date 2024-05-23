@@ -1,0 +1,39 @@
+# Service for coordinator instances internal
+{{- range .Values.coordinators }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-coordinator-{{ .id }}
+spec:
+  type: ClusterIP
+  selector:
+    app: memgraph-coordinator-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ .boltPort }}
+      targetPort: {{ .boltPort }}
+    - protocol: TCP
+      name: coordinator
+      port: {{ .coordinatorPort }}
+      targetPort: {{ .coordinatorPort }}
+{{- end }}
+
+# Service for coordinators instances external
+{{- range .Values.coordinators }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-coordinator-{{ .id }}-external
+spec:
+  type: NodePort
+  selector:
+    app: memgraph-coordinator-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: 7687
+      targetPort: 7687
+{{- end }}

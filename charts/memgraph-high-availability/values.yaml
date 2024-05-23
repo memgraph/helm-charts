@@ -1,0 +1,100 @@
+# Default values for memgraph-high-availability.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.|
+
+memgraph:
+  image:
+    repository: memgraph/memgraph
+    tag: 2.17.0
+    pullPolicy: IfNotPresent
+  env:
+    MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
+    MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
+  probes:
+    startup:
+      failureThreshold: 30
+      periodSeconds: 10
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    liveness:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  data:
+    volumeClaim:
+      storagePVCClassName: ""
+      storagePVC: true
+      storagePVCSize: "1Gi"
+      logPVCClassName: ""
+      logPVC: false
+      logPVCSize: "256Mi"
+  coordinators:
+    volumeClaim:
+      storagePVCClassName: ""
+      storagePVC: true
+      storagePVCSize: "1Gi"
+      logPVCClassName: ""
+      logPVC: false
+      logPVCSize: "256Mi"
+
+
+
+data:
+- id: "0"
+  boltPort: 7687
+  managementPort: 10000
+  replicationPort: 20000
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--management-port=10000"
+  - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
+  - "--replication-restore-state-on-startup=true"
+
+- id: "1"
+  boltPort: 7687
+  managementPort: 10000
+  replicationPort: 20000
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--management-port=10000"
+  - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
+  - "--replication-restore-state-on-startup=true"
+
+coordinators:
+- id: "1"
+  boltPort: 7687
+  coordinatorPort: 12000
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=1"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
+  - "--replication-restore-state-on-startup=true"
+- id: "2"
+  boltPort: 7687
+  coordinatorPort: 12000
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=2"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
+  - "--replication-restore-state-on-startup=true"
+- id: "3"
+  boltPort: 7687
+  coordinatorPort: 12000
+  args:
+  - "--experimental-enabled=high-availability"
+  - "--coordinator-id=3"
+  - "--coordinator-port=12000"
+  - "--bolt-port=7687"
+  - "--also-log-to-stderr"
+  - "--log-level=TRACE"
+  - "--replication-restore-state-on-startup=true"
