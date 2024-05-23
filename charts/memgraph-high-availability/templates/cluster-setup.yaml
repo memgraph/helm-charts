@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: memgraph-setup
-        image: memgraph/memgraph:2.16.0
+        image: memgraph/memgraph:2.17.0
         command: ["/bin/bash", "-c"]
         args:
         - |
