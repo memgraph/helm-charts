@@ -67,4 +67,55 @@ entries:
     urls:
     - https://github.com/memgraph/helm-charts/releases/download/memgraph-0.1.0/memgraph-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-25T12:54:43.31147599Z"
+  memgraph-high-availability:
+  - apiVersion: v2
+    appVersion: 2.17.0
+    created: "2024-05-23T09:44:03.45462331Z"
+    description: A Helm chart for Kubernetes with Memgraph High availabiliy capabilites
+    digest: 984cbae90a0d21e8d87827279aacb96942880b90ef187d7e57df2d1a235d1e58
+    home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    keywords:
+    - memgraph
+    - graph
+    - database
+    - cypher
+    - analytics
+    - high-availability
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    name: memgraph-high-availability
+    sources:
+    - https://github.com/memgraph/memgraph
+    - https://github.com/memgraph/helm-charts
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-high-availability-0.1.0/memgraph-high-availability-0.1.0.tgz
+    version: 0.1.0
+  memgraph-lab:
+  - apiVersion: v2
+    appVersion: 2.13.0
+    created: "2024-05-23T09:44:03.584731385Z"
+    description: Memgraph Lab Helm Chart
+    digest: 1a1e880302707c6d92922097a2e0339e156434143065afc011de0c9774896efc
+    home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    keywords:
+    - graph
+    - database
+    - cypher
+    - analytics
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    - email: tewnut@gmail.com
+      name: Phong Nguyen
+    name: memgraph-lab
+    sources:
+    - https://github.com/memgraph/memgraph
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-lab-0.1.0/memgraph-lab-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-05-23T09:44:03.584743698Z"
