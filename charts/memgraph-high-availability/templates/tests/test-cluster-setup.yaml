@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-memgraph-test-cluster-setup"
+  labels:
+    {{- include "memgraph.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  template:
+    metadata:
+      labels:
+        app: memgraph
+    spec:
+      containers:
+      - name: memgraph-test-cluster-setup
+        image: memgraph/memgraph:2.17.0
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "Running cluster test setup..."
+          result=$(echo 'SHOW INSTANCES;' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687)
+          echo "$result"
+
+          # Use awk to check if all instances have health status "up" and there are exactly 5 instances
+          echo "$result" | awk '
+          BEGIN {
+              FS = "|"
+              instance_count = 0
+              health_ok = 1
+          }
+          NR > 3 && NR <= 8 {
+              gsub(/^ *| *$/, "", $6)  # Trim spaces from health
+              health = $6
+              print "Health: [" health "]"  # Debug print
+              instance_count++
+              if (health != "up") {
+                  health_ok = 0
+                  print "Non-up health found: [" health "]"  # Debug print
+              }
+          }
+          END {
+              print "Instance count: " instance_count  # Debug print
+              print "Health OK: " health_ok  # Debug print
+              if (instance_count == 5 && health_ok == 1) {
+                  print "All instances are up and there are exactly 5 instances."
+              } else {
+                  print "Check failed. Either not all instances are up or the count is not 5."
+              }
+          }
+          '
+      restartPolicy: Never
+  backoffLimit: 3

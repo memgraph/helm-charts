@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-memgraph-test-connection"
+  labels:
+    {{- include "memgraph.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  template:
+    spec:
+      containers:
+      - name: memgraph-test
+        image: memgraph/memgraph:2.17.0
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Running connection test on data instances..."
+            echo "RETURN 0;" | mgconsole --host memgraph-data-0.default.svc.cluster.local --port 7687
+            echo "RETURN 0;" | mgconsole --host memgraph-data-1.default.svc.cluster.local --port 7687
+
+            echo "Running a connection test on coordinator instances..."
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-2.default.svc.cluster.local --port 7687
+            echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-3.default.svc.cluster.local --port 7687
+
+
+      restartPolicy: Never
+  backoffLimit: 3
