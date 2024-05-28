@@ -66,5 +66,7 @@ The `memgraphConfig` parameter should be a list of strings defining the values o
 memgraphConfig:
   - "--also-log-to-stderr=true"
   - "--log-level=TRACE"
+  - "--log-file=''"
+
 ```
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

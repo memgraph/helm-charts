@@ -1,29 +1,71 @@
 image:
-  repository: memgraph/memgraph
+  repository: memgraph/memgraph-mage
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
   tag: ""
   pullPolicy: IfNotPresent
 
-# Can be increased to more but there is no replication or HA support in this chart.
+## Image Secrets for custom images
+imagePullSecrets: [{ name: regcred }]
+
 replicaCount: 1
 
+## Node Affinity Preferred
+# By setting theses parameters the PREFERRED deployment will be done first on the match LABELS with key and value then on other nodes.
+# nodeKey: "nodegroup" give the name of a key
+# Operator is In
+# nodeAffinity: "memgraph" give the value of the key
+
+nodeKey:
+nodeAffinity:
+
 service:
-  type: NodePort
+  ## ClusterIP, NodePort, LoadBalancer
+  # ClusterIP keep the service inside the cluster makes it secure
+  # NodePort would create a external port change port: between 30000-32767 accessible to all the nodes and Public IPs if not in a VPC
+  # LoadBalancer is compabile with Cloud Providers on port: 80 without SSL redirected to the 7687
+  type: ClusterIP
   port: 7687
   targetPort: 7687
   protocol: TCP
   annotations: {}
-
+  
 persistentVolumeClaim:
-  storagePVCClassName: ""
-  storagePVC: true
-  storagePVCSize: 1Gi
-  logPVCClassName: ""
-  logPVC: true
-  logPVCSize: 256Mi
+  ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim
+  ## `false` will let you choose an existing Persistant Volume Claim or will create one with an existing volume
+  createStorageClaim: false
+  ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume
+  ## If you use a Storage Class Name with policy `delete` the Persistant Volume Claim and Volume will be deleted when the helm release is deleted
+  storageClassName: retain
+  ## Storage Size must me at minimum 4x the maximum size of your Dataset for Snapshots 
+  ## See documentation for choosing the right size depending on the number of Snapshots you want to keep
+  ## Default is 3 snapshots and you need space to create a new one and WAL files
+  storageSize: 500Gi
+  
+  ## if `createStoragePVC` is `false`
+  ## Write the name and exising Persistant Volume Claim
+  existingClaim: memgraph-0
+  ## If you want to create a Persistant Volume Claim for an existing Volume
+  storageVolumeName: 
+  # storageVolumeName: pvc-fc30d4e1-c036-4702-9692-32a1235bdfc3 #sn15-1
+  
+  ## Create a Dynamic Persistant Volume Claim for Logs
+  # `false` will only write logs to stdout / stderr
+  createLogStorage: false
+  logStorageClassName: ""
+  logStorageSize: 256Mi
 
 memgraphConfig:
 - "--also-log-to-stderr=true"
+
+memgraphUser: 
+memgraphPassword: 
+
+## Memgraph Enterprise Licence
+# memgraphEnterpriseLicense: "<your-license>"
+# memgraphOrganizationName: "<your-organization-name>"
+
+memgraphEnterpriseLicense: ""
+memgraphOrganizationName: ""
 
 # Annotations to add to the statefulSet
 statefulSetAnnotations: {}
