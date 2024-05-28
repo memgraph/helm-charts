@@ -46,7 +46,6 @@ persistentVolumeClaim:
   existingClaim: memgraph-0
   ## If you want to create a Persistant Volume Claim for an existing Volume
   storageVolumeName: 
-  # storageVolumeName: pvc-fc30d4e1-c036-4702-9692-32a1235bdfc3 #sn15-1
   
   ## Create a Dynamic Persistant Volume Claim for Logs
   # `false` will only write logs to stdout / stderr
