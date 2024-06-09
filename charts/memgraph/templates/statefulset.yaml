@@ -29,7 +29,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 1800
       securityContext:
-      {{- with .Values.imagePullSecrets }}
+      {{{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -102,7 +102,7 @@ spec:
             - name: memgraph-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
-      {{- if .Values.affinity.nodeAffinity }}
+      {{- if and .Values.affinity.nodeKey .Values.affinity.nodeValue }}
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -112,7 +112,7 @@ spec:
                   - key: {{ .Values.affinity.nodeKey }}
                     operator: In
                     values:
-                      - {{ .Values.affinity.nodeAffinity }}
+                      - {{ .Values.affinity.nodeValue }}
       {{- end }}               
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}

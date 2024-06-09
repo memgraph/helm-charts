@@ -13,10 +13,10 @@ replicaCount: 1
 # By setting theses parameters the PREFERRED deployment will be done first on the match LABELS with key and value then on other nodes.
 # nodeKey: "nodegroup" give the name of a key
 # Operator is In
-# nodeAffinity: "memgraph" give the value of the key
+# nodeValue: "memgraph" give the value of the key
 affinity:
   nodeKey:
-  nodeAffinity:
+  nodeValue:
 
 service:
   ## ClusterIP, NodePort, LoadBalancer
