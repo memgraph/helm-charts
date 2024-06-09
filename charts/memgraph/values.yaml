@@ -14,9 +14,9 @@ replicaCount: 1
 # nodeKey: "nodegroup" give the name of a key
 # Operator is In
 # nodeAffinity: "memgraph" give the value of the key
-
-nodeKey:
-nodeAffinity:
+affinity:
+  nodeKey:
+  nodeAffinity:
 
 service:
   ## ClusterIP, NodePort, LoadBalancer
@@ -56,6 +56,9 @@ persistentVolumeClaim:
 memgraphConfig:
 - "--also-log-to-stderr=true"
 
+## User and Password for the memgraph
+## Default user and password: memgraph
+# /TODO: create Secrets
 memgraphUser: 
 memgraphPassword: 
 

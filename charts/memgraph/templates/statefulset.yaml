@@ -89,7 +89,7 @@ spec:
               value: {{ .Values.memgraphUser | default "memgraph"}}
             - name: MEMGRAPH_PASSWORD
               value: {{ .Values.memgraphPassword | default "memgraph" }}
-            {{ if ne .Values.memgraphEnterpriseLicense "" }}
+            {{ if .Values.memgraphEnterpriseLicense }}
             - name: MEMGRAPH_ENTERPRISE_LICENSE
               value: {{ .Values.memgraphEnterpriseLicense }}
             {{- end}}
@@ -102,17 +102,17 @@ spec:
             - name: memgraph-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
-      {{- if .Values.nodeAffinity }}
+      {{- if .Values.affinity.nodeAffinity }}
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
               preference:
                 matchExpressions:
-                  - key: {{ .Values.nodeKey }}
+                  - key: {{ .Values.affinity.nodeKey }}
                     operator: In
                     values:
-                      - {{ .Values.nodeAffinity }}
+                      - {{ .Values.affinity.nodeAffinity }}
       {{- end }}               
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}
