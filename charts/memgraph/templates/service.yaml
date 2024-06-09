@@ -14,7 +14,7 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort}}
       protocol: {{ .Values.service.protocol }}
-      name: memgraph
+      name: bolt
     - port: 7444
       protocol: {{ .Values.service.protocol }}
       name: websocket

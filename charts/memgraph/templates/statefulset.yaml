@@ -53,14 +53,14 @@ spec:
           {{- range .Values.memgraphConfig }}
           - {{ . | quote }}
           {{- end }}
-          {{- if not createLogStorage }}
+          {{- if not .Values.persistentVolumeClaim.createLogStorage }}
           - "--log-file=''"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             runAsUser: 0
           ports:
-            - name: memgraph
+            - name: bolt
               containerPort: {{ .Values.service.port }}
             - name: websocket
               containerPort: 7444
@@ -68,17 +68,17 @@ spec:
               containerPort: 9091
           startupProbe:
             tcpSocket:
-              port: memgraph
+              port: bolt
             failureThreshold: 240
             periodSeconds: 30  
           livenessProbe:
             tcpSocket:
-              port: memgraph
+              port: bolt
             periodSeconds: 30
             timeoutSeconds: 20
           readinessProbe:
             tcpSocket:
-              port: memgraph
+              port: bolt
             periodSeconds: 30
           {{- with .Values.resources }}
           resources:
@@ -86,13 +86,15 @@ spec:
           {{- end }}
           env:
             - name: MEMGRAPH_USER
-              value: {{ .Values.memgraphUser }}
+              value: {{ .Values.memgraphUser | default "memgraph"}}
             - name: MEMGRAPH_PASSWORD
-              value: {{ .Values.memgraphPassword }}
+              value: {{ .Values.memgraphPassword | default "memgraph" }}
+            {{ if ne .Values.memgraphEnterpriseLicense "" }}
             - name: MEMGRAPH_ENTERPRISE_LICENSE
               value: {{ .Values.memgraphEnterpriseLicense }}
+            {{- end}}
             - name: MEMGRAPH_ORGANIZATION_NAME
-              value: {{ .Values.memgraphOrganizationName }}
+              value: {{ .Values.memgraphOrganizationName | default "" }}
           volumeMounts:
             - name: memgraph-lib-storage
               mountPath: /var/lib/memgraph

@@ -5,7 +5,7 @@ image:
   pullPolicy: IfNotPresent
 
 ## Image Secrets for custom images
-imagePullSecrets: [{ name: regcred }]
+# imagePullSecrets: [{ name: regcred }]
 
 replicaCount: 1
 
@@ -32,10 +32,10 @@ service:
 persistentVolumeClaim:
   ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim
   ## `false` will let you choose an existing Persistant Volume Claim or will create one with an existing volume
-  createStorageClaim: false
+  createStorageClaim: true
   ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume
   ## If you use a Storage Class Name with policy `delete` the Persistant Volume Claim and Volume will be deleted when the helm release is deleted
-  storageClassName: retain
+  storageClassName: ""
   ## Storage Size must me at minimum 4x the maximum size of your Dataset for Snapshots 
   ## See documentation for choosing the right size depending on the number of Snapshots you want to keep
   ## Default is 3 snapshots and you need space to create a new one and WAL files
@@ -45,7 +45,7 @@ persistentVolumeClaim:
   ## Write the name and exising Persistant Volume Claim
   existingClaim: memgraph-0
   ## If you want to create a Persistant Volume Claim for an existing Volume
-  storageVolumeName: 
+  storageVolumeName: ""
   
   ## Create a Dynamic Persistant Volume Claim for Logs
   # `false` will only write logs to stdout / stderr
