@@ -9,7 +9,7 @@ Welcome to the Memgraph Helm Charts repository. This repository provides Helm ch
 ## Available charts
 - [**Memgraph standalone**](#memgraph-standalone)
 - [**Memgraph Lab**](#memgraph-lab)
-- [**Memgraph high availability](#memgraph-high-availability)
+- [**Memgraph high availability**](#memgraph-high-availability)
 
 ## Prerequisites
 Helm version 3 or above installed.
