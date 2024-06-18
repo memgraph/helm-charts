@@ -64,7 +64,7 @@ To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgra
 ## Memgraph high availability
 Deploys high available Memgraph cluster, that includes two data instances and three coordinators.
 
-For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph/README.md).
+For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-high-availability/README.md).
 
 To install Memgraph standalone, run the following command:
 
