@@ -29,7 +29,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 1800
       securityContext:
-      {{{- with .Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -70,7 +70,7 @@ spec:
             tcpSocket:
               port: bolt
             failureThreshold: 240
-            periodSeconds: 30  
+            periodSeconds: 30
           livenessProbe:
             tcpSocket:
               port: bolt
@@ -113,7 +113,7 @@ spec:
                     operator: In
                     values:
                       - {{ .Values.affinity.nodeValue }}
-      {{- end }}               
+      {{- end }}
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}
   - metadata:
