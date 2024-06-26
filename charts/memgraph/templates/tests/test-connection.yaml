@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Release.Name }}-memgraph-test"
+  name: "{{ include "memgraph.fullname" . }}-test"
   labels:
     {{- include "memgraph.labels" . | nindent 4 }}
   annotations:
