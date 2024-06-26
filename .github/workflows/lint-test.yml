@@ -45,6 +45,12 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.8.0
 
+      - name: Set up Memgraph environment variables
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> $GITHUB_ENV
+          echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
+
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct install --target-branch ${{ github.event.repository.default_branch }}
