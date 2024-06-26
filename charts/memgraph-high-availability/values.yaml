@@ -12,7 +12,7 @@ memgraph:
     MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
   probes:
     startup:
-      failureThreshold: 30
+      failureThreshold: 31
       periodSeconds: 10
     readiness:
       initialDelaySeconds: 5
