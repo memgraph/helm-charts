@@ -47,7 +47,7 @@ data:
   args:
   - "--experimental-enabled=high-availability"
   - "--management-port=10000"
-  - "--bolt-port=7687"
+  - "--bolt-port=768"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--replication-restore-state-on-startup=true"
