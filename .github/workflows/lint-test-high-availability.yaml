@@ -61,6 +61,10 @@ jobs:
                 --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
                 --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
 
+      - name: Wait for Memgraph setup to complete
+        if: steps.list-changed.outputs.changed == 'true'
+        run: sleep 30
+
       - name: Check the status of Memgraph setup
         if: steps.list-changed.outputs.changed == 'true'
         run: |
