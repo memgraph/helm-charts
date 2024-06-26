@@ -61,6 +61,15 @@ jobs:
                 --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
                 --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
 
+      - name: Check the status of Memgraph setup
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+            pods=$(kubectl get pods --selector=job-name=memgraph-setup --output=jsonpath='{.items[*].metadata.name}')
+            for pod in $pods; do
+                echo "Logs from $pod:"
+                kubectl logs $pod
+            done
+
       - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
         run: |
