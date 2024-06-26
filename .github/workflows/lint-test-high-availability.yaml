@@ -63,4 +63,6 @@ jobs:
 
       - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
-        run: helm test mem-ha-test
+        run: |
+            helm test mem-ha-test
+            kubectl logs -l app=memgraph
