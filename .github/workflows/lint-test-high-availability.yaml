@@ -51,15 +51,15 @@ jobs:
           echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> $GITHUB_ENV
           echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
 
-          - name: Custom Helm install for memgraph-high-availability
-          if: steps.list-changed.outputs.changed == 'true'
-          env:
+      - name: Custom Helm install for memgraph-high-availability
+        if: steps.list-changed.outputs.changed == 'true'
+        env:
             MEMGRAPH_ENTERPRISE_LICENSE: ${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}
             MEMGRAPH_ORGANIZATION_NAME: ${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}
-          run: |
+        run: |
             helm install mem-ha-test ./charts/memgraph-high-availability \
-              --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
-              --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
+                --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
+                --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
 
       - name: Run chart-testing (install) for all changed charts
         if: steps.list-changed.outputs.changed == 'true'
