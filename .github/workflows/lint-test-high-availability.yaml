@@ -61,6 +61,6 @@ jobs:
                 --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
                 --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
 
-      - name: Run chart-testing (install) for all changed charts
+      - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+        run: helm test mem-ha-test
