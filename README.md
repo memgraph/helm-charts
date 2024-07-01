@@ -78,6 +78,11 @@ Once Memgraph cluster is up and running, you can access it using the provided se
 
 To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgrade` or `helm uninstall` commands, respectively. Refer to the [Helm documentation](https://helm.sh/docs/) for more details on these commands.
 
+## Docker Compose
+
+Creates HA Memgraph cluster with one command. The only thing you need to do is add your license details. Used bridged docker network for
+communication.
+
 
 ## Contributing
 Contributions are welcome! If you have any improvements, bug fixes, or new charts to add, please follow the contribution guidelines outlined in the [`CONTRIBUTING.md`](https://github.com/memgraph/helm-charts/blob/main/CONTRIBUTING.md) file. If you have questions and are unsure of how to contribute, please join our Discord server to get in touch with us.
