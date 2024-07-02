@@ -11,16 +11,23 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort}}
-      protocol: {{ .Values.service.protocol }}
-      name: bolt
-    - port: 7444
-      protocol: {{ .Values.service.protocol }}
-      name: websocket
-    - port: 9091
-      protocol: {{ .Values.service.protocol }}
-      name: http
-    
-  selector: 
+    {{- if .Values.service.boltPort }}
+    - port: {{ .Values.service.boltPort }}
+      targetPort: {{ .Values.service.boltPort }}
+      protocol: {{ .Values.service.boltProtocol }}
+      name: bolt-port
+    {{- end }}
+    {{- if .Values.service.enableWebsocketMonitoring }}
+    - port: {{ .Values.service.websocketPortMonitoring }}
+      targetPort: {{ .Values.service.websocketPortMonitoring }}
+      protocol: {{ .Values.service.websocketPortMonitoringProtocol }}
+      name: websocket-monitoring-port
+    {{- end }}
+    {{- if .Values.service.enableHttpMonitoring }}
+    - port: {{ .Values.service.httpPortMonitoring }}
+      targetPort: {{ .Values.service.httpPortMonitoring }}
+      protocol: {{ .Values.service.httpPortMonitoringProtocol }}
+      name: http-monitoring-port
+    {{- end }}
+  selector:
     {{- include "memgraph.selectorLabels" . | nindent 4 }}
