@@ -9,7 +9,7 @@ Welcome to the Memgraph Helm Charts repository. This repository provides Helm ch
 ## Available charts
 - [**Memgraph standalone**](#memgraph-standalone)
 - [**Memgraph Lab**](#memgraph-lab)
-- [**Memgraph high availability](#memgraph-high-availability)
+- [**Memgraph high availability**](#memgraph-high-availability)
 
 ## Prerequisites
 Helm version 3 or above installed.
@@ -64,7 +64,7 @@ To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgra
 ## Memgraph high availability
 Deploys high available Memgraph cluster, that includes two data instances and three coordinators.
 
-For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph/README.md).
+For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-high-availability/README.md).
 
 To install Memgraph standalone, run the following command:
 

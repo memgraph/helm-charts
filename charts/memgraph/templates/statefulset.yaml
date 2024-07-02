@@ -27,6 +27,29 @@ spec:
         {{- toYaml . | nindent 4 }}
       {{- end }}
     spec:
+     initContainers:
+      - name: init-volume-mounts
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        volumeMounts:
+        {{- if $.Values.persistentVolumeClaim.storagePVC }}
+        - name: {{ include "memgraph.fullname" . }}-lib-storage
+          mountPath: /var/lib/memgraph
+        {{- end }}
+        {{- if $.Values.persistentVolumeClaim.logPVC }}
+        - name: {{ include "memgraph.fullname" . }}-log-storage
+          mountPath: /var/log/memgraph
+        {{- end }}
+        command: [ "/bin/sh","-c" ]
+        args: [ "chown -R memgraph:memgraph /var/log; chown -R memgraph:memgraph /var/lib" ]
+        securityContext:
+          privileged: true
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop: [ "all" ]
+            add: [ "CHOWN" ]
+          runAsUser: 0
+          runAsNonRoot: false
+
       terminationGracePeriodSeconds: 1800
       securityContext:
       {{- with .Values.imagePullSecrets }}
@@ -46,6 +69,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-log-storage
       {{- end }}
+
       containers:
         - name: memgraph
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -57,8 +81,6 @@ spec:
           - "--log-file=''"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          securityContext:
-            runAsUser: 0
           ports:
             - name: bolt
               containerPort: {{ .Values.service.port }}
