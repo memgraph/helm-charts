@@ -31,16 +31,23 @@ spec:
         - name: init-volume-mounts
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           volumeMounts:
-          {{- if $.Values.persistentVolumeClaim.storagePVC }}
+          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
           {{- end }}
-          {{- if $.Values.persistentVolumeClaim.logPVC }}
+          {{- if .Values.persistentVolumeClaim.createLogStorage }}
             - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
           command: ["/bin/sh", "-c"]
-          args: ["chown -R memgraph:memgraph /var/log; chown -R memgraph:memgraph /var/lib"]
+          args:
+            - >
+              {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+              chown -R memgraph:memgraph /var/lib/memgraph;
+              {{- end }}
+              {{- if .Values.persistentVolumeClaim.createLogStorage }}
+              chown -R memgraph:memgraph /var/log/memgraph;
+              {{- end }}
           securityContext:
             privileged: true
             readOnlyRootFilesystem: false
@@ -57,15 +64,16 @@ spec:
         {{- toYaml .Values.imagePullSecrets | nindent 4 }}
       {{- end }}
       volumes:
-        - name: memgraph-lib-storage
+        - name: {{ include "memgraph.fullname" . }}-lib-storage
           persistentVolumeClaim:
-          {{- if .Values.persistentVolumeClaim.existingClaim }}
-            claimName: {{ .Values.persistentVolumeClaim.existingClaim }}
-          {{- else}}
+          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
             claimName: {{ include "memgraph.fullname" . }}-lib-storage
-          {{- end }}
+          {{- else }}
+            claimName: {{ .Values.persistentVolumeClaim.existingClaim }}
+          {{- end}}
+
       {{- if .Values.persistentVolumeClaim.createLogStorage }}
-        - name: memgraph-log-storage
+        - name: {{ include "memgraph.fullname" . }}-log-storage
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-log-storage
       {{- end }}
@@ -84,9 +92,9 @@ spec:
           ports:
             - name: bolt
               containerPort: {{ .Values.service.boltPort }}
-            - name: websocket-monitoring
+            - name: websocket
               containerPort: {{ .Values.service.websocketPortMonitoring }}
-            - name: http-monitoring
+            - name: http
               containerPort: {{ .Values.service.httpPortMonitoring }}
           livenessProbe:
             exec:
@@ -108,33 +116,35 @@ spec:
             failureThreshold: {{ .Values.container.probes.readiness.failureThreshold }}
           startupProbe:
             exec:
-              command:kubectl describe statefulset memgraph-test
+              command:
               - sh
               - -c
               - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
             failureThreshold: {{ .Values.container.probes.startup.failureThreshold }}
             periodSeconds: {{ .Values.container.probes.startup.periodSeconds }}
-            failureThreshold: {{ .Values.container.probes.startup.failureThreshold }}
+            initialDelaySeconds: {{ .Values.container.probes.startup.initialDelaySeconds }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+           {{ if .Values.memgraphUser }}
             - name: MEMGRAPH_USER
-              value: {{ .Values.memgraphUser | default "memgraph"}}
+              value: {{ .Values.memgraphUser }}
             - name: MEMGRAPH_PASSWORD
-              value: {{ .Values.memgraphPassword | default "memgraph" }}
-            {{ if .Values.memgraphEnterpriseLicense }}
+              value: {{ .Values.memgraphPassword }}
+           {{- end }}
+           {{ if .Values.memgraphEnterpriseLicense }}
             - name: MEMGRAPH_ENTERPRISE_LICENSE
               value: {{ .Values.memgraphEnterpriseLicense }}
-            {{- end}}
             - name: MEMGRAPH_ORGANIZATION_NAME
-              value: {{ .Values.memgraphOrganizationName | default "" }}
+              value: {{ .Values.memgraphOrganizationName}}
+          {{- end}}
           volumeMounts:
-            - name: memgraph-lib-storage
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
           {{- if .Values.persistentVolumeClaim.createLogStorage }}
-            - name: memgraph-log-storage
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/log/memgraph
           {{- end }}
       {{- if and .Values.affinity.nodeKey .Values.affinity.nodeValue }}
