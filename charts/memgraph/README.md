@@ -27,25 +27,51 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `image.repository`                          | Memgraph Docker image repository                                                                    | `memgraph/memgraph`                     |
 | `image.tag`                                 | Specific tag for the Memgraph Docker image. Overrides the image tag whose default is chart version. | `""` (Defaults to chart's app version)  |
 | `image.pullPolicy`                          | Image pull policy                                                                                   | `IfNotPresent`                          |
+| `useImagePullSecrets`                       | Override the default imagePullSecrets                                                               | `false`                                 |
+| `imagePullSecrets`                          | Specify image pull secrets                                                                          | `- name: regcred`                       |
 | `replicaCount`                              | Number of Memgraph instances to run. Note: no replication or HA support.                            | `1`                                     |
-| `service.type`                              | Kubernetes service type                                                                             | `NodePort`                              |
-| `service.port`                              | Kubernetes service port                                                                             | `7687`                                  |
-| `service.targetPort`                         | Kubernetes service target port                                                                     | `7687`                                  |
-| `service.protocol`                          | Protocol used by the service                                                                        | `TCP`                                   |
+| `affinity.nodeKey`                          | Key for node affinity (Preferred)                                                                   | `""`                                    |
+| `affinity.nodeValue`                        | Value for node affinity (Preferred)                                                                 | `""`                                    |
+| `service.type`                              | Kubernetes service type                                                                             | `ClusterIP`                             |
+| `service.enableBolt`                        | Enable Bolt protocol                                                                                | `true`                                  |
+| `service.boltPort`                          | Bolt protocol port                                                                                  | `7687`                                  |
+| `service.boltProtocol`                      | Protocol used by Bolt                                                                               | `TCP`                                   |
+| `service.enableWebsocketMonitoring`         | Enable WebSocket monitoring                                                                         | `false`                                 |
+| `service.websocketPortMonitoring`           | WebSocket monitoring port                                                                           | `7444`                                  |
+| `service.websocketPortMonitoringProtocol`   | Protocol used by WebSocket monitoring                                                               | `TCP`                                   |
+| `service.enableHttpMonitoring`              | Enable HTTP monitoring                                                                              | `false`                                 |
+| `service.httpPortMonitoring`                | HTTP monitoring port                                                                                | `9091`                                  |
+| `service.httpPortMonitoringProtocol`        | Protocol used by HTTP monitoring                                                                    | `http`                                  |
 | `service.annotations`                       | Annotations to add to the service                                                                   | `{}`                                    |
-| `persistentVolumeClaim.storagePVC`          | Enable persistent volume claim for storage                                                          | `true`                                  |
-| `persistentVolumeClaim.storagePVCClassName` | Storage class name for the persistent volume claim for storage. If not specified, default used.     | `""`                                    |
-| `persistentVolumeClaim.storagePVCSize`      | Size of the persistent volume claim for storage                                                     | `1Gi`                                   |
-| `persistentVolumeClaim.logPVC`              | Enable persistent volume claim for logs                                                             | `true`                                  |
-| `persistentVolumeClaim.logPVCClassName`     | Storage class name for the persistent volume claim for logs. If not specified, default used.        | `""`                                    |
-| `persistentVolumeClaim.logPVCSize`          | Size of the persistent volume claim for logs                                                        | `256Mi`                                 |
+| `persistentVolumeClaim.createStorageClaim`  | Enable creation of a Persistent Volume Claim for storage                                            | `true`                                  |
+| `persistentVolumeClaim.storageClassName`    | Storage class name for the persistent volume claim                                                  | `""`                                    |
+| `persistentVolumeClaim.storageSize`         | Size of the persistent volume claim for storage                                                     | `10Gi`                                  |
+| `persistentVolumeClaim.existingClaim`       | Use an existing Persistent Volume Claim                                                              | `memgraph-0`                            |
+| `persistentVolumeClaim.storageVolumeName`   | Name of an existing Volume to create a PVC for                                                      | `""`                                    |
+| `persistentVolumeClaim.createLogStorage`    | Enable creation of a Persistent Volume Claim for logs                                               | `true`                                  |
+| `persistentVolumeClaim.logStorageClassName` | Storage class name for the persistent volume claim for logs                                         | `""`                                    |
+| `persistentVolumeClaim.logStorageSize`      | Size of the persistent volume claim for logs                                                        | `1Gi`                                   |
 | `memgraphConfig`                            | List of strings defining Memgraph configuration settings                                            | `["--also-log-to-stderr=true"]`         |
+| `memgraphUser`                              | User for the Memgraph database                                                                      | `""`                                    |
+| `memgraphPassword`                          | Password for the Memgraph database                                                                  | `""`                                    |
+| `memgraphEnterpriseLicense`                 | Memgraph Enterprise License                                                                         | `""`                                    |
+| `memgraphOrganizationName`                  | Organization name for Memgraph Enterprise License                                                   | `""`                                    |
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
 | `podAnnotations`                            | Annotations to add to the pod                                                                       | `{}`                                    |
-| `resources`                                 | CPU/Memory resource requests/limits. Left empty by default.                                         | `{}` (See note on uncommenting)         |
+| `resources`                                 | CPU/Memory resource requests/limits. Left empty by default.                                         | `{}`                                    |
 | `serviceAccount.create`                     | Specifies whether a service account should be created                                               | `true`                                  |
 | `serviceAccount.annotations`                | Annotations to add to the service account                                                           | `{}`                                    |
 | `serviceAccount.name`                       | The name of the service account to use. If not set and create is true, a name is generated.         | `""`                                    |
+| `container.terminationGracePeriodSeconds`   | Grace period for pod termination                                                                    | `1800`                                  |
+| `probes.liveliness.initialDelaySeconds`     | Initial delay for liveliness probe                                                                  | `10`                                    |
+| `probes.liveliness.periodSeconds`           | Period seconds for liveliness probe                                                                 | `60`                                    |
+| `probes.liveliness.failureThreshold`        | Failure threshold for liveliness probe                                                              | `3`                                     |
+| `probes.readiness.initialDelaySeconds`      | Initial delay for readiness probe                                                                   | `10`                                    |
+| `probes.readiness.periodSeconds`            | Period seconds for readiness probe                                                                  | `30`                                    |
+| `probes.readiness.failureThreshold`         | Failure threshold for readiness probe                                                               | `3`                                     |
+| `probes.startup.initialDelaySeconds`        | Initial delay for startup probe                                                                     | `10`                                    |
+| `probes.startup.periodSeconds`              | Period seconds for startup probe                                                                    | `10`                                    |
+| `probes.startup.failureThreshold`           | Failure threshold for startup probe                                                                 | `30`                                    |
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
@@ -66,5 +92,7 @@ The `memgraphConfig` parameter should be a list of strings defining the values o
 memgraphConfig:
   - "--also-log-to-stderr=true"
   - "--log-level=TRACE"
+  - "--log-file=''"
+
 ```
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

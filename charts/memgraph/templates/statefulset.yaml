@@ -27,7 +27,57 @@ spec:
         {{- toYaml . | nindent 4 }}
       {{- end }}
     spec:
+      initContainers:
+        - name: init-volume-mounts
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
+              mountPath: /var/lib/memgraph
+          {{- end }}
+          {{- if .Values.persistentVolumeClaim.createLogStorage }}
+            - name: {{ include "memgraph.fullname" . }}-log-storage
+              mountPath: /var/log/memgraph
+          {{- end }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - >
+              {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+              chown -R memgraph:memgraph /var/lib/memgraph;
+              {{- end }}
+              {{- if .Values.persistentVolumeClaim.createLogStorage }}
+              chown -R memgraph:memgraph /var/log/memgraph;
+              {{- end }}
+          securityContext:
+            privileged: true
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["all"]
+              add: ["CHOWN"]
+            runAsUser: 0
+            runAsNonRoot: false
+
+      terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       securityContext:
+      {{- if .Values.useImagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 4 }}
+      {{- end }}
+      volumes:
+        - name: {{ include "memgraph.fullname" . }}-lib-storage
+          persistentVolumeClaim:
+          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+            claimName: {{ include "memgraph.fullname" . }}-lib-storage
+          {{- else }}
+            claimName: {{ .Values.persistentVolumeClaim.existingClaim }}
+          {{- end}}
+
+      {{- if .Values.persistentVolumeClaim.createLogStorage }}
+        - name: {{ include "memgraph.fullname" . }}-log-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-log-storage
+      {{- end }}
+
       containers:
         - name: memgraph
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -35,49 +85,107 @@ spec:
           {{- range .Values.memgraphConfig }}
           - {{ . | quote }}
           {{- end }}
+          {{- if not .Values.persistentVolumeClaim.createLogStorage }}
+          - "--log-file=''"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          securityContext:
-            runAsUser: 0
           ports:
-            - name: memgraph
-              containerPort: {{ .Values.service.port }}
+            - name: bolt
+              containerPort: {{ .Values.service.boltPort }}
+            - name: websocket
+              containerPort: {{ .Values.service.websocketPortMonitoring }}
+            - name: http
+              containerPort: {{ .Values.service.httpPortMonitoring }}
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+            initialDelaySeconds: {{ .Values.container.probes.liveliness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.container.probes.liveliness.periodSeconds }}
+            failureThreshold: {{ .Values.container.probes.liveliness.failureThreshold }}
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+            initialDelaySeconds: {{ .Values.container.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.container.probes.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.container.probes.readiness.failureThreshold }}
+          startupProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+            failureThreshold: {{ .Values.container.probes.startup.failureThreshold }}
+            periodSeconds: {{ .Values.container.probes.startup.periodSeconds }}
+            initialDelaySeconds: {{ .Values.container.probes.startup.initialDelaySeconds }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          env:
+           {{ if .Values.memgraphUser }}
+            - name: MEMGRAPH_USER
+              value: {{ .Values.memgraphUser }}
+            - name: MEMGRAPH_PASSWORD
+              value: {{ .Values.memgraphPassword }}
+           {{- end }}
+           {{ if .Values.memgraphEnterpriseLicense }}
+            - name: MEMGRAPH_ENTERPRISE_LICENSE
+              value: {{ .Values.memgraphEnterpriseLicense }}
+            - name: MEMGRAPH_ORGANIZATION_NAME
+              value: {{ .Values.memgraphOrganizationName}}
+          {{- end}}
           volumeMounts:
-          {{- if .Values.persistentVolumeClaim.storagePVC }}
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
-          {{- end }}
-          {{- if .Values.persistentVolumeClaim.logPVC }}
-            - name: {{ include "memgraph.fullname" . }}-log-storage
+          {{- if .Values.persistentVolumeClaim.createLogStorage }}
+            - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/log/memgraph
           {{- end }}
+      {{- if and .Values.affinity.nodeKey .Values.affinity.nodeValue }}
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: {{ .Values.affinity.nodeKey }}
+                    operator: In
+                    values:
+                      - {{ .Values.affinity.nodeValue }}
+      {{- end }}
   volumeClaimTemplates:
-  {{- if .Values.persistentVolumeClaim.storagePVC }}
-  - metadata:
-      name: {{ include "memgraph.fullname" . }}-lib-storage
-    spec:
-      accessModes:
-      - "ReadWriteOnce"
-      {{- if .Values.persistentVolumeClaim.storagePVCClassName }}
-      storageClassName: {{ .Values.persistentVolumeClaim.storagePVCClassName }}
-      {{- end }}
-      resources:
-        requests:
-          storage: {{ .Values.persistentVolumeClaim.storagePVCSize }}
+  {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+    - metadata:
+        name: {{ include "memgraph.fullname" . }}-lib-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if .Values.persistentVolumeClaim.storageClassName }}
+        storageClassName: {{ .Values.persistentVolumeClaim.storageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumeClaim.storageSize }}
+        {{- if .Values.persistentVolumeClaim.storageVolumeName }}
+        volumeName: {{ .Values.persistentVolumeClaim.storageVolumeName }}
+        {{- end }}
   {{- end }}
-  {{- if .Values.persistentVolumeClaim.logPVC }}
-  - metadata:
-      name: {{ include "memgraph.fullname" . }}-log-storage
-    spec:
-      accessModes:
-      - "ReadWriteOnce"
-      {{- if .Values.persistentVolumeClaim.logPVCClassName }}
-      storageClassName: {{ .Values.persistentVolumeClaim.logPVCClassName }}
-      {{- end }}
-      resources:
-        requests:
-          storage: {{ .Values.persistentVolumeClaim.logPVCSize }}
+  {{- if .Values.persistentVolumeClaim.createLogStorage }}
+    - metadata:
+        name: {{ include "memgraph.fullname" . }}-log-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if .Values.persistentVolumeClaim.logStorageClassName }}
+        storageClassName: {{ .Values.persistentVolumeClaim.logStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumeClaim.logStorageSize }}
   {{- end }}

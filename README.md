@@ -9,7 +9,7 @@ Welcome to the Memgraph Helm Charts repository. This repository provides Helm ch
 ## Available charts
 - [**Memgraph standalone**](#memgraph-standalone)
 - [**Memgraph Lab**](#memgraph-lab)
-- [**Memgraph high availability](#memgraph-high-availability)
+- [**Memgraph high availability**](#memgraph-high-availability)
 
 ## Prerequisites
 Helm version 3 or above installed.
@@ -64,7 +64,7 @@ To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgra
 ## Memgraph high availability
 Deploys high available Memgraph cluster, that includes two data instances and three coordinators.
 
-For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph/README.md).
+For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-high-availability/README.md).
 
 To install Memgraph standalone, run the following command:
 
@@ -77,6 +77,11 @@ Replace `my-release` with a name of your choice for the release.
 Once Memgraph cluster is up and running, you can access it using the provided services and endpoints. Refer to the [Memgraph documentation](https://memgraph.com/docs/memgraph/connect-to-memgraph) for details on how to connect to and interact with Memgraph.
 
 To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgrade` or `helm uninstall` commands, respectively. Refer to the [Helm documentation](https://helm.sh/docs/) for more details on these commands.
+
+## Docker Compose
+
+Creates HA Memgraph cluster with one command. The only thing you need to do is add your license details. Used bridged docker network for
+communication.
 
 
 ## Contributing
