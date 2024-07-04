@@ -5,7 +5,7 @@
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.17.0
+    tag: 2.18.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -75,7 +75,7 @@ coordinators:
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
-  - "--replication-restore-state-on-startup=true"
+  - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local"
 - id: "2"
   boltPort: 7687
   coordinatorPort: 12000
@@ -86,7 +86,7 @@ coordinators:
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
-  - "--replication-restore-state-on-startup=true"
+  - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local"
 - id: "3"
   boltPort: 7687
   coordinatorPort: 12000
@@ -97,4 +97,4 @@ coordinators:
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
-  - "--replication-restore-state-on-startup=true"
+  - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"

@@ -13,3 +13,5 @@ If you are connecting via mgconsole, you can use the following command:
 mgconsole --host <your-instance-ip> --port <your-instance-port>
 
 If you are connecting via Lab, specify your instance IP address and port in Memgraph Lab GUI.
+
+If you are using minikube, you can find out your instance ip using `minikube ip`.
