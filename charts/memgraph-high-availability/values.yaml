@@ -23,7 +23,7 @@ memgraph:
   data:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: true
+      storagePVC: false
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false
@@ -31,7 +31,7 @@ memgraph:
   coordinators:
     volumeClaim:
       storagePVCClassName: ""
-      storagePVC: true
+      storagePVC: false
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: false

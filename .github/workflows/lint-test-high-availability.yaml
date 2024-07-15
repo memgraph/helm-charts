@@ -1,4 +1,4 @@
-name: Lint and Test Charts
+name: Lint and Test Charts High Availability
 
 on:
   pull_request:
@@ -77,5 +77,4 @@ jobs:
       - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-            helm test mem-ha-test
-            kubectl logs -l app=memgraph
+            timeout 10 helm test mem-ha-test
