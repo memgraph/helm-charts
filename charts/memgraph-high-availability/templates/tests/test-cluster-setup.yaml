@@ -43,6 +43,13 @@ spec:
               echo "Expected 1 replica after registration, got $num_replicas."
               exit 1
           fi
+
+          num_instances_down=$(echo "instances" | grep -c "down")
+          if [ $num_instances_down -ne 0 ]; then
+              echo "Expected 0 instances down after registration, got $num_instances_down."
+              exit 1
+          fi
+
           exit 0
 
       restartPolicy: Never
