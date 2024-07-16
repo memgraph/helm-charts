@@ -77,4 +77,4 @@ jobs:
       - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-            timeout 10 helm test mem-ha-test
+            timeout 30 helm test mem-ha-test  # If connection to some port is broken, this will timeout with code 124

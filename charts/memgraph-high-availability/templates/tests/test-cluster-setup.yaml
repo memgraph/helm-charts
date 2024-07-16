@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-memgraph-test-cluster-setup"
+  labels:
+    {{- include "memgraph.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  template:
+    metadata:
+      labels:
+        app: memgraph-ha-test-cluster-setup
+    spec:
+      containers:
+      - name: memgraph-test-cluster-setup
+        image: memgraph/memgraph:2.18.0
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          instances=$(echo 'SHOW INSTANCES;' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687)
+          echo "$instances"
+          num_leaders=$(echo "$instances" | grep -c "leader")
+          if [ $num_leaders -ne 1 ]; then
+              echo "Expected 1 leader after registration, got $num_leaders."
+              exit 1
+          fi
+
+          num_followers=$(echo "$instances" | grep -c "follower")
+          if [ $num_followers -ne 2 ]; then
+              echo "Expected 2 followers after registration, got $num_followers."
+              exit 1
+          fi
+
+          num_mains=$(echo "$instances" | grep -c "main")
+          if [ $num_mains -ne 1 ]; then
+              echo "Expected 1 main after registration, got $num_mains."
+              exit 1
+          fi
+
+          num_replicas=$(echo "$instances" | grep -c "replica")
+          if [ $num_replicas -ne 1 ]; then
+              echo "Expected 1 replica after registration, got $num_replicas."
+              exit 1
+          fi
+          exit 0
+
+      restartPolicy: Never
+  backoffLimit: 3
