@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: memgraph-test
-        image: memgraph/memgraph:2.18.0
+        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
         command: ["/bin/bash", "-c"]
         args:
           - |
