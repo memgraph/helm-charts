@@ -56,7 +56,7 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------|
 | `id`                                        | ID of the instance                                                                                  | `0` for data, `1` for coordinators      |
 | `boltPort`                                  | Bolt port of the instance                                                                           | `7687`                                  |
-| `managementPort` (data only)                | Management port of the data instance                                                                | `10000`                                 |
+| `managementPort`                            | Management port of the data instance                                                                | `10000`                                 |
 | `replicationPort` (data only)               | Replication port of the data instance                                                               | `20000`                                 |
 | `coordinatorPort` (coordinators only)       | Coordinator port of the coordinator instance                                                        | `12000`                                 |
 | `args`                                      | List of arguments for the instance                                                                  | See `args` section                      |

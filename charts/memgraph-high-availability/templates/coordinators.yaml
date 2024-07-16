@@ -42,6 +42,7 @@ spec:
         imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
         ports:
         - containerPort: {{ $coordinator.boltPort }}
+        - containerPort: {{ $coordinator.managementPort }}
         - containerPort: {{ $coordinator.coordinatorPort }}
         args:
         {{- range $arg := $coordinator.args }}
