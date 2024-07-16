@@ -1,4 +1,4 @@
-name: Lint and Test Charts
+name: Lint and Test Charts High Availability
 
 on:
   pull_request:
@@ -39,7 +39,6 @@ jobs:
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }}
-        continue-on-error: true
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
@@ -77,5 +76,4 @@ jobs:
       - name: Run Helm tests
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-            helm test mem-ha-test
-            kubectl logs -l app=memgraph
+            timeout 30 helm test mem-ha-test  # If connection to some port is broken, this will timeout with code 124
