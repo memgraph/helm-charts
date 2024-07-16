@@ -5,7 +5,7 @@
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.18.0_22_0537764bb
+    tag: 2.18.0_23_5f6956155
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
