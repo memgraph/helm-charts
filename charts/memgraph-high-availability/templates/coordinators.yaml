@@ -100,6 +100,7 @@ spec:
           requests:
             storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCSize }}
     {{- end }}
+
     {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
@@ -111,7 +112,7 @@ spec:
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVC.logPVCSize }}
+            storage: {{ $.Values.memgraph.coordinators.volumeClaim.logPVCSize }}
     {{- end }}
 ---
 {{- end }}

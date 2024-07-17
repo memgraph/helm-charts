@@ -40,8 +40,4 @@ spec:
       name: bolt
       port: {{ .boltPort }}
       targetPort: {{ .boltPort }}
-    - protocol: TCP
-      name: management
-      port: {{ .managementPort }}
-      targetPort: {{ .managementPort }}
 {{- end }}
