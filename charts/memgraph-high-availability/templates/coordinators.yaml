@@ -42,6 +42,7 @@ spec:
         imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
         ports:
         - containerPort: {{ $coordinator.boltPort }}
+        - containerPort: {{ $coordinator.managementPort }}
         - containerPort: {{ $coordinator.coordinatorPort }}
         args:
         {{- range $arg := $coordinator.args }}
@@ -52,30 +53,6 @@ spec:
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
         - name: MEMGRAPH_ORGANIZATION_NAME
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ORGANIZATION_NAME }}"
-        livenessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
-          initialDelaySeconds: {{ $.Values.memgraph.probes.liveness.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.memgraph.probes.liveness.periodSeconds }}
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
-          initialDelaySeconds: {{ $.Values.memgraph.probes.readiness.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.memgraph.probes.readiness.periodSeconds }}
-        startupProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'SHOW INSTANCES;' | mgconsole --host localhost --port {{ $coordinator.boltPort }}
-          failureThreshold: {{ $.Values.memgraph.probes.startup.failureThreshold }}
-          periodSeconds: {{ $.Values.memgraph.probes.startup.periodSeconds }}
         volumeMounts:
         {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
           - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
@@ -99,6 +76,7 @@ spec:
           requests:
             storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCSize }}
     {{- end }}
+
     {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
@@ -110,7 +88,7 @@ spec:
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVC.logPVCSize }}
+            storage: {{ $.Values.memgraph.coordinators.volumeClaim.logPVCSize }}
     {{- end }}
 ---
 {{- end }}

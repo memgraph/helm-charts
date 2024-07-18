@@ -53,30 +53,6 @@ spec:
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
         - name: MEMGRAPH_ORGANIZATION_NAME
           value: "{{ $.Values.memgraph.env.MEMGRAPH_ORGANIZATION_NAME }}"
-        livenessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
-          initialDelaySeconds: {{ $.Values.memgraph.probes.liveness.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.memgraph.probes.liveness.periodSeconds }}
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
-          initialDelaySeconds: {{ $.Values.memgraph.probes.readiness.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.memgraph.probes.readiness.periodSeconds }}
-        startupProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - echo 'RETURN 0;' | mgconsole --host localhost --port {{ $data.boltPort }}
-          failureThreshold: {{ $.Values.memgraph.probes.startup.failureThreshold }}
-          periodSeconds: {{ $.Values.memgraph.probes.startup.periodSeconds }}
         volumeMounts:
         {{- if $.Values.memgraph.data.volumeClaim.storagePVC }}
           - name: memgraph-data-{{ $data.id }}-lib-storage
