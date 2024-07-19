@@ -27,17 +27,17 @@ service:
   # LoadBalancer is compabile with Cloud Providers on port: 80 without SSL redirected to the 7687
   type: ClusterIP
 
-  #Bolt Port
+  # Bolt Port
   enableBolt: true
   boltPort: 7687
   boltProtocol: TCP
 
-  #Websocket Monitoring
+  # Websocket Monitoring
   enableWebsocketMonitoring: false
   websocketPortMonitoring: 7444
   websocketPortMonitoringProtocol: TCP
 
-  #HTTP Monitoring
+  # HTTP Monitoring
   enableHttpMonitoring: false
   httpPortMonitoring: 9091
   httpPortMonitoringProtocol: http
