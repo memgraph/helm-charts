@@ -114,7 +114,7 @@ container:
     liveliness:
       initialDelaySeconds: 10
       periodSeconds: 60
-      failureThreshold: 2
+      failureThreshold: 3
     readiness:
       initialDelaySeconds: 10
       periodSeconds: 30
