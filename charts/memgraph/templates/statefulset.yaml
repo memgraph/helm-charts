@@ -147,6 +147,14 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/log/memgraph
           {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if and .Values.affinity.nodeKey .Values.affinity.nodeValue }}
       affinity:
         nodeAffinity:

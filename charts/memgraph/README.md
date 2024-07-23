@@ -59,6 +59,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
 | `podAnnotations`                            | Annotations to add to the pod                                                                       | `{}`                                    |
 | `resources`                                 | CPU/Memory resource requests/limits. Left empty by default.                                         | `{}`                                    |
+| `tolerations`                               | Tolerations for pod. Left empty by default.                                                         | `[]`                                    |
 | `serviceAccount.create`                     | Specifies whether a service account should be created                                               | `true`                                  |
 | `serviceAccount.annotations`                | Annotations to add to the service account                                                           | `{}`                                    |
 | `serviceAccount.name`                       | The name of the service account to use. If not set and create is true, a name is generated.         | `""`                                    |
@@ -72,6 +73,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `probes.startup.initialDelaySeconds`        | Initial delay for startup probe                                                                     | `10`                                    |
 | `probes.startup.periodSeconds`              | Period seconds for startup probe                                                                    | `10`                                    |
 | `probes.startup.failureThreshold`           | Failure threshold for startup probe                                                                 | `30`                                    |
+| `nodeSelectors`                             | Node selectors for pod. Left empty by default.                                                      | `{}`                                    |
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
