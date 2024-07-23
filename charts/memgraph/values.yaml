@@ -20,6 +20,10 @@ affinity:
   nodeKey:
   nodeValue:
 
+nodeSelector: {}
+
+tolerations: []
+
 service:
   ## ClusterIP, NodePort, LoadBalancer
   # ClusterIP keep the service inside the cluster makes it secure
