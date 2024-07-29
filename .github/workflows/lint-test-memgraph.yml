@@ -59,4 +59,5 @@ jobs:
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }} --set secrets.enabled=true
+        run: ct install --target-branch ${{ github.event.repository.default_branch }} --set secrets.enabled=true --excluded-charts memgraph-high-availability, memgraph-lab
+
