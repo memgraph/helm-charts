@@ -57,6 +57,14 @@ jobs:
             --from-literal=MEMGRAPH_USER=memgraph \
             --from-literal=MEMGRAPH_PASSWORD=memgraph
 
+      - name: Verify Kubernetes secrets
+        if: steps.list-changed.outputs.changed == 'true'
+        run: kubectl get secrets
+
+      - name: Display kubectl context
+        if: steps.list-changed.outputs.changed == 'true'
+        run: kubectl config current-context
+
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct install --target-branch ${{ github.event.repository.default_branch }} --helm-extra-args "--set secrets.enabled=true" --excluded-charts memgraph-high-availability, memgraph-lab
