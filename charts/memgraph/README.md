@@ -52,8 +52,10 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `persistentVolumeClaim.logStorageClassName` | Storage class name for the persistent volume claim for logs                                         | `""`                                    |
 | `persistentVolumeClaim.logStorageSize`      | Size of the persistent volume claim for logs                                                        | `1Gi`                                   |
 | `memgraphConfig`                            | List of strings defining Memgraph configuration settings                                            | `["--also-log-to-stderr=true"]`         |
-| `memgraphUser`                              | User for the Memgraph database                                                                      | `""`                                    |
-| `memgraphPassword`                          | Password for the Memgraph database                                                                  | `""`                                    |
+| `secrets.enabled`                           | Enable the use of Kubernetes secrets for Memgraph credentials                                       | `false`                                 |
+| `secrets.name`                              | The name of the Kubernetes secret containing Memgraph credentials                                   | `memgraph-secrets`                      |
+| `secrets.userKey`                           | The key in the Kubernetes secret for the Memgraph user                                              | `MEMGRAPH_USER`                         |
+| `secrets.passwordKey`                       | The key in the Kubernetes secret for the Memgraph password                                          | `MEMGRAPH_PASSWORD`                     |
 | `memgraphEnterpriseLicense`                 | Memgraph Enterprise License                                                                         | `""`                                    |
 | `memgraphOrganizationName`                  | Organization name for Memgraph Enterprise License                                                   | `""`                                    |
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
@@ -73,7 +75,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `probes.startup.initialDelaySeconds`        | Initial delay for startup probe                                                                     | `10`                                    |
 | `probes.startup.periodSeconds`              | Period seconds for startup probe                                                                    | `10`                                    |
 | `probes.startup.failureThreshold`           | Failure threshold for startup probe                                                                 | `30`                                    |
-| `nodeSelectors`                             | Node selectors for pod. Left empty by default.                                                      | `{}`                                    |
+| `nodeSelectors`                             | Node selectors for pod. Left empty by default.
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
@@ -97,4 +99,12 @@ memgraphConfig:
   - "--log-file=''"
 
 ```
+
+
+If you are using the Memgraph user, make sure you have secrets set:
+
+```
+kubectl create secret generic memgraph-secrets --from-literal=MEMGRAPH_USER=myuser --from-literal=MEMGRAPH_PASSWORD=mypassword
+```
+
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

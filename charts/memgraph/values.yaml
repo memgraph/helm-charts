@@ -74,9 +74,11 @@ persistentVolumeClaim:
 memgraphConfig:
 - "--also-log-to-stderr=true"
 
-## User and Password for the memgraph
-memgraphUser: ""
-memgraphPassword: ""
+secrets:
+  enabled: false
+  name: memgraph-secrets
+  userKey: MEMGRAPH_USER
+  passwordKey: MEMGRAPH_PASSWORD
 
 ## Memgraph Enterprise Licence
 # memgraphEnterpriseLicense: "<your-license>"
