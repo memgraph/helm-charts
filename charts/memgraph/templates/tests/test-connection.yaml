@@ -15,6 +15,6 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo "RETURN 0;" | mgconsole --username memgraph --password memgraph --host {{ include "memgraph.fullname" . }} --port 7687
+            echo "RETURN 0;" | mgconsole --username memgraph --password memgraph --host {{ include "memgraph.fullname" . }} --port 7688
       restartPolicy: Never
   backoffLimit: 4
