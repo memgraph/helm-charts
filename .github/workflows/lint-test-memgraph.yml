@@ -50,6 +50,13 @@ jobs:
           echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> $GITHUB_ENV
           echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
 
+      - name: Create Kubernetes secrets
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl create secret generic memgraph-secrets \
+            --from-literal=MEMGRAPH_USER=memgraph \
+            --from-literal=MEMGRAPH_PASSWORD=memgraph
+
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+        run: ct install --target-branch ${{ github.event.repository.default_branch }} --set secrets.enabled=true
