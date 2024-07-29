@@ -101,7 +101,12 @@ spec:
               command:
               - sh
               - -c
-              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+              - |
+                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+                else
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
+                fi
             initialDelaySeconds: {{ .Values.container.probes.liveliness.initialDelaySeconds }}
             periodSeconds: {{ .Values.container.probes.liveliness.periodSeconds }}
             failureThreshold: {{ .Values.container.probes.liveliness.failureThreshold }}
@@ -110,7 +115,12 @@ spec:
               command:
               - sh
               - -c
-              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+              - |
+                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+                else
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
+                fi
             initialDelaySeconds: {{ .Values.container.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.container.probes.readiness.periodSeconds }}
             failureThreshold: {{ .Values.container.probes.readiness.failureThreshold }}
@@ -119,7 +129,12 @@ spec:
               command:
               - sh
               - -c
-              - echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+              - |
+                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
+                else
+                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
+                fi
             failureThreshold: {{ .Values.container.probes.startup.failureThreshold }}
             periodSeconds: {{ .Values.container.probes.startup.periodSeconds }}
             initialDelaySeconds: {{ .Values.container.probes.startup.initialDelaySeconds }}
@@ -128,11 +143,17 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
-           {{ if .Values.memgraphUser }}
+            {{- if .Values.secrets.enabled }}
             - name: MEMGRAPH_USER
-              value: {{ .Values.memgraphUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: {{ .Values.secrets.userKey }}
             - name: MEMGRAPH_PASSWORD
-              value: {{ .Values.memgraphPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: {{ .Values.secrets.passwordKey }}
            {{- end }}
            {{ if .Values.memgraphEnterpriseLicense }}
             - name: MEMGRAPH_ENTERPRISE_LICENSE
