@@ -71,6 +71,12 @@ persistentVolumeClaim:
   logStorageClassName: ""
   logStorageSize: 1Gi
 
+  ## Create a Dynamic Persistant Volume Claim for Configs, Certificates (e.g. Bolt cert ) and rest of User related files
+  createUserClaim: false
+  userStorageClassName: ""
+  userStorageSize: 1Gi
+  userMountPath: ""
+
 memgraphConfig:
 - "--also-log-to-stderr=true"
 

@@ -39,6 +39,11 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
+          {{- if .Values.persistentVolumeClaim.createUserClaim }}
+            - name: {{ include "memgraph.fullname" . }}-user-storage
+              mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
+          {{- end }}
+
           command: ["/bin/sh", "-c"]
           args:
             - >
@@ -47,6 +52,9 @@ spec:
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createLogStorage }}
               chown -R memgraph:memgraph /var/log/memgraph;
+              {{- end }}
+              {{- if .Values.persistentVolumeClaim.createUserClaim }}
+              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }};
               {{- end }}
           securityContext:
             privileged: true
@@ -76,6 +84,12 @@ spec:
         - name: {{ include "memgraph.fullname" . }}-log-storage
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-log-storage
+      {{- end }}
+
+      {{- if .Values.persistentVolumeClaim.createUserClaim }}
+        - name: {{ include "memgraph.fullname" . }}-user-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-user-storage
       {{- end }}
 
       containers:
@@ -168,6 +182,10 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/log/memgraph
           {{- end }}
+          {{- if .Values.persistentVolumeClaim.createUserClaim }}
+            - name: {{ include "memgraph.fullname" . }}-user-storage
+              mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -217,4 +235,18 @@ spec:
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.logStorageSize }}
+  {{- end }}
+
+  {{- if .Values.persistentVolumeClaim.createUserClaim }}
+    - metadata:
+        name: {{ include "memgraph.fullname" . }}-user-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if .Values.persistentVolumeClaim.userStorageClassName }}
+        storageClassName: {{ .Values.persistentVolumeClaim.userStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumeClaim.userStorageSize }}
   {{- end }}
