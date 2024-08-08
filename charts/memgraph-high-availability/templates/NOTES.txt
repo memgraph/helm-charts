@@ -1,4 +1,4 @@
-Thank you for installing the Memgraph High-availability cluster! 🎉
+Thank you for installing the Memgraph High-availability cluster (Enterprise)! 🎉
 
 Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job. The HA cluster is still work in progress and started with "--experimental-enabled=high-availability".
 The cluster is started in the configuration without the node selector, which means that in the current configuration, it is not highly available if the node fails.
