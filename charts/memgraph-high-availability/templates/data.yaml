@@ -14,6 +14,17 @@ spec:
       labels:
         app: memgraph-data-{{ $data.id }}
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - memgraph-data-0
+                - memgraph-data-1
+            topologyKey: "kubernetes.io/hostname"
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
