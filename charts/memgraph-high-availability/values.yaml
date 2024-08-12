@@ -36,6 +36,8 @@ memgraph:
       logPVCClassName: ""
       logPVC: true
       logPVCSize: "256Mi"
+  affinity:
+    enabled: false
 
 
 data:

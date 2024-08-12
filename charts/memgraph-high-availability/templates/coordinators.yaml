@@ -14,6 +14,7 @@ spec:
       labels:
         app: memgraph-coordinator-{{ $coordinator.id }}
     spec:
+    {{ if $.Values.memgraph.affinity.enabled }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -25,7 +26,10 @@ spec:
                 - memgraph-coordinator-1
                 - memgraph-coordinator-2
                 - memgraph-coordinator-3
+                - memgraph-data-0
+                - memgraph-data-1
             topologyKey: "kubernetes.io/hostname"
+    {{ end }}
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
