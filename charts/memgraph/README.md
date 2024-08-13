@@ -55,8 +55,8 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraphConfig`                            | List of strings defining Memgraph configuration settings                                            | `["--also-log-to-stderr=true"]`         |
 | `secrets.enabled`                           | Enable the use of Kubernetes secrets for Memgraph credentials                                       | `false`                                 |
 | `secrets.name`                              | The name of the Kubernetes secret containing Memgraph credentials                                   | `memgraph-secrets`                      |
-| `secrets.userKey`                           | The key in the Kubernetes secret for the Memgraph user                                              | `MEMGRAPH_USER`                         |
-| `secrets.passwordKey`                       | The key in the Kubernetes secret for the Memgraph password                                          | `MEMGRAPH_PASSWORD`                     |
+| `secrets.userKey`                           | The key in the Kubernetes secret for the Memgraph user, the value is passed to the `MEMGRAPH_USER` env                                              | `USER`                                  |
+| `secrets.passwordKey`                       | The key in the Kubernetes secret for the Memgraph password, the value is passed to the `MEMGRAPH_PASSWORD`                                          | `PASSWORD`                              |
 | `memgraphEnterpriseLicense`                 | Memgraph Enterprise License                                                                         | `""`                                    |
 | `memgraphOrganizationName`                  | Organization name for Memgraph Enterprise License                                                   | `""`                                    |
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
@@ -105,7 +105,7 @@ memgraphConfig:
 If you are using the Memgraph user, make sure you have secrets set:
 
 ```
-kubectl create secret generic memgraph-secrets --from-literal=MEMGRAPH_USER=myuser --from-literal=MEMGRAPH_PASSWORD=mypassword
+kubectl create secret generic memgraph-secrets --from-literal=USER=myuser --from-literal=PASSWORD=mypassword
 ```
 
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).
