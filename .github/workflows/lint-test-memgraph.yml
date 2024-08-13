@@ -54,8 +54,8 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           kubectl create secret generic memgraph-secrets \
-            --from-literal=MEMGRAPH_USER=memgraph \
-            --from-literal=MEMGRAPH_PASSWORD=memgraph \
+            --from-literal=USER=memgraph \
+            --from-literal=PASSWORD=memgraph \
             --namespace default
 
       - name: Verify Kubernetes secrets
