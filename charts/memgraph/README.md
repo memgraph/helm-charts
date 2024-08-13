@@ -61,7 +61,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
 | `podAnnotations`                            | Annotations to add to the pod                                                                       | `{}`                                    |
 | `resources`                                 | CPU/Memory resource requests/limits. Left empty by default.                                         | `{}`                                    |
-| `tolerations`                               | Tolerations for pod. Left empty by default.                                                         | `[]`                                    |
+| `tolerations`                               | A toleration is applied to a pod and allows the pod to be scheduled on nodes with matching taints. Left empty by default. | `[]`              |
 | `serviceAccount.create`                     | Specifies whether a service account should be created                                               | `true`                                  |
 | `serviceAccount.annotations`                | Annotations to add to the service account                                                           | `{}`                                    |
 | `serviceAccount.name`                       | The name of the service account to use. If not set and create is true, a name is generated.         | `""`                                    |
