@@ -162,12 +162,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secrets.name }}
-                  key: {{ .Values.secrets.userKey }}
+                  key: {{ .Values.secrets.user }}
             - name: MEMGRAPH_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secrets.name }}
-                  key: {{ .Values.secrets.passwordKey }}
+                  key: {{ .Values.secrets.password }}
            {{- end }}
            {{ if .Values.memgraphEnterpriseLicense }}
             - name: MEMGRAPH_ENTERPRISE_LICENSE
