@@ -83,8 +83,8 @@ memgraphConfig:
 secrets:
   enabled: false
   name: memgraph-secrets
-  userkey: USER
-  passwordkey: PASSWORD
+  userKey: USER
+  passwordKey: PASSWORD
 
 ## Memgraph Enterprise Licence
 # memgraphEnterpriseLicense: "<your-license>"
