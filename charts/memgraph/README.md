@@ -32,6 +32,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `replicaCount`                              | Number of Memgraph instances to run. Note: no replication or HA support.                            | `1`                                     |
 | `affinity.nodeKey`                          | Key for node affinity (Preferred)                                                                   | `""`                                    |
 | `affinity.nodeValue`                        | Value for node affinity (Preferred)                                                                 | `""`                                    |
+| `nodeSelector`                              | Constrain which nodes your Memgraph pod is eligible to be scheduled on, based on the labels on the nodes. Left empty by default.                       | `{}`                   |
 | `service.type`                              | Kubernetes service type                                                                             | `ClusterIP`                             |
 | `service.enableBolt`                        | Enable Bolt protocol                                                                                | `true`                                  |
 | `service.boltPort`                          | Bolt protocol port                                                                                  | `7687`                                  |
