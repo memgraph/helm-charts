@@ -32,6 +32,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `replicaCount`                              | Number of Memgraph instances to run. Note: no replication or HA support.                            | `1`                                     |
 | `affinity.nodeKey`                          | Key for node affinity (Preferred)                                                                   | `""`                                    |
 | `affinity.nodeValue`                        | Value for node affinity (Preferred)                                                                 | `""`                                    |
+| `nodeSelector`                              | Constrain which nodes your Memgraph pod is eligible to be scheduled on, based on the labels on the nodes. Left empty by default.                       | `{}`                   |
 | `service.type`                              | Kubernetes service type                                                                             | `ClusterIP`                             |
 | `service.enableBolt`                        | Enable Bolt protocol                                                                                | `true`                                  |
 | `service.boltPort`                          | Bolt protocol port                                                                                  | `7687`                                  |
@@ -54,14 +55,14 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraphConfig`                            | List of strings defining Memgraph configuration settings                                            | `["--also-log-to-stderr=true"]`         |
 | `secrets.enabled`                           | Enable the use of Kubernetes secrets for Memgraph credentials                                       | `false`                                 |
 | `secrets.name`                              | The name of the Kubernetes secret containing Memgraph credentials                                   | `memgraph-secrets`                      |
-| `secrets.userKey`                           | The key in the Kubernetes secret for the Memgraph user                                              | `MEMGRAPH_USER`                         |
-| `secrets.passwordKey`                       | The key in the Kubernetes secret for the Memgraph password                                          | `MEMGRAPH_PASSWORD`                     |
+| `secrets.userKey`                           | The key in the Kubernetes secret for the Memgraph user, the value is passed to the `MEMGRAPH_USER` env                                              | `USER`                                  |
+| `secrets.passwordKey`                       | The key in the Kubernetes secret for the Memgraph password, the value is passed to the `MEMGRAPH_PASSWORD`                                          | `PASSWORD`                              |
 | `memgraphEnterpriseLicense`                 | Memgraph Enterprise License                                                                         | `""`                                    |
 | `memgraphOrganizationName`                  | Organization name for Memgraph Enterprise License                                                   | `""`                                    |
 | `statefulSetAnnotations`                    | Annotations to add to the stateful set                                                              | `{}`                                    |
 | `podAnnotations`                            | Annotations to add to the pod                                                                       | `{}`                                    |
 | `resources`                                 | CPU/Memory resource requests/limits. Left empty by default.                                         | `{}`                                    |
-| `tolerations`                               | Tolerations for pod. Left empty by default.                                                         | `[]`                                    |
+| `tolerations`                               | A toleration is applied to a pod and allows the pod to be scheduled on nodes with matching taints. Left empty by default. | `[]`              |
 | `serviceAccount.create`                     | Specifies whether a service account should be created                                               | `true`                                  |
 | `serviceAccount.annotations`                | Annotations to add to the service account                                                           | `{}`                                    |
 | `serviceAccount.name`                       | The name of the service account to use. If not set and create is true, a name is generated.         | `""`                                    |
@@ -104,7 +105,7 @@ memgraphConfig:
 If you are using the Memgraph user, make sure you have secrets set:
 
 ```
-kubectl create secret generic memgraph-secrets --from-literal=MEMGRAPH_USER=myuser --from-literal=MEMGRAPH_PASSWORD=mypassword
+kubectl create secret generic memgraph-secrets --from-literal=USER=myuser --from-literal=PASSWORD=mypassword
 ```
 
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).
