@@ -59,7 +59,8 @@ jobs:
         run: |
             helm install mem-ha-test ./charts/memgraph-high-availability \
                 --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
-                --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME
+                --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME \
+                --set memgraph.affinity.enabled=false
 
       - name: Wait for Memgraph setup to complete
         if: steps.list-changed.outputs.changed == 'true'

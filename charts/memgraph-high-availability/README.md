@@ -47,6 +47,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraph.coordinators.volumeClaim.storagePVCSize` | Size of the storage PVC for coordinators                                                         | `1Gi`                                   |
 | `memgraph.coordinators.volumeClaim.logPVC`  | Enable log PVC for coordinators                                                                     | `false`                                 |
 | `memgraph.coordinators.volumeClaim.logPVCSize` | Size of the log PVC for coordinators                                                              | `256Mi`                                 |
+| `memgraph.affinity.enabled`                 | Enables affinity so each instance is deployed to unique node                                        | `true`                                 |
 | `data`                                      | Configuration for data instances                                                                    | See `data` section                      |
 | `coordinators`                              | Configuration for coordinator instances                                                             | See `coordinators` section              |
 
