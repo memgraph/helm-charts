@@ -1,0 +1,75 @@
+accessConfig:
+  authenticationMode: API_AND_CONFIG_MAP
+addonsConfig: {}
+apiVersion: eksctl.io/v1alpha5
+availabilityZones:
+- eu-west-1a
+- eu-west-1c
+- eu-west-1b
+cloudWatch:
+  clusterLogging: {}
+iam:
+  vpcResourceControllerPolicy: true
+  withOIDC: false
+kind: ClusterConfig
+kubernetesNetworkConfig:
+  ipFamily: IPv4
+managedNodeGroups:
+- amiFamily: AmazonLinux2
+  desiredCapacity: 5
+  disableIMDSv1: true
+  disablePodIMDS: false
+  iam:
+    withAddonPolicies:
+      albIngress: false
+      appMesh: false
+      appMeshPreview: false
+      autoScaler: false
+      awsLoadBalancerController: false
+      certManager: false
+      cloudWatch: false
+      ebs: false
+      efs: false
+      externalDNS: false
+      fsx: false
+      imageBuilder: false
+      xRay: false
+  instanceSelector: {}
+  instanceType: t3.small
+  labels:
+    alpha.eksctl.io/cluster-name: test-cluster-ha
+    alpha.eksctl.io/nodegroup-name: standard-workers
+  maxSize: 5
+  minSize: 5
+  name: standard-workers
+  privateNetworking: false
+  releaseVersion: ""
+  securityGroups:
+    withLocal: null
+    withShared: null
+  ssh:
+    allow: true
+    publicKeyPath: ~/.ssh/id_rsa.pub
+  tags:
+    alpha.eksctl.io/nodegroup-name: standard-workers
+    alpha.eksctl.io/nodegroup-type: managed
+  volumeIOPS: 3000
+  volumeSize: 80
+  volumeThroughput: 125
+  volumeType: gp3
+metadata:
+  name: test-cluster-ha
+  region: eu-west-1
+  version: "1.30"
+privateCluster:
+  enabled: false
+  skipEndpointCreation: false
+vpc:
+  autoAllocateIPv6: false
+  cidr: 192.168.0.0/16
+  clusterEndpoints:
+    privateAccess: false
+    publicAccess: true
+  manageSharedNodeSecurityGroupRules: true
+  nat:
+    gateway: Single
