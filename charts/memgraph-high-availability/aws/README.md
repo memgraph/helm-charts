@@ -21,7 +21,6 @@ Use `aws configure` and enter your `AWS Access Key ID, Secret Access Key, Region
 
 We provide you with the sample configuration file for AWS in this folder. Running
 
-
 ```
 eksctl create cluster -f cluster.yaml`
 ```
@@ -47,7 +46,7 @@ Once EKS nodes are started, you need to install AWS Elastic Block Store CSI driv
 kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-1.25"
 ```
 
-## Setup role permissions
+## Authentication and authorization
 
 Before deploying the cluster, you need to provide access to the NodeInstanceRole. First find the name of the role with
 
@@ -60,6 +59,10 @@ and then provide full access to it:
 ```
 aws iam list-attached-role-policies --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE_ID_FROM_PREVIOUS_OUTPUT>
 ```
+
+It is also important to create Inbound Rule in the Security Group attached to the eksctl cluster which will allow TCP traffic
+on ports 30000-32767. We find it easiest to modify this by going to the EC2 Dashboard.
+
 
 ## Deploy Memgraph cluster
 
@@ -76,4 +79,4 @@ memgraph.coordinators.volumeClaim.logPVCClassName=gp2, \
 memgraph.affinity.enabled=true
 ```
 
-You can check that the state of the cluster with `kubectl get pods -o wide`.
+You can check the state of the cluster with `kubectl get pods -o wide`.
