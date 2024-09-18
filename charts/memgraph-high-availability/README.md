@@ -14,11 +14,11 @@ Replace `<release-name>` with a name of your choice for the release and set the 
 ## Changing the default chart values
 To change the default chart values, run the command with the specified set of flags:
 ```
-helm install <resource-name> memgraph/memgraph-high-availability --set <flag1>=<value1>,<flag2>=<value2>,...
+helm install <release-name> memgraph/memgraph-high-availability --set <flag1>=<value1>,<flag2>=<value2>,...
 ```
 Or you can modify a `values.yaml` file and override the desired values:
 ```
-helm install <resource-name> memgraph/memgraph-high-availability-f values.yaml
+helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 ```
 
 
