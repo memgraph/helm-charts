@@ -27,6 +27,11 @@ spec:
         {{- toYaml . | nindent 4 }}
       {{- end }}
     spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccount: {{ include "memgraph.serviceAccountName" . }}
+      {{- else if .Values.serviceAccount.name }}
+      serviceAccount: {{ .Values.serviceAccount.name | quote }}
+      {{- end }}
       initContainers:
         - name: init-volume-mounts
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
