@@ -5,7 +5,7 @@ title: ""
 labels: bug
 ---
 
-**Chart type:**
+**Chart type**
 Specify the chart type you experienced issues with (Memgraph Standalone, Memgraph HA,  Memgraph LAB)
 
 **Chart version:**
