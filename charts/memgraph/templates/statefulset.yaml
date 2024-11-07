@@ -179,7 +179,7 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
           {{- if .Values.persistentVolumeClaim.createLogStorage }}
-            - name: {{ include "memgraph.fullname" . }}-lib-storage
+            - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
           {{- if .Values.persistentVolumeClaim.createUserClaim }}
