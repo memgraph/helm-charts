@@ -112,6 +112,7 @@ resources: {}
 
 serviceAccount:
   # Specifies whether a service account should be created
+  # If set to false and the name is provided, this service account must exist
   create: true
   # Annotations to add to the service account
   annotations: {}
