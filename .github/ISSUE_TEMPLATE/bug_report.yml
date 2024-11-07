@@ -1,27 +1,21 @@
-name: Bug Report
-description: File a bug report
-title: "[Bug]: "
-labels: ["bug"]
-assignees:
-- katarinasupe
-- antejavor
-body:
-- type: markdown
-  attributes:
-    value: |
-      ## Bug Report
+---
+name: Bug report
+about: Create a report to help us improve
+title: ""
+labels: bug
+---
 
-      **Chart type:**
-      _Specify the chart type you experienced issues with (Memgraph Standalone, Memgraph HA,  Memgraph LAB)_
+**Chart type:**
+Specify the chart type you experienced issues with (Memgraph Standalone, Memgraph HA,  Memgraph LAB)
 
-      **Chart version:**
-      _Specify the version of the chart you are running._
+**Chart version:**
+Specify the version of the chart you are running.
 
-      **What happened?**
-      _Describe the issue and what you expected to happen._
+**What happened?**
+Describe the issue and what you expected to happen.
 
-      **Environment:**
-      _Specify the environment where the issue occurred and how it could be related to the bug._
+**Environment:**
+Specify the environment where the issue occurred and how it could be related to the bug.
 
-      **Relevant log output:**
-      _Please copy and paste any relevant log output from pods and containers._
+**Relevant log output:**
+Please copy and paste any relevant log output from pods and containers.
