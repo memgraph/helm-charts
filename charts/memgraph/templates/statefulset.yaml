@@ -96,7 +96,7 @@ spec:
           configMap:
             name: {{ .volume | quote }}
       {{- end }}
-        
+
 
       containers:
         - name: memgraph
