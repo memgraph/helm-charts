@@ -96,6 +96,12 @@ spec:
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-user-storage
       {{- end }}
+      {{- range .Values.customQueryModules }}
+        - name: {{ .volume | quote }}
+          configMap:
+            name: {{ .volume | quote }}
+      {{- end }}
+
 
       containers:
         - name: memgraph
@@ -190,6 +196,11 @@ spec:
           {{- if .Values.persistentVolumeClaim.createUserClaim }}
             - name: {{ include "memgraph.fullname" . }}-user-storage
               mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
+          {{- end }}
+          {{- range .Values.customQueryModules }}
+            - name: {{ .volume | quote }}
+              mountPath: {{ printf "/var/lib/memgraph/internal_modules/%s" .file }}
+              subPath: {{ .file | quote }}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

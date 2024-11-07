@@ -136,3 +136,12 @@ container:
       initialDelaySeconds: 10
       periodSeconds: 10
       failureThreshold: 30
+
+# List of custom query modules to be mounted into the app.
+# These will be loaded automatically, on startup.
+# Each module must be exposed by a ConfigMap under a specific file name.
+customQueryModules: []
+#   Must be an existing ConfigMap
+# - volume: ""
+#   Must be present in the ConfigMap referenced with `volume`
+#   file: ""
