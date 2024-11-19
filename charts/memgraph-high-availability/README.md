@@ -25,8 +25,6 @@ helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 
 To run Memgraph HA Helm Chart locally, affinity needs to be disabled because the cluster will be running on a single node.
 
-When you run Memgraph HA Helm Chart locally, it runs only one one node.
-
 To disable the affinity, run the following command with the specified set of flags:
 
 ```
