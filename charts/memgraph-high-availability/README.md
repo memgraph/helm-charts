@@ -1,5 +1,5 @@
-## Helm chart for Memgraph high availability cluster (Enterprise)
-A Helm Chart for deploying Memgraph in [high availability setup](https://memgraph.com/docs/clustering/high-availability). This helm chart requires an enterprise version of Memgraph.
+# Helm chart for Memgraph high availability (HA) cluster (Enterprise)
+A Helm Chart for deploying Memgraph in [high availability setup](https://memgraph.com/docs/clustering/high-availability). This Helm Chart requires an [Enterprise version of Memgraph](https://memgraph.com/docs/database-management/enabling-memgraph-enterprise).
 
 Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job. The HA cluster is still work in progress and started with "--experimental-enabled=high-availability".
 The cluster is started in the configuration without the node selector, which means that in the current configuration, it is not highly available if the node fails.
@@ -21,16 +21,19 @@ Or you can modify a `values.yaml` file and override the desired values:
 helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 ```
 
-## Running the Memgraph HA Helm Chart Locally
+## Running the Memgraph HA Helm Chart locally
 
-Running the Memgraph HA Helm Chart locally means that the cluster will be running only on one node. The affinity therefore 
-needs to be disabled. The command would look as follows:
+To run Memgraph HA Helm Chart locally, affinity needs to be disabled because the cluster will be running on a single node.
+
+When you run Memgraph HA Helm Chart locally, it runs only one one node.
+
+To disable the affinity, run the following command with the specified set of flags:
 
 ```
 helm install <release-name> memgraph/memgraph-high-availability --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>,memgraph.affinity.enabled=false
 ```
 
-The affinity is disabled either by running the command above, or modifying the `values.yaml` file.
+The affinity is disabled either by running the command above, or by modifying the `values.yaml` file.
 
 
 ## Configuration Options
