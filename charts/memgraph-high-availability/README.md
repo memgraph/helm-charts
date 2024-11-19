@@ -21,6 +21,17 @@ Or you can modify a `values.yaml` file and override the desired values:
 helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 ```
 
+## Running the Memgraph HA Helm Chart Locally
+
+Running the Memgraph HA Helm Chart locally means that the cluster will be running only on one node. The affinity therefore 
+needs to be disabled. The command would look as follows:
+
+```
+helm install <release-name> memgraph/memgraph-high-availability --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>,memgraph.affinity.enabled=false
+```
+
+The affinity is disabled either by running the command above, or modifying the `values.yaml` file.
+
 
 ## Configuration Options
 
