@@ -5,7 +5,7 @@
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.18.1
+    tag: 2.22.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -46,7 +46,6 @@ data:
   managementPort: 10000
   replicationPort: 20000
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -58,7 +57,6 @@ data:
   managementPort: 10000
   replicationPort: 20000
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -71,7 +69,6 @@ coordinators:
   managementPort: 10000
   coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=1"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -87,7 +84,6 @@ coordinators:
   managementPort: 10000
   coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=2"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -103,7 +99,6 @@ coordinators:
   managementPort: 10000
   coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=3"
   - "--coordinator-port=12000"
   - "--management-port=10000"
