@@ -20,6 +20,7 @@ affinity:
   nodeKey:
   nodeValue:
 
+
 nodeSelector: {}
 
 tolerations: []
@@ -120,7 +121,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-
 container:
   terminationGracePeriodSeconds: 1800
   probes:
@@ -145,3 +145,7 @@ customQueryModules: []
 # - volume: ""
 #   Must be present in the ConfigMap referenced with `volume`
 #   file: ""
+
+
+sysctlInitContainer:
+  enabled: true
