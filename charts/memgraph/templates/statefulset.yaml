@@ -72,7 +72,7 @@ spec:
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
           image: busybox
-          command: ['sh', '-c', 'sysctl -w vm.max_map_count=65530']
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ .Values.sysctlInitContainer.maxMapCount }}']
           securityContext:
             privileged: true
             runAsUser: 0
