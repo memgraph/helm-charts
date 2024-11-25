@@ -1,7 +1,3 @@
-#{{ $.Values.memgraph.image.repository }}: Default values for memgraph-high-availability.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.|
-
 memgraph:
   image:
     repository: memgraph/memgraph
@@ -43,8 +39,6 @@ memgraph:
     managementPort: 10000
     replicationPort: 20000
     coordinatorPort: 12000
-
-
 
 data:
 - id: "0"
