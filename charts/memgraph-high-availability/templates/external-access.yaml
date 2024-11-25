@@ -3,7 +3,11 @@ kind: Service
 metadata:
   name: external-access
 spec:
+{{- if eq $.Values.memgraph.externalAccess.serviceType "NodePort"}}
   type: NodePort
+{{- else }}
+  type: LoadBalancer
+{{- end }}
   selector:
     instance-type: coordinator
   ports:

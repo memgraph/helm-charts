@@ -8,9 +8,11 @@ The cluster setup requires the proper enterprise license to work since HA is an 
 You can connect to Memgraph instances via Lab, mgconsole, or any other client. By default, all Memgraph instances (coordinators and data instances) listen on port 7687 for a bolt connection.
 Make sure your are connecting to the correct ip address and port. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
 
-If you are connecting via mgconsole, you can use the following command:
+If you are using NodePort as the service type for the external access, use node IP and node port to connect. Example using mgconsole:
+mgconsole --host=<NODE-IP> --port=<NODE-PORT>
 
-mgconsole --host <your-instance-ip> --port <your-instance-port>
+If you are using LoadBalancer as the service type for the external access, use IP of the load balancer and its target port to connect. Example using mgconsole:
+mgconsole --host=<LOAD-BALANCER-IP> --port=<TARGET-PORT>
 
 If you are connecting via Lab, specify your instance IP address and port in Memgraph Lab GUI.
 

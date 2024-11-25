@@ -29,7 +29,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | Parameter                                   | Description                                                                                         | Default                                 |
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------|
 | `memgraph.image.repository`                 | Memgraph Docker image repository                                                                    | `memgraph/memgraph`                     |
-| `memgraph.image.tag`                        | Specific tag for the Memgraph Docker image. Overrides the image tag whose default is chart version. | `2.17.0`                                |
+| `memgraph.image.tag`                        | Specific tag for the Memgraph Docker image. Overrides the image tag whose default is chart version. | `2.22.0`                                |
 | `memgraph.image.pullPolicy`                 | Image pull policy                                                                                   | `IfNotPresent`                          |
 | `memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE`  | Memgraph enterprise license                                                                         | `<your-license>`                        |
 | `memgraph.env.MEMGRAPH_ORGANIZATION_NAME`   | Organization name                                                                                   | `<your-organization-name>`              |
@@ -48,6 +48,11 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraph.coordinators.volumeClaim.logPVC`  | Enable log PVC for coordinators                                                                     | `false`                                 |
 | `memgraph.coordinators.volumeClaim.logPVCSize` | Size of the log PVC for coordinators                                                              | `256Mi`                                 |
 | `memgraph.affinity.enabled`                 | Enables affinity so each instance is deployed to unique node                                        | `true`                                 |
+| `memgraph.externalAccess.serviceType`       | NodePort or LoadBalancer. Use LoadBalancer for Cloud production deployment and NodePort for local testing | `LoadBalancer`                    |
+| `memgraph.ports.boltPort`                   | Bolt port used on coordinator and data instances.                                                   | `7687`                                  |
+| `memgraph.ports.managementPort`             | Management port used on coordinator and data instances.                                             | `10000`                                 |
+| `memgraph.ports.replicationPort`            | Replication port used on data instances.                                                            | `20000`                                 |
+| `memgraph.ports.coordinatorPort`            | Coordinator port used on coordinators.                                                              | `12000`                                 |
 | `data`                                      | Configuration for data instances                                                                    | See `data` section                      |
 | `coordinators`                              | Configuration for coordinator instances                                                             | See `coordinators` section              |
 
@@ -56,10 +61,6 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 | Parameter                                   | Description                                                                                         | Default                                 |
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------|
 | `id`                                        | ID of the instance                                                                                  | `0` for data, `1` for coordinators      |
-| `boltPort`                                  | Bolt port of the instance                                                                           | `7687`                                  |
-| `managementPort`                            | Management port of the data instance                                                                | `10000`                                 |
-| `replicationPort` (data only)               | Replication port of the data instance                                                               | `20000`                                 |
-| `coordinatorPort` (coordinators only)       | Coordinator port of the coordinator instance                                                        | `12000`                                 |
 | `args`                                      | List of arguments for the instance                                                                  | See `args` section                      |
 
 The `args` section contains a list of arguments for the instance. The default values are the same for all instances:

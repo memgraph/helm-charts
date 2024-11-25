@@ -39,6 +39,9 @@ memgraph:
     managementPort: 10000
     replicationPort: 20000
     coordinatorPort: 12000
+  externalAccess:
+    serviceType: "LoadBalancer"
+
 
 data:
 - id: "0"
