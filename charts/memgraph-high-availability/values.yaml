@@ -1,4 +1,4 @@
-# Default values for memgraph-high-availability.
+#{{ $.Values.memgraph.image.repository }}: Default values for memgraph-high-availability.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.|
 
@@ -38,13 +38,16 @@ memgraph:
       logPVCSize: "256Mi"
   affinity:
     enabled: true
+  ports:
+    boltPort: 7687
+    managementPort: 10000
+    replicationPort: 20000
+    coordinatorPort: 12000
+
 
 
 data:
 - id: "0"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
   - "--experimental-enabled=high-availability"
   - "--management-port=10000"
@@ -54,9 +57,6 @@ data:
   - "--log-file=/var/log/memgraph/memgraph.log"
 
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
   - "--experimental-enabled=high-availability"
   - "--management-port=10000"
@@ -67,9 +67,6 @@ data:
 
 coordinators:
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=1"
@@ -83,9 +80,6 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "2"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=2"
@@ -99,9 +93,6 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "3"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--experimental-enabled=high-availability"
   - "--coordinator-id=3"

@@ -12,32 +12,14 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
     - protocol: TCP
       name: coordinator
-      port: {{ .coordinatorPort }}
-      targetPort: {{ .coordinatorPort }}
+      port: {{ $.Values.memgraph.ports.coordinatorPort }}
+      targetPort: {{ $.Values.memgraph.ports.coordinatorPort }}
     - protocol: TCP
       name: management
-      port: {{ .managementPort }}
-      targetPort: {{ .managementPort }}
-{{- end }}
-
-# Service for coordinators instances external
-{{- range .Values.coordinators }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: memgraph-coordinator-{{ .id }}-external
-spec:
-  type: NodePort
-  selector:
-    app: memgraph-coordinator-{{ .id }}
-  ports:
-    - protocol: TCP
-      name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.managementPort }}
+      targetPort: {{ $.Values.memgraph.ports.managementPort }}
 {{- end }}

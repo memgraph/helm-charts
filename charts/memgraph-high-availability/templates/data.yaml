@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: memgraph-data-{{ $data.id }}
+        instance-type: data
     spec:
     {{ if $.Values.memgraph.affinity.enabled }}
       affinity:
@@ -57,9 +58,9 @@ spec:
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
         imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
         ports:
-        - containerPort: {{ $data.boltPort }}
-        - containerPort: {{ $data.managementPort }}
-        - containerPort: {{ $data.replicationPort }}
+        - containerPort: {{ $.Values.memgraph.ports.boltPort }}
+        - containerPort: {{ $.Values.memgraph.ports.managementPort }}
+        - containerPort: {{ $.Values.memgraph.ports.replicationPort }}
         args:
         {{- range $arg := $data.args }}
         - "{{ $arg }}"

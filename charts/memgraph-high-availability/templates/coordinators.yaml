@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: memgraph-coordinator-{{ $coordinator.id }}
+        instance-type: coordinator
     spec:
     {{ if $.Values.memgraph.affinity.enabled }}
       affinity:
@@ -57,9 +58,9 @@ spec:
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
         imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
         ports:
-        - containerPort: {{ $coordinator.boltPort }}
-        - containerPort: {{ $coordinator.managementPort }}
-        - containerPort: {{ $coordinator.coordinatorPort }}
+        - containerPort: {{ $.Values.memgraph.ports.boltPort }}
+        - containerPort: {{ $.Values.memgraph.ports.managementPort }}
+        - containerPort: {{ $.Values.memgraph.ports.coordinatorPort }}
         args:
         {{- range $arg := $coordinator.args }}
         - "{{ $arg }}"
