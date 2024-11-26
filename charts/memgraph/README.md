@@ -45,12 +45,12 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `service.httpPortMonitoringProtocol`        | Protocol used by HTTP monitoring                                                                                                 | `http`                                 |
 | `service.annotations`                       | Annotations to add to the service                                                                                                | `{}`                                   |
 | `persistentVolumeClaim.createStorageClaim`  | Enable creation of a Persistent Volume Claim for storage                                                                         | `true`                                 |
-| `persistentVolumeClaim.storageClassName`    | Storage class name for the persistent volume claim                                                                               | `""`                                   |
+| `persistentVolumeClaim.storageClassName`    | Storage class name for the persistent volume claim                                                                               | `"memgraph-generic-storage-class"`     |
 | `persistentVolumeClaim.storageSize`         | Size of the persistent volume claim for storage                                                                                  | `10Gi`                                 |
 | `persistentVolumeClaim.existingClaim`       | Use an existing Persistent Volume Claim                                                                                          | `memgraph-0`                           |
 | `persistentVolumeClaim.storageVolumeName`   | Name of an existing Volume to create a PVC for                                                                                   | `""`                                   |
 | `persistentVolumeClaim.createLogStorage`    | Enable creation of a Persistent Volume Claim for logs                                                                            | `true`                                 |
-| `persistentVolumeClaim.logStorageClassName` | Storage class name for the persistent volume claim for logs                                                                      | `""`                                   |
+| `persistentVolumeClaim.logStorageClassName` | Storage class name for the persistent volume claim for logs                                                                      | `"memgraph-generic-storage-class"`     |
 | `persistentVolumeClaim.logStorageSize`      | Size of the persistent volume claim for logs                                                                                     | `1Gi`                                  |
 | `memgraphConfig`                            | List of strings defining Memgraph configuration settings                                                                         | `["--also-log-to-stderr=true"]`        |
 | `secrets.enabled`                           | Enable the use of Kubernetes secrets for Memgraph credentials                                                                    | `false`                                |
@@ -78,7 +78,12 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `probes.startup.failureThreshold`           | Failure threshold for startup probe                                                                                              | `30`                                   |
 | `nodeSelectors`                             | Node selectors for pod. Left empty by default.                                                                                   | `{}`                                   |
 | `customQueryModules`                        | List of custom Query modules that should be mounted to Memgraph Pod                                                              | `[]`                                   |
-
+| `storageClass.name`                         | Name of the StorageClass                                                                                                         | `"memgraph-generic-storage-class"`     |
+| `storageClass.provisioner`                  | Provisioner for the StorageClass                                                                                                 | `""`                                   |
+| `storageClass.storageType`                  | Type of storage for the StorageClass                                                                                             | `""`                                   |
+| `storageClass.fsType`                       | Filesystem type for the StorageClass                                                                                             | `""`                                   |
+| `storageClass.reclaimPolicy`                | Reclaim policy for the StorageClass                                                                                              | `Retain`                               |
+| `storageClass.volumeBindingMode`            | Volume binding mode for the StorageClass                                                                                         | `Immediate`                            |
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
 ```yaml

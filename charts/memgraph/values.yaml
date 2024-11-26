@@ -81,6 +81,8 @@ persistentVolumeClaim:
 # Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
 # Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
+# If you are changing the storageClass.name make sure to change the the names of the PVCs (storageClassName and logStorageClassName)
+
 storageClass:
   name: memgraph-generic-storage-class
   provisioner: "k8s.io/minikube-hostpath"
