@@ -78,11 +78,13 @@ persistentVolumeClaim:
   userStorageSize: 1Gi
   userMountPath: ""
 
-# Default Storage Class for uminiser data and logs, defaults for Minikube, make sure to change it for production deployments
+# Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
+# Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
+# Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
 storageClass:
   name: memgraph-generic-storage-class
-  provisioner: "k8s.io/minikube-hostpath" # Examples: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
-  storageType: "hostPath" # Examples: Minikube(hostPath) Examples: AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
+  provisioner: "k8s.io/minikube-hostpath"
+  storageType: "hostPath"
   fsType: ext4
   reclaimPolicy: Retain
   volumeBindingMode: Immediate
