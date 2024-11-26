@@ -47,9 +47,11 @@ fullnameOverride: ""
 # Supported env variables: https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables
 env:
   - name: QUICK_CONNECT_MG_HOST
-    value: memgraph
+    value: memgraph-db
   - name: QUICK_CONNECT_MG_PORT
     value: "7687"
+  - name: BASE_PATH
+    value: /
 
 podSecurityContext: {}
   # fsGroup: 2000
