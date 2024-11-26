@@ -40,4 +40,5 @@ spec:
       name: bolt
       port: {{ $.Values.memgraph.ports.boltPort }}
       targetPort: {{ $.Values.memgraph.ports.boltPort }}
+      nodePort: {{ add 32010 .id }}
 {{- end }}
