@@ -52,9 +52,9 @@ persistentVolumeClaim:
   ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim
   ## `false` will let you choose an existing Persistant Volume Claim or will create one with an existing volume
   createStorageClaim: true
-  ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume
+  ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume until you manually delete it
   ## If you use a Storage Class Name with policy `delete` the Persistant Volume Claim and Volume will be deleted when the helm release is deleted
-  storageClassName: "generic-storage-class"
+  storageClassName: "memgraph-generic-storage-class"
   ## Storage Size must me at minimum 4x the maximum size of your Dataset for Snapshots
   ## See documentation for choosing the right size depending on the number of Snapshots you want to keep
   ## Default is 3 snapshots and you need space to create a new one and WAL files
@@ -66,10 +66,10 @@ persistentVolumeClaim:
   ## If you want to create a Persistant Volume Claim for an existing Volume
   storageVolumeName: ""
 
-  ## Create a Dynamic Persistant Volume Claim for Logs
+  ## Create a Persistant Volume Claim for Logs, if you use a Storage Class Name with policy `retain` the logs will be kept until you manually delete them
   # `false` will only write logs to stdout / stderr
   createLogStorage: true
-  logStorageClassName: ""
+  logStorageClassName: "memgraph-generic-storage-class"
   logStorageSize: 1Gi
 
   ## Create a Dynamic Persistant Volume Claim for Configs, Certificates (e.g. Bolt cert ) and rest of User related files
@@ -78,13 +78,14 @@ persistentVolumeClaim:
   userStorageSize: 1Gi
   userMountPath: ""
 
+# Default Storage Class for uminiser data and logs, defaults for Minikube, make sure to change it for production deployments
 storageClass:
-  name: generic-storage-class
-  provisioner: "kubernetes.io/no-provisioner" # Examples: Minikube(kubernetes.io/no-provisioner) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
+  name: memgraph-generic-storage-class
+  provisioner: "k8s.io/minikube-hostpath" # Examples: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
   storageType: "hostPath" # Examples: Minikube(hostPath) Examples: AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
   fsType: ext4
   reclaimPolicy: Retain
-  volumeBindingMode: WaitForFirstConsumer
+  volumeBindingMode: Immediate
 
 memgraphConfig:
 - "--also-log-to-stderr=true"
