@@ -16,7 +16,7 @@ spec:
         app: memgraph-data-{{ $data.id }}
         role: data
     spec:
-      {{- if $.Values.memgraph.affinity.enabled }}
+      {{- if $.Values.affinity.enabled }}
       affinity:
         {{- if $.Values.affinity.nodeSelection }}
         # Node Selection Affinity: Prefer nodes with the specific dataNodeLabel and prefer spreading across nodes
