@@ -28,15 +28,15 @@ spec:
                 operator: In
                 values:
                 - {{ $.Values.affinity.coordinatorNodeLabelValue }}
-          podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                - key: role
-                  operator: In
-                  values:
-                  - coordinator
-              topologyKey: "kubernetes.io/hostname"
+        podAntiAffinity :
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - coordinator
+            topologyKey: "kubernetes.io/hostname"
         {{- else if $.Values.affinity.unique }}
         # Unique Affinity: Schedule pods on different nodes
         podAntiAffinity:
