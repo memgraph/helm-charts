@@ -62,14 +62,16 @@ spec:
         {{- else if $.Values.affinity.parity }}
         # Parity Affinity: One coordinator and one data node per node
         podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: role
-                operator: In
-                values:
-                - coordinator
-            topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: role
+                      operator: In
+                      values:
+                        - coordinator
+                topologyKey: "kubernetes.io/hostname"
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -77,37 +79,10 @@ spec:
               - key: role
                 operator: In
                 values:
-                - coordinator
                 - data
             topologyKey: "kubernetes.io/hostname"
-        {{- else if $.Values.affinity.paritySoft }}
-        # Parity Soft Affinity: Prefer one coordinator and one data node per node
-        podAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: role
-                  operator: In
-                  values:
-                  - coordinator
-              topologyKey: "kubernetes.io/hostname"
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 50
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: role
-                  operator: In
-                  values:
-                  - coordinator
-                  - data
-              topologyKey: "kubernetes.io/hostname"
         {{- end }}
-      {{- end }}
-
+    {{- end }}
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
