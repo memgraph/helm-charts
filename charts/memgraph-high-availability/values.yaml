@@ -38,16 +38,17 @@ memgraph:
       logPVCSize: "256Mi"
 
 # Affinity controls the scheduling of the memgraph-high-availability pods, by disabling affinity, pods will be schedule on any node in the cluster, no matter if they are on the same node or not.
-# The default unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node, this is the most common use case for high availability. If not sufficient nodes, deployment will fail.
-# The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node. This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
-# The nodeSelection affinity, will enable scheduling of the pods on the nodes with specific labels. So the coordinators will be scheduled on the nodes with label coordinator-node and data nodes will be scheduled on the nodes with label data-node. The pods will prefer to spread on multiple data and coordinator nodes.
 affinity:
   enabled: true
+  # The unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node, this is the most common use case for high availability. If not sufficient nodes, deployment will fail.
   unique: false
+  # The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node. This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
   parity: false
+  # The nodeSelection affinity, will enable scheduling of the pods on the nodes with specific labels. So the coordinators will be scheduled on the nodes with label coordinator-node and data nodes will be scheduled on the nodes with label data-node. The pods will prefer to spread on multiple data and coordinator nodes.
   nodeSelection: false
-  dataNodeLabel: "data-node"
-  coordinatorNodeLabel: "coordinator-node"
+  roleLabelKey: "role"
+  dataNodeLabelValue: "data-node"
+  coordinatorNodeLabelValue: "coordinator-node"
 
 data:
 - id: "0"

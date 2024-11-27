@@ -19,15 +19,24 @@ spec:
       {{- if $.Values.affinity.enabled }}
       affinity:
         {{- if $.Values.affinity.nodeSelection }}
-        # Node Selection Affinity: Schedule coordinator pods on nodes with a specific labels
+        # Node Selection Affinity: Scheduled on nodes with specific label key and value
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: "{{ .Values.affinity.coordinatorNodeLabel }}"
+              - key: {{ $.Values.affinity.roleLabelKey }}
                 operator: In
                 values:
-                - "true"
+                - {{ $.Values.affinity.coordinatorNodeLabelValue }}
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - coordinator
+              topologyKey: "kubernetes.io/hostname"
         {{- else if $.Values.affinity.unique }}
         # Unique Affinity: Schedule pods on different nodes
         podAntiAffinity:
