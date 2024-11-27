@@ -9,27 +9,105 @@ spec:
   selector:
     matchLabels:
       app: memgraph-data-{{ $data.id }}
+      role: data
   template:
     metadata:
       labels:
         app: memgraph-data-{{ $data.id }}
+        role: data
     spec:
-    {{ if $.Values.memgraph.affinity.enabled }}
+      {{- if $.Values.memgraph.affinity.enabled }}
       affinity:
+        {{- if $.Values.affinity.nodeSelection }}
+        # Node Selection Affinity: Prefer nodes with the specific dataNodeLabel and prefer spreading across nodes
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "{{ $.Values.affinity.dataNodeLabel }}"
+                operator: In
+                values:
+                - "true"
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "true"
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - data
+              topologyKey: "kubernetes.io/hostname"
+        {{- else if $.Values.affinity.unique }}
+        # Unique Affinity: Schedule pods on different nodes where there is no coordinator or data pod
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app
+              - key: role
                 operator: In
                 values:
-                - memgraph-coordinator-1
-                - memgraph-coordinator-2
-                - memgraph-coordinator-3
-                - memgraph-data-0
-                - memgraph-data-1
+                - coordinator
+                - data
             topologyKey: "kubernetes.io/hostname"
-    {{ end }}
+        {{- else if $.Values.affinity.parity }}
+        # Parity Affinity: One coordinator and one data node per node
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - coordinator
+            topologyKey: "kubernetes.io/hostname"
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - coordinator
+                - data
+            topologyKey: "kubernetes.io/hostname"
+        {{- else if $.Values.affinity.paritySoft }}
+        # Parity Soft Affinity: Prefer one coordinator and one data node per node
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - coordinator
+              topologyKey: "kubernetes.io/hostname"
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                  - coordinator
+                  - data
+              topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+      {{- end }}
+
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
