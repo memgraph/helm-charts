@@ -15,6 +15,8 @@ spec:
       labels:
         app: memgraph-data-{{ $data.id }}
         role: data
+        instance-type: data
+
     spec:
       {{- if $.Values.affinity.enabled }}
       affinity:
@@ -95,14 +97,23 @@ spec:
             add: [ "CHOWN" ]
           runAsUser: 0
           runAsNonRoot: false
+    {{- if $.Values.sysctlInitContainer.enabled }}
+      - name: init-sysctl
+        image: busybox
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        {{- end }}
+
       containers:
       - name: memgraph-data
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
         imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
         ports:
-        - containerPort: {{ $data.boltPort }}
-        - containerPort: {{ $data.managementPort }}
-        - containerPort: {{ $data.replicationPort }}
+        - containerPort: {{ $.Values.memgraph.ports.boltPort }}
+        - containerPort: {{ $.Values.memgraph.ports.managementPort }}
+        - containerPort: {{ $.Values.memgraph.ports.replicationPort }}
         args:
         {{- range $arg := $data.args }}
         - "{{ $arg }}"

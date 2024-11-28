@@ -16,7 +16,7 @@ services:
       - ./HA_register.cypher:/tmp/init/HA_register.cypher:ro
     environment:
       - MEMGRAPH_HA_CLUSTER_INIT_QUERIES=/tmp/init/HA_register.cypher
-    command: [ "--init-file=/tmp/init/license.cypher", "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord1", "--log-file=/tmp/coord1.log", "--also-log-to-stderr", "--coordinator-id=1", "--coordinator-port=10111", "--coordinator-hostname=coord1", "--experimental-enabled=high-availability"]
+    command: [ "--init-file=/tmp/init/license.cypher", "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord1", "--log-file=/tmp/coord1.log", "--also-log-to-stderr", "--coordinator-id=1", "--coordinator-port=10111", "--coordinator-hostname=coord1"]
     networks:
       memgraph_ha:
         ipv4_address: 172.21.0.4
@@ -26,7 +26,7 @@ services:
     container_name: coord2
     volumes:
       - ./license.cypher:/tmp/init/license.cypher:ro
-    command: [ "--init-file=/tmp/init/license.cypher", "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord2", "--log-file=/tmp/coord2.log", "--also-log-to-stderr", "--coordinator-id=2", "--coordinator-port=10112", "--coordinator-hostname=coord2", "--experimental-enabled=high-availability"]
+    command: [ "--init-file=/tmp/init/license.cypher", "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord2", "--log-file=/tmp/coord2.log", "--also-log-to-stderr", "--coordinator-id=2", "--coordinator-port=10112", "--coordinator-hostname=coord2"]
     networks:
       memgraph_ha:
         ipv4_address: 172.21.0.2
@@ -36,7 +36,7 @@ services:
     container_name: coord3
     volumes:
       - ./license.cypher:/tmp/init/license.cypher:ro
-    command: [ "--init-file=/tmp/init/license.cypher",  "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord3", "--log-file=/tmp/coord3.log", "--also-log-to-stderr", "--coordinator-id=3", "--coordinator-port=10113", "--coordinator-hostname=coord3", "--experimental-enabled=high-availability"]
+    command: [ "--init-file=/tmp/init/license.cypher",  "--log-level=TRACE", "--data-directory=/tmp/mg_data_coord3", "--log-file=/tmp/coord3.log", "--also-log-to-stderr", "--coordinator-id=3", "--coordinator-port=10113", "--coordinator-hostname=coord3"]
 
     networks:
       memgraph_ha:
@@ -47,7 +47,7 @@ services:
     container_name: instance1
     volumes:
       - ./license.cypher:/tmp/init/license.cypher:ro
-    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance1", "--log-file=/tmp/instance1.log", "--also-log-to-stderr", "--management-port=10011", "--experimental-enabled=high-availability"]
+    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance1", "--log-file=/tmp/instance1.log", "--also-log-to-stderr", "--management-port=10011"]
     networks:
       memgraph_ha:
         ipv4_address: 172.21.0.6
@@ -57,7 +57,7 @@ services:
     container_name: instance2
     volumes:
       - ./license.cypher:/tmp/init/license.cypher:ro
-    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance2", "--log-file=/tmp/instance2.log", "--also-log-to-stderr", "--management-port=10012", "--experimental-enabled=high-availability"]
+    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance2", "--log-file=/tmp/instance2.log", "--also-log-to-stderr", "--management-port=10012"]
     networks:
       memgraph_ha:
         ipv4_address: 172.21.0.7
@@ -67,7 +67,7 @@ services:
     container_name: instance3
     volumes:
       - ./license.cypher:/tmp/init/license.cypher:ro
-    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance3", "--log-file=/tmp/instance3.log", "--also-log-to-stderr", "--management-port=10013", "--experimental-enabled=high-availability"]
+    command: ["--init-file=/tmp/init/license.cypher","--data-recovery-on-startup=true", "--log-level=TRACE", "--data-directory=/tmp/mg_data_instance3", "--log-file=/tmp/instance3.log", "--also-log-to-stderr", "--management-port=10013"]
     networks:
       memgraph_ha:
         ipv4_address: 172.21.0.8

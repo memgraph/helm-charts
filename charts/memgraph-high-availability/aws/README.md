@@ -26,7 +26,7 @@ eksctl create cluster -f cluster.yaml`
 ```
 
 should be sufficient. Make sure to change the path to the public SSH key if you want to have SSH access to EC2 instances. After creating the cluster, `kubectl` should pick up
-the AWS context and you can verify this by running `kubectl context current-context`. My is pointing to `andi.skrgat@test-cluster-ha.eu-west-1.eksctl.io`.
+the AWS context and you can verify this by running `kubectl config current-context`. My is pointing to `andi.skrgat@test-cluster-ha.eu-west-1.eksctl.io`.
 
 ## Add Helm Charts repository
 
@@ -57,7 +57,8 @@ aws eks describe-nodegroup --cluster-name test-cluster-ha --nodegroup-name stand
 and then provide full access to it:
 
 ```
-aws iam list-attached-role-policies --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE_ID_FROM_PREVIOUS_OUTPUT>
+aws iam attach-role-policy --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID> --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+aws iam list-attached-role-policies --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID>
 ```
 
 It is also important to create Inbound Rule in the Security Group attached to the eksctl cluster which will allow TCP traffic

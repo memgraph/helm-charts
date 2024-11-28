@@ -1,11 +1,7 @@
-# Default values for memgraph-high-availability.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.|
-
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.18.1
+    tag: 2.22.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -36,6 +32,14 @@ memgraph:
       logPVCClassName: ""
       logPVC: true
       logPVCSize: "256Mi"
+  ports:
+    boltPort: 7687
+    managementPort: 10000
+    replicationPort: 20000
+    coordinatorPort: 12000
+  coordLoadBalancer:
+    enabled: true  
+    
 
 # Affinity controls the scheduling of the memgraph-high-availability pods, by disabling affinity, pods will be schedule on random nodes in the cluster that k8s scheduler chooses.
 affinity:
@@ -50,13 +54,19 @@ affinity:
   dataNodeLabelValue: "data-node"
   coordinatorNodeLabelValue: "coordinator-node"
 
+
+# If you are experiencing issues with the sysctlInitContainer, you can disable it here.
+# This is made to increase the max_map_count, necessary for high memory loads in Memgraph
+# If you are experiencing crashing pod with the: Max virtual memory areas vm.max_map_count is too low
+# you can increase the maxMapCount value.
+sysctlInitContainer:
+  enabled: true
+  maxMapCount: 262144
+
+
 data:
 - id: "0"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -64,11 +74,7 @@ data:
   - "--log-file=/var/log/memgraph/memgraph.log"
 
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -77,11 +83,7 @@ data:
 
 coordinators:
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=1"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -93,11 +95,7 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "2"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=2"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -109,11 +107,7 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "3"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=3"
   - "--coordinator-port=12000"
   - "--management-port=10000"
