@@ -73,6 +73,19 @@ spec:
                 values:
                 - data
             topologyKey: "kubernetes.io/hostname"
+        {{- else }}
+        # Default Affinity: Avoid scheduling on the same node
+        podAntiAffinity:
+           preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: role
+                      operator: In
+                      values:
+                        - data
+                topologyKey: "kubernetes.io/hostname"
         {{- end }}
     {{- end }}
       initContainers:
