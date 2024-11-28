@@ -1,7 +1,7 @@
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.18.1
+    tag: 2.22.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -53,7 +53,6 @@ sysctlInitContainer:
 data:
 - id: "0"
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -62,7 +61,6 @@ data:
 
 - id: "1"
   args:
-  - "--experimental-enabled=high-availability"
   - "--management-port=10000"
   - "--bolt-port=7687"
   - "--also-log-to-stderr"
@@ -72,7 +70,6 @@ data:
 coordinators:
 - id: "1"
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=1"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -85,7 +82,6 @@ coordinators:
 
 - id: "2"
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=2"
   - "--coordinator-port=12000"
   - "--management-port=10000"
@@ -98,7 +94,6 @@ coordinators:
 
 - id: "3"
   args:
-  - "--experimental-enabled=high-availability"
   - "--coordinator-id=3"
   - "--coordinator-port=12000"
   - "--management-port=10000"

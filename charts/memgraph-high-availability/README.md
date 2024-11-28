@@ -1,8 +1,7 @@
 # Helm chart for Memgraph high availability (HA) cluster (Enterprise)
 A Helm Chart for deploying Memgraph in [high availability setup](https://memgraph.com/docs/clustering/high-availability). This Helm Chart requires an [Enterprise version of Memgraph](https://memgraph.com/docs/database-management/enabling-memgraph-enterprise).
 
-Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job. The HA cluster is still work in progress and started with "--experimental-enabled=high-availability".
-The cluster is started in the configuration without the node selector, which means that in the current configuration, it is not highly available if the node fails.
+Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job.
 
 ## Installing the Memgraph HA Helm Chart
 To install the Memgraph HA Helm Chart, follow the steps below:
