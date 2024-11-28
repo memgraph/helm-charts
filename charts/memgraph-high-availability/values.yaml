@@ -38,8 +38,7 @@ memgraph:
     replicationPort: 20000
     coordinatorPort: 12000
   coordLoadBalancer:
-    enabled: true  
-    
+    enabled: true
 
 # Affinity controls the scheduling of the memgraph-high-availability pods, by disabling affinity, pods will be schedule on random nodes in the cluster that k8s scheduler chooses.
 affinity:
@@ -54,7 +53,6 @@ affinity:
   dataNodeLabelValue: "data-node"
   coordinatorNodeLabelValue: "coordinator-node"
 
-
 # If you are experiencing issues with the sysctlInitContainer, you can disable it here.
 # This is made to increase the max_map_count, necessary for high memory loads in Memgraph
 # If you are experiencing crashing pod with the: Max virtual memory areas vm.max_map_count is too low
@@ -62,7 +60,6 @@ affinity:
 sysctlInitContainer:
   enabled: true
   maxMapCount: 262144
-
 
 data:
 - id: "0"
