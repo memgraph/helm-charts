@@ -53,6 +53,15 @@ spec:
             add: [ "CHOWN" ]
           runAsUser: 0
           runAsNonRoot: false
+    {{- if $.Values.sysctlInitContainer.enabled }}
+      - name: init-sysctl
+        image: busybox
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        {{- end }}
+
       containers:
       - name: memgraph-data
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"

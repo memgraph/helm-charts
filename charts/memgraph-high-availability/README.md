@@ -1,5 +1,5 @@
-## Helm chart for Memgraph high availability cluster (Enterprise)
-A Helm Chart for deploying Memgraph in [high availability setup](https://memgraph.com/docs/clustering/high-availability). This helm chart requires an enterprise version of Memgraph.
+# Helm chart for Memgraph high availability (HA) cluster (Enterprise)
+A Helm Chart for deploying Memgraph in [high availability setup](https://memgraph.com/docs/clustering/high-availability). This Helm Chart requires an [Enterprise version of Memgraph](https://memgraph.com/docs/database-management/enabling-memgraph-enterprise).
 
 Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job. The HA cluster is still work in progress and started with "--experimental-enabled=high-availability".
 The cluster is started in the configuration without the node selector, which means that in the current configuration, it is not highly available if the node fails.
@@ -21,10 +21,23 @@ Or you can modify a `values.yaml` file and override the desired values:
 helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 ```
 
+## Running the Memgraph HA Helm Chart locally
+
+To run Memgraph HA Helm Chart locally, affinity needs to be disabled because the cluster will be running on a single node.
+
+To disable the affinity, run the following command with the specified set of flags:
+
+```
+helm install <release-name> memgraph/memgraph-high-availability --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>,memgraph.affinity.enabled=false
+```
+
+The affinity is disabled either by running the command above, or by modifying the `values.yaml` file.
+
 
 ## Configuration Options
 
 The following table lists the configurable parameters of the Memgraph chart and their default values.
+
 
 | Parameter                                   | Description                                                                                         | Default                                 |
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------|
@@ -55,6 +68,8 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraph.ports.coordinatorPort`            | Coordinator port used on coordinators.                                                              | `12000`                                 |
 | `data`                                      | Configuration for data instances                                                                    | See `data` section                      |
 | `coordinators`                              | Configuration for coordinator instances                                                             | See `coordinators` section              |
+| `sysctlInitContainer.enabled`                      | Enable the init container to set sysctl parameters                                                  | `true`                     |
+| `sysctlInitContainer.maxMapCount`                  | Value for `vm.max_map_count` to be set by the init container                                        | `262144`                   |
 
 For the `data` and `coordinators` sections, each item in the list has the following parameters:
 
@@ -62,6 +77,7 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------|
 | `id`                                        | ID of the instance                                                                                  | `0` for data, `1` for coordinators      |
 | `args`                                      | List of arguments for the instance                                                                  | See `args` section                      |
+
 
 The `args` section contains a list of arguments for the instance. The default values are the same for all instances:
 

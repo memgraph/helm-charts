@@ -42,6 +42,13 @@ memgraph:
   coordLoadBalancer:
     enabled: true
 
+# If you are experiencing issues with the sysctlInitContainer, you can disable it here.
+# This is made to increase the max_map_count, necessary for high memory loads in Memgraph
+# If you are experiencing crashing pod with the: Max virtual memory areas vm.max_map_count is too low
+# you can increase the maxMapCount value.
+sysctlInitContainer:
+  enabled: true
+  maxMapCount: 262144
 
 data:
 - id: "0"
