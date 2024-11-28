@@ -1,7 +1,3 @@
-# Default values for memgraph-high-availability.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.|
-
 memgraph:
   image:
     repository: memgraph/memgraph
@@ -38,13 +34,24 @@ memgraph:
       logPVCSize: "256Mi"
   affinity:
     enabled: true
+  ports:
+    boltPort: 7687
+    managementPort: 10000
+    replicationPort: 20000
+    coordinatorPort: 12000
+  coordLoadBalancer:
+    enabled: true
 
+# If you are experiencing issues with the sysctlInitContainer, you can disable it here.
+# This is made to increase the max_map_count, necessary for high memory loads in Memgraph
+# If you are experiencing crashing pod with the: Max virtual memory areas vm.max_map_count is too low
+# you can increase the maxMapCount value.
+sysctlInitContainer:
+  enabled: true
+  maxMapCount: 262144
 
 data:
 - id: "0"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
   - "--management-port=10000"
   - "--bolt-port=7687"
@@ -53,9 +60,6 @@ data:
   - "--log-file=/var/log/memgraph/memgraph.log"
 
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  replicationPort: 20000
   args:
   - "--management-port=10000"
   - "--bolt-port=7687"
@@ -65,9 +69,6 @@ data:
 
 coordinators:
 - id: "1"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--coordinator-id=1"
   - "--coordinator-port=12000"
@@ -80,9 +81,6 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "2"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--coordinator-id=2"
   - "--coordinator-port=12000"
@@ -95,9 +93,6 @@ coordinators:
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
 
 - id: "3"
-  boltPort: 7687
-  managementPort: 10000
-  coordinatorPort: 12000
   args:
   - "--coordinator-id=3"
   - "--coordinator-port=12000"

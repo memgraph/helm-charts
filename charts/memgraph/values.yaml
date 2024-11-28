@@ -20,6 +20,7 @@ affinity:
   nodeKey:
   nodeValue:
 
+
 nodeSelector: {}
 
 tolerations: []
@@ -120,7 +121,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-
 container:
   terminationGracePeriodSeconds: 1800
   probes:
@@ -145,3 +145,12 @@ customQueryModules: []
 # - volume: ""
 #   Must be present in the ConfigMap referenced with `volume`
 #   file: ""
+
+
+# If you are experiencing issues with the sysctlInitContainer, you can disable it here.
+# This is made to increase the max_map_count, necessary for high memory loads in Memgraph
+# If you are experiencing crashing pod with the: Max virtual memory areas vm.max_map_count is too low
+# you can increase the maxMapCount value.
+sysctlInitContainer:
+  enabled: true
+  maxMapCount: 262144
