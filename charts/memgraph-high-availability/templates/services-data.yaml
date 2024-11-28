@@ -12,16 +12,16 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
     - protocol: TCP
       name: management
-      port: {{ .managementPort }}
-      targetPort: {{ .managementPort }}
+      port: {{ $.Values.memgraph.ports.managementPort }}
+      targetPort: {{ $.Values.memgraph.ports.managementPort }}
     - protocol: TCP
       name: replication
-      port: {{ .replicationPort }}
-      targetPort: {{ .replicationPort }}
+      port: {{ $.Values.memgraph.ports.replicationPort }}
+      targetPort: {{ $.Values.memgraph.ports.replicationPort }}
 {{- end }}
 
 # Service for data instances external
@@ -38,6 +38,7 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+      nodePort: {{ add 32010 .id }}
 {{- end }}
