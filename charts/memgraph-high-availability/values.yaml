@@ -39,8 +39,10 @@ memgraph:
     managementPort: 10000
     replicationPort: 20000
     coordinatorPort: 12000
+  dataInstanceLoadBalancer:
+    enabled: false
   coordLoadBalancer:
-    enabled: true
+    enabled: false
 
 
 data:

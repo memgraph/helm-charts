@@ -32,7 +32,11 @@ kind: Service
 metadata:
   name: memgraph-data-{{ .id }}-external
 spec:
+{{- if $.Values.memgraph.dataInstanceLoadBalancer.enabled}}
+  type: LoadBalancer
+{{- else }}
   type: NodePort
+{{- end }}
   selector:
     app: memgraph-data-{{ .id }}
   ports:
