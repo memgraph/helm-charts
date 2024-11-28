@@ -47,5 +47,7 @@ env:
     value: memgraph
   - name: QUICK_CONNECT_MG_PORT
     value: "7687"
+  - name: BASE_PATH
+    value: /
 ```
 Refer to the [Memgraph Lab documentation](https://memgraph.com/docs/data-visualization) for details on how to connect to and interact with Memgraph.
