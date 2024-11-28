@@ -12,16 +12,16 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
     - protocol: TCP
       name: coordinator
-      port: {{ .coordinatorPort }}
-      targetPort: {{ .coordinatorPort }}
+      port: {{ $.Values.memgraph.ports.coordinatorPort }}
+      targetPort: {{ $.Values.memgraph.ports.coordinatorPort }}
     - protocol: TCP
       name: management
-      port: {{ .managementPort }}
-      targetPort: {{ .managementPort }}
+      port: {{ $.Values.memgraph.ports.managementPort }}
+      targetPort: {{ $.Values.memgraph.ports.managementPort }}
 {{- end }}
 
 # Service for coordinators instances external
@@ -38,6 +38,7 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ .boltPort }}
-      targetPort: {{ .boltPort }}
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+      nodePort: {{ add 32000 .id }}
 {{- end }}

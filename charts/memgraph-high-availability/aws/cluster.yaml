@@ -37,7 +37,7 @@ managedNodeGroups:
   instanceSelector: {}
   instanceType: t3.small
   labels:
-    alpha.eksctl.io/cluster-name: test-cluster-ha
+    alpha.eksctl.io/cluster-name: mg-ha
     alpha.eksctl.io/nodegroup-name: standard-workers
   maxSize: 5
   minSize: 5
@@ -58,7 +58,7 @@ managedNodeGroups:
   volumeThroughput: 125
   volumeType: gp3
 metadata:
-  name: test-cluster-ha
+  name: mg-ha
   region: eu-west-1
   version: "1.30"
 privateCluster:
