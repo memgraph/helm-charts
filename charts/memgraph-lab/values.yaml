@@ -52,7 +52,7 @@ env:
 - name: BASE_PATH
   value: ""
 
-podSecurityContext: {} # fsGroup: 2000
+podSecurityContext: {}
 
 securityContext: {}
   # capabilities:
