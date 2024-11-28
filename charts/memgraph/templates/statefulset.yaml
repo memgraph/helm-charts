@@ -69,7 +69,14 @@ spec:
               add: ["CHOWN"]
             runAsUser: 0
             runAsNonRoot: false
-
+        {{- if .Values.sysctlInitContainer.enabled }}
+        - name: init-sysctl
+          image: busybox
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ .Values.sysctlInitContainer.maxMapCount }}']
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          {{- end }}
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       securityContext:
       {{- if .Values.useImagePullSecrets }}

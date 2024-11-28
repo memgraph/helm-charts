@@ -3,7 +3,7 @@ name: memgraph
 home: https://memgraph.com/
 type: application
 version: 0.1.8
-appVersion: "2.21.0"
+appVersion: "2.22.0"
 description: MemgraphDB Helm Chart
 keywords:
 - graph
