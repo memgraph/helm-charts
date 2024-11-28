@@ -60,3 +60,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Get the base path env value
+*/}}
+{{- define "getBasePath" -}}
+{{- range .Values.env }}
+  {{- if eq .name "BASE_PATH" }}
+    {{- .value }}
+  {{- end }}
+{{- end }}
+{{- end }}
