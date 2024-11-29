@@ -3,10 +3,10 @@ name: memgraph-lab
 home: https://memgraph.com/
 type: application
 # Chart version, should be incremented each time the chart changes, including appVersion.
-version: 0.1.4
+version: 0.1.5
 # Version number of the docker image memgraph/lab.
 # Use it with quotes.
-appVersion: "2.18.1"
+appVersion: "2.19.1"
 description: Memgraph Lab Helm Chart
 keywords:
 - graph
