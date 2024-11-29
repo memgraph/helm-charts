@@ -52,7 +52,7 @@ persistentVolumeClaim:
   ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim
   ## `false` will let you choose an existing Persistant Volume Claim or will create one with an existing volume
   createStorageClaim: true
-  ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume
+  ## Using a Storage Class Name with policy `retain` will keep the Persistant Volume Claim and the Volume until you manually delete it
   ## If you use a Storage Class Name with policy `delete` the Persistant Volume Claim and Volume will be deleted when the helm release is deleted
   storageClassName: ""
   ## Storage Size must me at minimum 4x the maximum size of your Dataset for Snapshots
@@ -66,7 +66,7 @@ persistentVolumeClaim:
   ## If you want to create a Persistant Volume Claim for an existing Volume
   storageVolumeName: ""
 
-  ## Create a Dynamic Persistant Volume Claim for Logs
+  ## Create a Persistant Volume Claim for Logs, if you use a Storage Class Name with policy `retain` the logs will be kept until you manually delete them
   # `false` will only write logs to stdout / stderr
   createLogStorage: true
   logStorageClassName: ""
@@ -77,6 +77,18 @@ persistentVolumeClaim:
   userStorageClassName: ""
   userStorageSize: 1Gi
   userMountPath: ""
+
+# Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
+# Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
+# Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
+
+storageClass:
+  name: memgraph-generic-storage-class
+  provisioner: "k8s.io/minikube-hostpath"
+  storageType: "hostPath"
+  fsType: ext4
+  reclaimPolicy: Retain
+  volumeBindingMode: Immediate
 
 memgraphConfig:
 - "--also-log-to-stderr=true"
@@ -141,6 +153,7 @@ container:
 # These will be loaded automatically, on startup.
 # Each module must be exposed by a ConfigMap under a specific file name.
 customQueryModules: []
+
 #   Must be an existing ConfigMap
 # - volume: ""
 #   Must be present in the ConfigMap referenced with `volume`
