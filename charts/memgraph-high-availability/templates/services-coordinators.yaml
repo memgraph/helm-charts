@@ -1,4 +1,9 @@
-# Service for coordinator instances internal
+{{- $validCoordServices := list "CommonLoadBalancer" "LoadBalancer" "NodePort" }}
+{{- if not (has .Values.memgraph.externalAccessConfig.coordinator.serviceType $validCoordServices) }}
+{{- fail "Invalid environment value for memgraph.externlAccessConfig.coordinator.serviceType. Use 'CommonLoadBalancer', 'LoadBalancer' or 'NodePort'."}}
+{{- end }}
+
+
 {{- range .Values.coordinators }}
 ---
 apiVersion: v1
@@ -24,7 +29,21 @@ spec:
       targetPort: {{ $.Values.memgraph.ports.managementPort }}
 {{- end }}
 
-# Service for coordinators instances external
+{{ if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer"}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: coordinators
+spec:
+  type: LoadBalancer
+  selector:
+    role: coordinator
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+{{ else }}
 {{- range .Values.coordinators }}
 ---
 apiVersion: v1
@@ -32,7 +51,11 @@ kind: Service
 metadata:
   name: memgraph-coordinator-{{ .id }}-external
 spec:
+{{ if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "LoadBalancer"}}
+  type: LoadBalancer
+{{ else }}
   type: NodePort
+{{ end }}
   selector:
     app: memgraph-coordinator-{{ .id }}
   ports:
@@ -40,5 +63,5 @@ spec:
       name: bolt
       port: {{ $.Values.memgraph.ports.boltPort }}
       targetPort: {{ $.Values.memgraph.ports.boltPort }}
-      nodePort: {{ add 32000 .id }}
 {{- end }}
+{{ end}}

@@ -9,28 +9,70 @@ spec:
   selector:
     matchLabels:
       app: memgraph-coordinator-{{ $coordinator.id }}
+      role: coordinator
   template:
     metadata:
       labels:
         app: memgraph-coordinator-{{ $coordinator.id }}
-        instance-type: coordinator
+        role: coordinator
     spec:
-    {{ if $.Values.memgraph.affinity.enabled }}
       affinity:
+        {{- if $.Values.memgraph.affinity.nodeSelection }}
+        # Node Selection Affinity: Scheduled on nodes with specific label key and value
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ $.Values.memgraph.affinity.roleLabelKey }}
+                operator: In
+                values:
+                - {{ $.Values.memgraph.affinity.coordinatorNodeLabelValue }}
+        podAntiAffinity :
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - coordinator
+            topologyKey: "kubernetes.io/hostname"
+        {{- else if $.Values.memgraph.affinity.unique }}
+        # Unique Affinity: Schedule pods on different nodes
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app
+              - key: role
                 operator: In
                 values:
-                - memgraph-coordinator-1
-                - memgraph-coordinator-2
-                - memgraph-coordinator-3
-                - memgraph-data-0
-                - memgraph-data-1
+                - coordinator
+                - data
             topologyKey: "kubernetes.io/hostname"
-    {{ end }}
+        {{- else if $.Values.memgraph.affinity.parity }}
+        # Parity Affinity: One coordinator and one data node per node, coordinator schedules first, needs to be in pairs
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - coordinator
+            topologyKey: "kubernetes.io/hostname"
+        {{- else }}
+        # Default Affinity: Avoid scheduling on the same node
+        podAntiAffinity:
+           preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: role
+                      operator: In
+                      values:
+                        - coordinator
+                topologyKey: "kubernetes.io/hostname"
+        {{- end }}
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
