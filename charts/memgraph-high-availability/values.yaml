@@ -32,8 +32,6 @@ memgraph:
       logPVCClassName: ""
       logPVC: true
       logPVCSize: "256Mi"
-  affinity:
-    enabled: true
   ports:
     boltPort: 7687
     managementPort: 10000
@@ -41,6 +39,17 @@ memgraph:
     coordinatorPort: 12000
   coordLoadBalancer:
     enabled: true
+  # Affinity controls the scheduling of the memgraph-high-availability pods. By default data pods will avoid being scheduled on the same node as other data pods, and coordinator pods will avoid being scheduled on the same node as other coordinator pods. Deployment won't fail if there is no sufficient nodes.
+  affinity:
+    # The unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node. If there is more pods than nodes, deployment will fail.
+    unique: false
+    # The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node. This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
+    parity: false
+    # The nodeSelection affinity, will enable scheduling of the pods on the nodes with specific labels. So the coordinators will be scheduled on the nodes with label coordinator-node and data nodes will be scheduled on the nodes with label data-node. If not sufficient nodes, deployment will fail.
+    nodeSelection: false
+    roleLabelKey: "role"
+    dataNodeLabelValue: "data-node"
+    coordinatorNodeLabelValue: "coordinator-node"
 
 # If you are experiencing issues with the sysctlInitContainer, you can disable it here.
 # This is made to increase the max_map_count, necessary for high memory loads in Memgraph
