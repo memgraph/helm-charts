@@ -18,7 +18,6 @@ spec:
         instance-type: coordinator
 
     spec:
-      {{- if $.Values.memgraph.affinity.enabled }}
       affinity:
         {{- if $.Values.memgraph.affinity.nodeSelection }}
         # Node Selection Affinity: Scheduled on nodes with specific label key and value
@@ -52,18 +51,7 @@ spec:
                 - data
             topologyKey: "kubernetes.io/hostname"
         {{- else if $.Values.memgraph.affinity.parity }}
-        # Parity Affinity: One coordinator and one data node per node
-        podAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: role
-                      operator: In
-                      values:
-                        - data
-                topologyKey: "kubernetes.io/hostname"
+        # Parity Affinity: One coordinator and one data node per node, coordinator schedules first, needs to be in pairs
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -87,7 +75,6 @@ spec:
                         - coordinator
                 topologyKey: "kubernetes.io/hostname"
         {{- end }}
-    {{- end }}
       initContainers:
       - name: init
         image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"

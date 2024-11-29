@@ -39,9 +39,8 @@ memgraph:
     coordinatorPort: 12000
   coordLoadBalancer:
     enabled: true
-  # Affinity controls the scheduling of the memgraph-high-availability pods, by disabling affinity, pods will be schedule on random nodes in the cluster that k8s scheduler chooses.
+  # Affinity controls the scheduling of the memgraph-high-availability pods. By default data pods will avoid being scheduled on the same node as other data pods, and coordinator pods will avoid being scheduled on the same node as other coordinator pods. Deployment won't fail if there is no sufficient nodes.
   affinity:
-    enabled: true
     # The unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node. If there is more pods than nodes, deployment will fail.
     unique: false
     # The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node. This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
