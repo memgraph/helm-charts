@@ -37,8 +37,11 @@ memgraph:
     managementPort: 10000
     replicationPort: 20000
     coordinatorPort: 12000
-  coordLoadBalancer:
-    enabled: true
+  externalAccessConfig:
+    dataInstance:
+      serviceType: "NodePort"
+    coordinator:
+      serviceType: "NodePort"
   # Affinity controls the scheduling of the memgraph-high-availability pods. By default data pods will avoid being scheduled on the same node as other data pods, and coordinator pods will avoid being scheduled on the same node as other coordinator pods. Deployment won't fail if there is no sufficient nodes.
   affinity:
     # The unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node. If there is more pods than nodes, deployment will fail.

@@ -8,13 +8,29 @@ The cluster setup requires the proper enterprise license to work since HA is an 
 You can connect to Memgraph instances via Lab, mgconsole, or any other client. By default, all Memgraph instances (coordinators and data instances) listen on port 7687 for a bolt connection.
 Make sure your are connecting to the correct ip address and port. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
 
-To start, you should add coordinators and register data instances in order to completely setup cluster. In both cases you only need to modify 'bolt_server' part and set it to the DNS
-of the node on which instance is being started. Node ports are fixed. Example:
+To start, you should add coordinators and register data instances in order to completely setup cluster. Depending on whether you use LoadBalancers or
+NodePorts to expose your service, queries will be slightly different. In both cases you only need to modify 'bolt_server' part of the query while
+'management_server', 'coordinator_server' and 'replication_server' will stay the same. If you are connecting via Lab, select 'Memgraph instance'
+type of connection when adding instances to the cluster.
 
-ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<NODE-2-IP>:32002", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
-ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "<NODE-3-IP>:32003", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
-REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<NODE-4-IP>:32010", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
-REGISTER INSTANCE instance_2 WITH CONFIG {"bolt_server": "<NODE-5-IP>:32011", "management_server": "memgraph-data-1.default.svc.cluster.local:10000", "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"};
+
+NodePort configuration example
+
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<NODE-IP2>:<NodePort2>", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
+REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<NODE-IP4>:<NodePort4>", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
+
+
+LoadBalancer configuration example
+
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<COORD2-LB-IP>:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
+REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<INST1-LB-IP>:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
+
+
+CommonLoadBalancer configuration example
+
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<COMMON-LB-IP>:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
+REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<INST1-LB-IP>:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
+
 
 If you are connecting via Lab, specify your coordinator instance IP address and port in Memgraph Lab GUI and select Memgraph HA cluster type of connection.
 

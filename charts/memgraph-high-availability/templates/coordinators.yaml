@@ -15,8 +15,6 @@ spec:
       labels:
         app: memgraph-coordinator-{{ $coordinator.id }}
         role: coordinator
-        instance-type: coordinator
-
     spec:
       affinity:
         {{- if $.Values.memgraph.affinity.nodeSelection }}

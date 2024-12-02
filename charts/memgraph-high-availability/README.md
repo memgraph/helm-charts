@@ -46,7 +46,8 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `memgraph.coordinators.volumeClaim.storagePVCSize` | Size of the storage PVC for coordinators                                                                  | `1Gi`                      |
 | `memgraph.coordinators.volumeClaim.logPVC`         | Enable log PVC for coordinators                                                                           | `false`                    |
 | `memgraph.coordinators.volumeClaim.logPVCSize`     | Size of the log PVC for coordinators                                                                      | `256Mi`                    |
-| `memgraph.externalAccess.serviceType`              | NodePort or LoadBalancer. Use LoadBalancer for Cloud production deployment and NodePort for local testing | `LoadBalancer`             |
+| `memgraph.externalAccess.coordinator.serviceType`  | NodePort, CommonLoadBalancer or LoadBalancer. Use LoadBalancer for Cloud production deployment and NodePort for local testing. 'CommonLoadBalancer' will open one load balancer for all coordinators while 'LoadBalancer' will open one load balancer for each coordinators. | `NodePort` |
+| `memgraph.externalAccess.dataInstance.serviceType` | NodePort or LoadBalancer. Use LoadBalancer for Cloud production deployment and NodePort for local testing. | `NodePort`             |
 | `memgraph.ports.boltPort`                          | Bolt port used on coordinator and data instances.                                                         | `7687`                     |
 | `memgraph.ports.managementPort`                    | Management port used on coordinator and data instances.                                                   | `10000`                    |
 | `memgraph.ports.replicationPort`                   | Replication port used on data instances.                                                                  | `20000`                    |

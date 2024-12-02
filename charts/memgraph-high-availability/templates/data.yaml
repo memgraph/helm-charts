@@ -15,8 +15,6 @@ spec:
       labels:
         app: memgraph-data-{{ $data.id }}
         role: data
-        instance-type: data
-
     spec:
       affinity:
         {{- if $.Values.memgraph.affinity.nodeSelection }}
