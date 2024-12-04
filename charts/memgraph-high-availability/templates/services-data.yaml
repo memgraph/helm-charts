@@ -1,8 +1,3 @@
-{{- $validDataServices := list "LoadBalancer" "NodePort" }}
-{{- if not (has .Values.memgraph.externalAccessConfig.dataInstance.serviceType $validDataServices) }}
-{{- fail "Invalid environment value for memgraph.externalAccessConfig.dataInstance.serviceType. Use 'LoadBalancer' or 'NodePort'."}}
-{{- end }}
-
 {{- range .Values.data }}
 ---
 apiVersion: v1
@@ -26,26 +21,4 @@ spec:
       name: replication
       port: {{ $.Values.memgraph.ports.replicationPort }}
       targetPort: {{ $.Values.memgraph.ports.replicationPort }}
-{{- end }}
-
-# Service for data instances external
-{{- range .Values.data }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: memgraph-data-{{ .id }}-external
-spec:
-{{ if eq $.Values.memgraph.externalAccessConfig.dataInstance.serviceType "NodePort"}}
-  type: NodePort
-{{ else }}
-  type: LoadBalancer
-{{ end }}
-  selector:
-    app: memgraph-data-{{ .id }}
-  ports:
-    - protocol: TCP
-      name: bolt
-      port: {{ $.Values.memgraph.ports.boltPort }}
-      targetPort: {{ $.Values.memgraph.ports.boltPort }}
 {{- end }}

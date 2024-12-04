@@ -1,0 +1,43 @@
+{{- $validCoordServices := list "CommonLoadBalancer" "LoadBalancer" "NodePort" "IngressNginx" }}
+{{- if not (has .Values.memgraph.externalAccessConfig.coordinator.serviceType $validCoordServices) }}
+{{- fail "Invalid environment value for memgraph.externlAccessConfig.coordinator.serviceType. Use 'CommonLoadBalancer', 'LoadBalancer', 'NodePort' or 'IngressNginx'."}}
+{{- end }}
+
+{{ if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
+# Placeholder
+{{ else if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer"}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: coordinators
+spec:
+  type: LoadBalancer
+  selector:
+    role: coordinator
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+{{ else }}
+{{- range .Values.coordinators }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memgraph-coordinator-{{ .id }}-external
+spec:
+{{ if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "LoadBalancer"}}
+  type: LoadBalancer
+{{ else }}
+  type: NodePort
+{{ end }}
+  selector:
+    app: memgraph-coordinator-{{ .id }}
+  ports:
+    - protocol: TCP
+      name: bolt
+      port: {{ $.Values.memgraph.ports.boltPort }}
+      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+{{- end }}
+{{ end}}
