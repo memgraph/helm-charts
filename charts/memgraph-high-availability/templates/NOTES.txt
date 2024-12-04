@@ -31,11 +31,14 @@ CommonLoadBalancer configuration example
 ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<COMMON-LB-IP>:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
 REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<INST1-LB-IP>:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
 
+IngressNginx
+
+If you are using ingress-nginx there are several steps we need to do in order to make use of it.
+
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<ingress-LB-external-ip>:9012", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
+REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<ingress-LB-external-ip>:9001", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
+
 
 If you are connecting via Lab, specify your coordinator instance IP address and port in Memgraph Lab GUI and select Memgraph HA cluster type of connection.
 
 If you are using minikube, you can find out your node ip using `minikube ip`.
-
-ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "34.251.38.32:32003", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
-REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "52.50.209.155:32010", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
-REGISTER INSTANCE instance_2 WITH CONFIG {"bolt_server": "34.24.10.69:32011", "management_server": "memgraph-data-1.default.svc.cluster.local:10000", "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"};
