@@ -62,6 +62,12 @@ sysctlInitContainer:
   enabled: true
   maxMapCount: 262144
 
+secrets:
+  enabled: false
+  name: memgraph-secrets
+  userKey: USER
+  passwordKey: PASSWORD
+
 data:
 - id: "0"
   args:
