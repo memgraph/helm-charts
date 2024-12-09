@@ -117,17 +117,17 @@ spec:
         - "{{ $arg }}"
         {{- end }}
         env:
-          {{- if .Values.secrets.enabled }}
+          {{- if $.Values.secrets.enabled }}
           - name: MEMGRAPH_USER
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.secrets.name }}
-                key: {{ .Values.secrets.userKey }}
+                name: {{ $.Values.secrets.name }}
+                key: {{ $.Values.secrets.userKey }}
           - name: MEMGRAPH_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.secrets.name }}
-                key: {{ .Values.secrets.passwordKey }}
+                name: {{ $.Values.secrets.name }}
+                key: {{ $.Values.secrets.passwordKey }}
           {{- end }}
           - name: MEMGRAPH_ENTERPRISE_LICENSE
             value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
