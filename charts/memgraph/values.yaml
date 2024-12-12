@@ -76,6 +76,7 @@ persistentVolumeClaim:
   createUserClaim: false
   userStorageClassName: ""
   userStorageSize: 1Gi
+  userStorageAccessMode: "ReadWriteOnce"
   userMountPath: ""
 
 # Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
