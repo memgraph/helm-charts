@@ -20,6 +20,17 @@ Or you can modify a `values.yaml` file and override the desired values:
 helm install <release-name> memgraph/memgraph-high-availability -f values.yaml
 ```
 
+## Upgrading the Memgraph HA Helm Chart
+
+If you used `values.yaml` file for installing Helm Chart, use:
+```
+helm upgrade <release-name> memgraph/memgraph-high-availability -f values.yaml
+```
+
+If you used `--set`, use:
+```
+helm upgrade <release-name> memgraph/memgraph-high-availability --set <all flags from installation>,memgraph.image.tag=<new image tag>
+```
 
 ## Configuration Options
 
@@ -72,12 +83,6 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 
 
 
-The `args` section contains a list of arguments for the instance. The default values are the same for all instances:
-
-```markdown
-- "--also-log-to-stderr"
-- "--log-level=TRACE"
-- "--replication-restore-state-on-startup=true"
-```
+The `args` section contains a list of arguments for starting the Memgraph instance. 
 
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

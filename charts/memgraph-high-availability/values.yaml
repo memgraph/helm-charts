@@ -1,7 +1,7 @@
 memgraph:
   image:
-    repository: memgraph/memgraph
-    tag: 2.22.0
+    repository: memgraphacrha.azurecr.io/memgraph/memgraph
+    tag: 2.22.0_31_b64b5e79c 
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -23,7 +23,7 @@ memgraph:
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: true
-      logPVCSize: "256Mi"
+      logPVCSize: "1Gi"
   coordinators:
     volumeClaim:
       storagePVCClassName: ""
@@ -31,7 +31,7 @@ memgraph:
       storagePVCSize: "1Gi"
       logPVCClassName: ""
       logPVC: true
-      logPVCSize: "256Mi"
+      logPVCSize: "1Gi"
   ports:
     boltPort: 7687
     managementPort: 10000

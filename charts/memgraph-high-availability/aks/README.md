@@ -1,9 +1,9 @@
 ## Description
 
 This guide instructs users on how to deploy Memgraph HA to Azure AKS. It serves only as a starting point and there are many ways possible to extend
-what is currently here. In this setup each Memgraph database is deployed to separate, `Standard_A2_v2` node.
+what is currently here. In this setup each Memgraph database is deployed to separate, `Standard_A2_v2`.
 
-## Installation
+## Installing tools
 
 You will need:
 - [azure-cli](https://learn.microsoft.com/en-us/cli/azure/)
@@ -63,7 +63,85 @@ kubectl label nodes aks-nodepool1-65392319-vmss000003 role=data-node
 kubectl label nodes aks-nodepool1-65392319-vmss000004 role=data-node
 ```
 
-## Deploy Memgraph HA
+In the following chapters, we will go over several most common deployment types:
+
+## Service type = IngressNginx
+
+The most cost-friendly way to manage a Memgraph HA cluster in K8s is using a IngressNginx contoller. This controller is capable of routing TCP messages on Bolt level
+protocol to the K8s Memgraph services. To achieve this, it uses only a single LoadBalancer which means there is only a single external IP for connecting to the cluster.
+Users can connect to any coordinator or data instance by distinguishing bolt ports. The 1st step is to install Memgraph HA:
+
+```
+helm install mem-ha-test ./charts/memgraph-high-availability --set \
+memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
+memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<organization>,memgraph.affinity.nodeSelection=true,\
+memgraph.externalAccessConfig.dataInstance.serviceType=IngressNginx,memgraph.externalAccessConfig.coordinator.serviceType=IngressNginx
+```
+
+Next, install `IngressNginx` resource:
+
+```
+helm upgrade --install ingress-nginx ingress-nginx \
+--repo https://kubernetes.github.io/ingress-nginx \
+--namespace ingress-nginx --create-namespace \
+--set controller.tcp.services.configMapNamespace=ingress-nginx \
+--set controller.tcp.services.configMapName=tcp-services
+```
+
+After installing Memgraph HA Chart and IngressNginx resource, we need to customize a configuration of the newly created Controller and Deployment
+K8s object. Open the `ingress-nginx-controller` service for editing by running:
+```
+kubectl edit svc ingress-nginx-controller -n ingress-nginx
+```
+
+Locate the `spec.ports` section and append the following services configuration:
+```
+- name: data-0
+  port: 9000
+  targetPort: 9000
+  protocol: TCP
+- name: data-1
+  port: 9001
+  targetPort: 9001
+  protocol: TCP
+- name: coord-1
+  port: 9011
+  targetPort: 9011
+  protocol: TCP
+- name: coord-2
+  port: 9012
+  targetPort: 9012
+  protocol: TCP
+- name: coord-3
+  port: 9013
+  targetPort: 9013
+  protocol: TCP
+```
+
+After you are done, save and close the file. Next, open the `ingress-nginx-controller` deployment by running:
+```
+kubectl edit deployment ingress-nginx-controller -n ingress-nginx
+```
+
+Locate the `args` section and append the following configuration option:
+```
+- --tcp-services-configmap=ingress-nginx/tcp-services
+```
+
+If you get stuck, more info can be found [here](https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/). Save and close the file.
+The only remaining step is to connect Memgraph instances. For that, we need to find out which external IP will a LoadBalancer use. You can find that out
+by running `kubectl get svc -o=wide -A`.
+
+```
+ADD COORDINATOR 1 WITH CONFIG {"bolt_server": "<external-ip>:9011", "management_server":  "memgraph-coordinator-1.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-1.default.svc.cluster.local:12000"};
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<external-ip>:9012", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
+ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "<external-ip>:9013", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
+REGISTER INSTANCE instance_0 WITH CONFIG {"bolt_server": "<external-ip>:9000", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
+REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "<external-ip>:9001", "management_server": "memgraph-data-1.default.svc.cluster.local:10000", "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"};
+SET INSTANCE instance_1 TO MAIN;
+```
+
+## ServiceType = LoadBalancer
 
 After preparing nodes, we can deploy Memgraph HA cluster by using `helm install` command. We will specify affinity options so that node labels
 are used and so that each data and coordinator instance is exposed through LoadBalancer.
@@ -107,6 +185,7 @@ For the host enter external ip of `memgraph-coordinator-1-external` and port is 
 we only need to change 'bolt\_server' part to use LoadBalancers' external IP.
 
 ```
+ADD COORDINATOR 1 WITH CONFIG {"bolt_server": "172.205.93.228:7687", "management_server":  "memgraph-coordinator-1.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-1.default.svc.cluster.local:12000"};
 ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "4.209.216.240:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
 ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "68.219.15.104:7687", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
 REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "68.219.11.242:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
@@ -117,9 +196,9 @@ SET INSTANCE instance_1 TO MAIN;
 The output of `SHOW INSTANCES` should then look similar to:
 
 ```
-| name          | bolt_server                                             | coordinator_server                                      | management_server                                       | health | role     | last_succ_resp_ms |
-|---------------|---------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|--------|----------|-------------------|
-| "coordinator_1" | "memgraph-coordinator-1.default.svc.cluster.local:7687" | "memgraph-coordinator-1.default.svc.cluster.local:12000" | "memgraph-coordinator-1.default.svc.cluster.local:10000" | "up"    | "leader"  | 0                 |
+| name            | bolt_server                                             | coordinator_server                                       | management_server                                        | health  | role      | last_succ_resp_ms |
+|-----------------|---------------------------------------------------------|----------------------------------------------------------|----------------------------------------------------------|---------|-----------|-------------------|
+| "coordinator_1" | "172.205.93.228:7687"                                   | "memgraph-coordinator-1.default.svc.cluster.local:12000" | "memgraph-coordinator-1.default.svc.cluster.local:10000" | "up"    | "leader"  | 0                 |
 | "coordinator_2" | "4.209.216.240:7687"                                    | "memgraph-coordinator-2.default.svc.cluster.local:12000" | "memgraph-coordinator-2.default.svc.cluster.local:10000" | "up"    | "follower"| 550               |
 | "coordinator_3" | "68.219.15.104:7687"                                    | "memgraph-coordinator-3.default.svc.cluster.local:12000" | "memgraph-coordinator-3.default.svc.cluster.local:10000" | "up"    | "follower"| 26                |
 | "instance_1"    | "68.219.11.242:7687"                                    | ""                                                       | "memgraph-data-0.default.svc.cluster.local:10000"        | "up"    | "main"    | 917               |
@@ -128,15 +207,16 @@ The output of `SHOW INSTANCES` should then look similar to:
 
 ## Using CommonLoadBalancer
 
-When using 'CommonLoadBalancer', all three coordinators will be behind a single LoadBalancer. To connect the cluster, open Lab and use Memgraph
+When using 'CommonLoadBalancer', all three coordinators will be behind a single LoadBalancer while each data instance has their own load balancer. To connect the cluster, open Lab and use Memgraph
 instance type of connection. For the host enter external IP of `memgraph-coordinator-1-external` and port is 7687. Again, we only need to change
 'bolt\_server' part to use LoadBalancers' external IP. When connecting to CommonLoadBalancer, K8 will automatically route you to one of coordinators.
-To see on which coordinator did you end route, run `show instances`. If for example, the output of show instances says you are connected to
+To see on which coordinator did you end routed, run `SHOW INSTANCE`. If for example, the output of the query says you are connected to
 coordinator 2, we need to add coordinators 1 and 3. Registering data instances stays exactly the same.
 
 ```
+ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "<CommonLoadBalancer-IP>:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};
 ADD COORDINATOR 1 WITH CONFIG {"bolt_server": "<CommonLoadBalancer-IP>:7687", "management_server":  "memgraph-coordinator-1.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-1.default.svc.cluster.local:12000"};
-ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "CommonLoadBalancer-IP:7687", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
+ADD COORDINATOR 3 WITH CONFIG {"bolt_server": "<CommonLoadBalancer-IP>:7687", "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"};
 REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "68.219.11.242:7687", "management_server": "memgraph-data-0.default.svc.cluster.local:10000", "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"};
 REGISTER INSTANCE instance_2 WITH CONFIG {"bolt_server": "68.219.13.145:7687", "management_server": "memgraph-data-1.default.svc.cluster.local:10000", "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"};
 SET INSTANCE instance_1 TO MAIN;
