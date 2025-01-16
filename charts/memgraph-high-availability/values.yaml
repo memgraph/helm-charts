@@ -1,7 +1,7 @@
 memgraph:
   image:
-    repository: memgraphacrha.azurecr.io/memgraph/memgraph
-    tag: 2.22.0_31_b64b5e79c 
+    repository: memgraph/memgraph
+    tag: 2.22.0 
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
