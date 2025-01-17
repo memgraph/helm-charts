@@ -83,6 +83,6 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 
 
 
-The `args` section contains a list of arguments for starting the Memgraph instance. 
+The `args` section contains a list of arguments for starting the Memgraph instance.
 
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).

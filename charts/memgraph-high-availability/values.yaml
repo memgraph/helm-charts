@@ -1,7 +1,7 @@
 memgraph:
   image:
     repository: memgraph/memgraph
-    tag: 2.22.0 
+    tag: 2.22.0
     pullPolicy: IfNotPresent
   env:
     MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"

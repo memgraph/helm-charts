@@ -221,3 +221,114 @@ REGISTER INSTANCE instance_1 WITH CONFIG {"bolt_server": "68.219.11.242:7687", "
 REGISTER INSTANCE instance_2 WITH CONFIG {"bolt_server": "68.219.13.145:7687", "management_server": "memgraph-data-1.default.svc.cluster.local:10000", "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"};
 SET INSTANCE instance_1 TO MAIN;
 ```
+
+## Memgraph HA storage model
+
+Each Memgraph instance stores its data and logs in two separate storages. You usually don't want to manually inspect data from the
+data directory, you only want to be able to recover data when starting a new instance. For working with persistent data, Kubernetes uses
+persistent volumes (PV) and persistent volume claims (PVC). You can think of persistent volumes as the actual storage where the data is stored
+while persistent volume claims are requests to attach PVs to your pods. You can find more details about the concept of storage in
+Kubernetes [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/). At the moment for HA chart, we use dynamically created
+PVCs which won't get deleted upon uninstallation of the chart. However, if you do `kubectl delete pvc -A`, it will also delete underlying
+persistent volumes since the default policy is Delete. This also means that when you upgrade a chart, all data will be preserved.
+
+
+Inspecting logs can be very valuable e.g when sending a bug report in the case of a pod crash. In that case, `kubectl logs` doesn't help because
+it doesn't show logs before the crash.
+
+There are two possible ways in which you can get to your PVs. Note that you can retrieve your data directory in the same way as logs so the
+following two chapters apply in both cases.
+
+### Attaching disk to VM for Azure Disk storage
+
+Azure Disk is the default storage class for Azure AKS. It is a block storage which doesn't allow simultaneous access from multiple pods. Therefore, in order to retrieve logs
+we will create a snapshot of the disk, create a temporary virtual machine and attach copy of the disk to the newly created VM.
+
+Let's say that coordinator-1 pod crashed and you want to send us logs so we can figure out what happened. Run
+
+```
+kubectl get pv -A
+```
+
+to find the ID of the PV that coordinator 1 uses. The PV's ID and also serves as the name of the disk used as the underlying
+storage. We will use this information to create a snapshot of the disk using:
+
+```
+az snapshot create \
+  --resource-group <disk-resource-group> \
+  --source /subscriptions/<your-subscription-id>/resourceGroups/<disk-resource-group>/providers/Microsoft.Compute/disks/<disk-name> \
+  --name coord1-log-snapshot
+```
+
+If you are not sure about the resource group of the disk, you can run:
+
+```
+az disk list --output table
+```
+
+to find it out. Using the created snapshot, we will create a new disk using the following command:
+
+```
+az disk create \
+   --resource-group <disk-resource-group> \
+   --source coord1-log-snapshot \
+   --name coord1-log-disk \
+   --zone 1
+```
+
+The next step consists of creating a virtual machine for which any reasonable default settings will work. It is only important that it is in the same region as newly created disk copy.
+Note that one VM can be used to attaching as many disks as you want so you don't need to create a separate VM every time. For creating a VM we used Azure Portal. After you have created
+the VM, you can attach disk to the VM using:
+
+```
+az vm disk attach \
+    --resource-group <vm-resource-group> \
+    --vm-name <vm-name> \
+    --disk /subscriptions/<your-subscription-id>/resourceGroups/<disk-resource-group>/providers/Microsoft.Compute/disks/coord1-log-disk
+```
+
+SSH into the VM and by running you should be able to see your disk (sdc, sdd usually are names) by running `lsblk`. Create a new directory and mount the disk.
+```
+sudo mkdir /mnt/coord1
+sudo mount /dev/<disk> /mnt/coord1
+```
+You can now copy it to the local machine using scp.
+
+### Creating a debug pod for Azure File storage
+
+When using Azure File storage, the easiest way to retrieve data is to create a debug pod which attaches to a PV and mounts it locally. In order to support it, you need to use the
+Azure File type of storage with PVCs access mode set to `ReadWriteMany`. The default storage uses Azure Disk which is a block storage operating as a physical disk which doesn't allow multiple pods to mount the disk simultaneously.
+The example of a debug pod for retrieving data from coordinator 1 looks something like:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-pod
+  namespace: <namespace where instances are installed, we use 'default'>
+spec:
+  tolerations:
+  - operator: "Exists"
+  containers:
+  - name: debug-container
+    image: busybox
+    command: [ "/bin/sh", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
+    volumeMounts:
+    - name: my-debug-volume
+      mountPath: /coord1-logs
+  volumes:
+  - name: my-debug-volume
+    persistentVolumeClaim:
+      claimName: memgraph-coordinator-1-log-storage-memgraph-coordinator-1-0
+```
+Note that you need to set `metadata.namespace` to the namespace where your instances are installed. Start your pod with:
+```
+kubectl apply -f debug-pod.yaml -n <namespace where instances are installed>
+```
+
+and login into it with:
+```
+kubectl exec -it debug-pod -- /bin/sh
+```
+
+Your data should now be seen at `/coord1-logs` directory.

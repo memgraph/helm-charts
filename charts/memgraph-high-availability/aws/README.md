@@ -108,5 +108,3 @@ SET INSTANCE instance_1 TO MAIN;
 
 
 You can check the state of the cluster with `kubectl get pods -o wide`.
-
-
