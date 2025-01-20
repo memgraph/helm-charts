@@ -1,15 +1,15 @@
-{{- if or (eq $.Values.memgraph.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "IngressNginx") }}
+{{- if or (eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: tcp-services
   namespace: ingress-nginx
 data:
-  {{- if eq $.Values.memgraph.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   9000: "default/memgraph-data-0:7687"
   9001: "default/memgraph-data-1:7687"
   {{- end }}
-  {{- if eq $.Values.memgraph.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   9011: "default/memgraph-coordinator-1:7687"
   9012: "default/memgraph-coordinator-2:7687"
   9013: "default/memgraph-coordinator-3:7687"

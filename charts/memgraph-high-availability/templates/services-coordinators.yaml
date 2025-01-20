@@ -11,14 +11,14 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ $.Values.memgraph.ports.boltPort }}
-      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+      port: {{ $.Values.ports.boltPort }}
+      targetPort: {{ $.Values.ports.boltPort }}
     - protocol: TCP
       name: coordinator
-      port: {{ $.Values.memgraph.ports.coordinatorPort }}
-      targetPort: {{ $.Values.memgraph.ports.coordinatorPort }}
+      port: {{ $.Values.ports.coordinatorPort }}
+      targetPort: {{ $.Values.ports.coordinatorPort }}
     - protocol: TCP
       name: management
-      port: {{ $.Values.memgraph.ports.managementPort }}
-      targetPort: {{ $.Values.memgraph.ports.managementPort }}
+      port: {{ $.Values.ports.managementPort }}
+      targetPort: {{ $.Values.ports.managementPort }}
 {{- end }}

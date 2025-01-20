@@ -17,16 +17,16 @@ spec:
         role: coordinator
     spec:
       affinity:
-        {{- if $.Values.memgraph.affinity.nodeSelection }}
+        {{- if $.Values.affinity.nodeSelection }}
         # Node Selection Affinity: Scheduled on nodes with specific label key and value
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ $.Values.memgraph.affinity.roleLabelKey }}
+              - key: {{ $.Values.affinity.roleLabelKey }}
                 operator: In
                 values:
-                - {{ $.Values.memgraph.affinity.coordinatorNodeLabelValue }}
+                - {{ $.Values.affinity.coordinatorNodeLabelValue }}
         podAntiAffinity :
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -36,7 +36,7 @@ spec:
                 values:
                 - coordinator
             topologyKey: "kubernetes.io/hostname"
-        {{- else if $.Values.memgraph.affinity.unique }}
+        {{- else if $.Values.affinity.unique }}
         # Unique Affinity: Schedule pods on different nodes
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -48,7 +48,7 @@ spec:
                 - coordinator
                 - data
             topologyKey: "kubernetes.io/hostname"
-        {{- else if $.Values.memgraph.affinity.parity }}
+        {{- else if $.Values.affinity.parity }}
         # Parity Affinity: One coordinator and one data node per node, coordinator schedules first, needs to be in pairs
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -75,16 +75,12 @@ spec:
         {{- end }}
       initContainers:
       - name: init
-        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
         volumeMounts:
-        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
         - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
           mountPath: /var/lib/memgraph
-        {{- end }}
-        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
         - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
           mountPath: /var/log/memgraph
-        {{- end }}
         command: [ "/bin/sh","-c" ]
         args: [ "chown -R memgraph:memgraph /var/log; chown -R memgraph:memgraph /var/lib" ]
         securityContext:
@@ -106,12 +102,12 @@ spec:
 
       containers:
       - name: memgraph-coordinator
-        image: "{{ $.Values.memgraph.image.repository }}:{{ $.Values.memgraph.image.tag }}"
-        imagePullPolicy: {{ $.Values.memgraph.image.pullPolicy }}
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ $.Values.memgraph.ports.boltPort }}
-        - containerPort: {{ $.Values.memgraph.ports.managementPort }}
-        - containerPort: {{ $.Values.memgraph.ports.coordinatorPort }}
+        - containerPort: {{ $.Values.ports.boltPort }}
+        - containerPort: {{ $.Values.ports.managementPort }}
+        - containerPort: {{ $.Values.ports.coordinatorPort }}
         args:
         {{- range $arg := $coordinator.args }}
         - "{{ $arg }}"
@@ -130,45 +126,37 @@ spec:
                 key: {{ $.Values.secrets.passwordKey }}
           {{- end }}
           - name: MEMGRAPH_ENTERPRISE_LICENSE
-            value: "{{ $.Values.memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE }}"
+            value: {{ $.Values.env.MEMGRAPH_ENTERPRISE_LICENSE }}
           - name: MEMGRAPH_ORGANIZATION_NAME
-            value: "{{ $.Values.memgraph.env.MEMGRAPH_ORGANIZATION_NAME }}"
+            value: {{ $.Values.env.MEMGRAPH_ORGANIZATION_NAME }}
         volumeMounts:
-        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
           - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
             mountPath: /var/lib/memgraph
-        {{- end }}
-        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC}}
           - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
             mountPath: /var/log/memgraph
-        {{- end }}
   volumeClaimTemplates:
-    {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVC }}
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.memgraph.coordinators.volumeClaim.storagePVCClassName }}
-        storageClassName: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCClassName }}
+        {{- if $.Values.storage.storageClass.name }}
+        storageClassName: {{ $.Values.storage.storageClass.name }}
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.memgraph.coordinators.volumeClaim.storagePVCSize }}
-    {{- end }}
+            storage: {{ $.Values.storage.libPVCSize }}
 
-    {{- if $.Values.memgraph.coordinators.volumeClaim.logPVC }}
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.memgraph.coordinators.volumeClaim.logPVCClassName }}
-        storageClassName: {{ $.Values.memgraph.coordinators.volumeClaim.logPVCClassName }}
+        {{- if $.Values.storage.storageClass.name }}
+        storageClassName: {{ $.Values.storage.storageClass.name }}
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.memgraph.coordinators.volumeClaim.logPVCSize }}
-    {{- end }}
+            storage: {{ $.Values.storage.logPVCSize }}
 ---
 {{- end }}

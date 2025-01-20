@@ -1,58 +1,59 @@
-memgraph:
-  image:
-    repository: memgraph/memgraph
-    tag: 2.22.0
-    pullPolicy: IfNotPresent
-  env:
-    MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
-    MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
-  probes:
-    startup:
-      failureThreshold: 30
-      periodSeconds: 10
-    readiness:
-      initialDelaySeconds: 5
-      periodSeconds: 5
-    liveness:
-      initialDelaySeconds: 30
-      periodSeconds: 10
-  data:
-    volumeClaim:
-      storagePVCClassName: ""
-      storagePVC: true
-      storagePVCSize: "1Gi"
-      logPVCClassName: ""
-      logPVC: true
-      logPVCSize: "1Gi"
-  coordinators:
-    volumeClaim:
-      storagePVCClassName: ""
-      storagePVC: true
-      storagePVCSize: "1Gi"
-      logPVCClassName: ""
-      logPVC: true
-      logPVCSize: "1Gi"
-  ports:
-    boltPort: 7687
-    managementPort: 10000
-    replicationPort: 20000
-    coordinatorPort: 12000
-  externalAccessConfig:
-    dataInstance:
-      serviceType: "NodePort"
-    coordinator:
-      serviceType: "NodePort"
-  # Affinity controls the scheduling of the memgraph-high-availability pods. By default data pods will avoid being scheduled on the same node as other data pods, and coordinator pods will avoid being scheduled on the same node as other coordinator pods. Deployment won't fail if there is no sufficient nodes.
-  affinity:
-    # The unique affinity, will schedule the pods on different nodes in the cluster. This means coordinators and data nodes will not be scheduled on the same node. If there is more pods than nodes, deployment will fail.
-    unique: false
-    # The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node. This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
-    parity: false
-    # The nodeSelection affinity, will enable scheduling of the pods on the nodes with specific labels. So the coordinators will be scheduled on the nodes with label coordinator-node and data nodes will be scheduled on the nodes with label data-node. If not sufficient nodes, deployment will fail.
-    nodeSelection: false
-    roleLabelKey: "role"
-    dataNodeLabelValue: "data-node"
-    coordinatorNodeLabelValue: "coordinator-node"
+image:
+  repository: memgraph/memgraph
+  tag: 2.22.0_23_8cb3c39c21
+  pullPolicy: IfNotPresent
+env:
+  MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
+  MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
+probes:
+  startup:
+    failureThreshold: 30
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+storage:
+  libPVCSize: "1Gi"
+  logPVCSize: "1Gi"
+  # If a separate storage class will be requested for lib and log, rename this one to libStorageClass and add the other logStorageClass
+  storageClass:
+    # By default we don't set the name of the storage class. If you set any name, storage class should be created.
+    name:  
+    provisioner: k8s.io/minikube-hostpath
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+
+ports:
+  boltPort: 7687
+  managementPort: 10000
+  replicationPort: 20000
+  coordinatorPort: 12000
+externalAccessConfig:
+  dataInstance:
+    serviceType: "NodePort"
+  coordinator:
+    serviceType: "NodePort"
+
+# Affinity controls the scheduling of the memgraph-high-availability pods.
+# By default data pods will avoid being scheduled on the same node as other data pods,
+# and coordinator pods will avoid being scheduled on the same node as other coordinator pods.
+# Deployment won't fail if there is no sufficient nodes.
+affinity:
+  # The unique affinity, will schedule the pods on different nodes in the cluster.
+  # This means coordinators and data nodes will not be scheduled on the same node. If there are more pods than nodes, deployment will fail.
+  unique: false
+  # The parity affinity, will enable scheduling of the pods on the same node, but with the rule that one node can host pair made of coordinator and data node.
+  # This means each node can have max two pods, one coordinator and one data node. If not sufficient nodes, deployment will fail.
+  parity: false
+  # The nodeSelection affinity, will enable scheduling of the pods on the nodes with specific labels. So the coordinators will be scheduled on the nodes with label coordinator-node and data nodes will be scheduled on the nodes with label data-node. If not sufficient nodes, deployment will fail.
+  nodeSelection: false
+  roleLabelKey: "role"
+  dataNodeLabelValue: "data-node"
+  coordinatorNodeLabelValue: "coordinator-node"
 
 # If you are experiencing issues with the sysctlInitContainer, you can disable it here.
 # This is made to increase the max_map_count, necessary for high memory loads in Memgraph
