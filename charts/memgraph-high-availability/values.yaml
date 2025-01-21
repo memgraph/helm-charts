@@ -1,6 +1,10 @@
 image:
-  repository: memgraph/memgraph
-  tag: 2.22.0_23_8cb3c39c21
+  repository: memgraphacrha.azurecr.io/memgraph/memgraph
+  # old one
+  # tag: 2.22.0_23_8cb3c39c21
+  # new one
+  tag: 2.22.0_30_8a58da1477
+
   pullPolicy: IfNotPresent
 env:
   MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -18,14 +22,11 @@ probes:
 
 storage:
   libPVCSize: "1Gi"
+  # By default the name of the storage class isn't which means that the default storage class will be used.
+  # If you set any name, such storage class must exist.
+  libStorageClassName: managed-csi
   logPVCSize: "1Gi"
-  # If a separate storage class will be requested for lib and log, rename this one to libStorageClass and add the other logStorageClass
-  storageClass:
-    # By default we don't set the name of the storage class. If you set any name, storage class should be created.
-    name:  
-    provisioner: k8s.io/minikube-hostpath
-    reclaimPolicy: Retain
-    volumeBindingMode: Immediate
+  logStorageClassName: managed-csi
 
 ports:
   boltPort: 7687

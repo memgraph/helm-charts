@@ -140,8 +140,8 @@ spec:
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.storage.storageClass.name }}
-        storageClassName: {{ $.Values.storage.storageClass.name }}
+        {{- if $.Values.storage.libStorageClassName }}
+        storageClassName: {{ $.Values.storage.libStorageClassName }}
         {{- end }}
         resources:
           requests:
@@ -152,8 +152,8 @@ spec:
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.storage.storageClass.name }}
-        storageClassName: {{ $.Values.storage.storageClass.name }}
+        {{- if $.Values.storage.logStorageClassName }}
+        storageClassName: {{ $.Values.storage.logStorageClassName }}
         {{- end }}
         resources:
           requests:
