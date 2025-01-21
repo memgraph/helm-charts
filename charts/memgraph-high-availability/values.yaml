@@ -22,10 +22,12 @@ probes:
 
 storage:
   libPVCSize: "1Gi"
-  # By default the name of the storage class isn't which means that the default storage class will be used.
+  libStorageAccessMode: "ReadWriteMany"
+  # By default the name of the storage class isn't set which means that the default storage class will be used.
   # If you set any name, such storage class must exist.
   libStorageClassName: managed-csi
   logPVCSize: "1Gi"
+  logStorageAccessMode: "ReadWriteMany"
   logStorageClassName: managed-csi
 
 ports:

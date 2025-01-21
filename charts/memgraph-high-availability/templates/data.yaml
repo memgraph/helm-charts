@@ -149,7 +149,7 @@ spec:
         name: memgraph-data-{{ $data.id }}-lib-storage
       spec:
         accessModes:
-        - "ReadWriteOnce"
+        - {{ $.Values.storage.libStorageAccessMode}}
         {{- if $.Values.storage.libStorageClassName }}
         storageClassName: {{ $.Values.storage.libStorageClassName }}
         {{- end }}
@@ -160,7 +160,7 @@ spec:
         name: memgraph-data-{{ $data.id }}-log-storage
       spec:
         accessModes:
-        - "ReadWriteOnce"
+        - {{ $.Values.storage.logStorageAccessMode}}
         {{- if $.Values.storage.logStorageClassName }}
         storageClassName: {{ $.Values.storage.logStorageClassName }}
         {{- end }}
