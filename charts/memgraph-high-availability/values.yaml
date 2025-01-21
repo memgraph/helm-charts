@@ -1,10 +1,6 @@
 image:
-  repository: memgraphacrha.azurecr.io/memgraph/memgraph
-  # old one
-  # tag: 2.22.0_23_8cb3c39c21
-  # new one
-  tag: 2.22.0_30_8a58da1477
-
+  repository: memgraph/memgraph
+  tag: 2.22.0
   pullPolicy: IfNotPresent
 env:
   MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
@@ -25,10 +21,10 @@ storage:
   libStorageAccessMode: "ReadWriteMany"
   # By default the name of the storage class isn't set which means that the default storage class will be used.
   # If you set any name, such storage class must exist.
-  libStorageClassName: managed-csi
+  libStorageClassName:
   logPVCSize: "1Gi"
   logStorageAccessMode: "ReadWriteMany"
-  logStorageClassName: managed-csi
+  logStorageClassName:
 
 ports:
   boltPort: 7687
