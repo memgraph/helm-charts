@@ -18,12 +18,12 @@ probes:
 
 storage:
   libPVCSize: "1Gi"
-  libStorageAccessMode: "ReadWriteMany"
+  libStorageAccessMode: "ReadWriteOnce"
   # By default the name of the storage class isn't set which means that the default storage class will be used.
   # If you set any name, such storage class must exist.
   libStorageClassName:
   logPVCSize: "1Gi"
-  logStorageAccessMode: "ReadWriteMany"
+  logStorageAccessMode: "ReadWriteOnce"
   logStorageClassName:
 
 ports:
