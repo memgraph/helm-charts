@@ -1,17 +1,3 @@
 Thank you for installing the Memgraph High-availability cluster (Enterprise)! 🎉
 
-Memgraph HA cluster includes 3 coordinators, 2 data instances by default. The cluster setup is performed via the cluster-setup job.
-
-
-The cluster setup requires the proper enterprise license to work since HA is an enterprise feature.
-
-You can connect to Memgraph instances via Lab, mgconsole, or any other client. By default, all Memgraph instances (coordinators and data instances) listen on port 7687 for a bolt connection.
-Make sure your are connecting to the correct ip address and port. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
-
-To start, you should add coordinators and register data instances in order to completely setup cluster. Depending on whether you use LoadBalancers or
-NodePorts to expose your service, queries will be slightly different. In both cases you only need to modify 'bolt_server' part of the query while
-'management_server', 'coordinator_server' and 'replication_server' will stay the same. If you are connecting via Lab, select 'Memgraph instance'
-type of connection when adding instances to the cluster. If you are connecting via Lab, specify your coordinator instance IP address and port in Memgraph Lab GUI and select Memgraph HA
-cluster type of connection for using bolt+routing.
-
-If you are using minikube, you can find out your node ip using `minikube ip`.
+You can find information about installing this chart on Memgraph docs https://memgraph.com/docs/getting-started/install-memgraph/kubernetes.
