@@ -88,3 +88,24 @@ For the `data` and `coordinators` sections, each item in the list has the follow
 The `args` section contains a list of arguments for starting the Memgraph instance.
 
 For all available database settings, refer to the [Configuration settings reference guide](https://memgraph.com/docs/memgraph/reference-guide/configuration).
+
+## Retain policy
+
+The default policy of PVs is Delete which means that when PVCs are deleted, corresponding PVs will be deleted to. This is not the best practice
+in when deploying a database inside K8s so we advise users to either create a custom storage class with policy Retain or that they use the following
+script to patch PVs:
+
+```
+#!/bin/bash
+
+# Get all Persistent Volume names
+PVS=$(kubectl get pv --no-headers -o custom-columns=":metadata.name")
+
+# Loop through each PV and patch it
+for pv in $PVS; do
+  echo "Patching PV: $pv"
+  kubectl patch pv $pv -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+done
+
+echo "All PVs have been patched."
+```
