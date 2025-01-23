@@ -84,15 +84,13 @@ We can now install Memgraph HA chart using the following command:
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<YOUR_LICENSE>, \
-memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<YOUR_ORGANIZATION_NAME>, \
-memgraph.data.volumeClaim.storagePVCClassName=gp2, \
-memgraph.coordinators.volumeClaim.storagePVCClassName=gp2, \
-memgraph.data.volumeClaim.logPVCClassName=gp2, \
-memgraph.coordinators.volumeClaim.logPVCClassName=gp2, \
-memgraph.affinity.nodeSelection=true, \
-memgraph.externalAccessConfig.dataInstance.serviceType=NodePort, \
-memgraph.externalAccessConfig.coordinator.serviceType=NodePort
+env.MEMGRAPH_ENTERPRISE_LICENSE=<YOUR_LICENSE>, \
+env.MEMGRAPH_ORGANIZATION_NAME=<YOUR_ORGANIZATION_NAME>, \
+storage.libStorageClassName=gp2, \
+storage.logStorageClassName=gp2, \
+affinity.nodeSelection=true, \
+externalAccessConfig.dataInstance.serviceType=NodePort, \
+externalAccessConfig.coordinator.serviceType=NodePort
 ```
 
 The only remaining step is to connect instances to form a cluster:

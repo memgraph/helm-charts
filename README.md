@@ -32,7 +32,7 @@ helm repo update
 Deploys standalone Memgraph.
 For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph/README.md).
 
-To install Memgraph standalone, run the following command:
+To install the Memgraph standalone chart, run the following command:
 
 ```
 helm install my-release memgraph/memgraph

@@ -1,10 +1,10 @@
 {{- $validDataServices := list "LoadBalancer" "NodePort" "IngressNginx" }}
-{{- if not (has .Values.memgraph.externalAccessConfig.dataInstance.serviceType $validDataServices) }}
-{{- fail "Invalid environment value for memgraph.externalAccessConfig.dataInstance.serviceType. Use 'LoadBalancer', 'NodePort' or 'IngressNginx'."}}
+{{- if not (has .Values.externalAccessConfig.dataInstance.serviceType $validDataServices) }}
+{{- fail "Invalid environment value for externalAccessConfig.dataInstance.serviceType. Use 'LoadBalancer', 'NodePort' or 'IngressNginx'."}}
 {{- end }}
 
 
-{{ if eq $.Values.memgraph.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
+{{ if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
 # Placeholder
 {{ else }}
 {{- range .Values.data }}
@@ -14,7 +14,7 @@ kind: Service
 metadata:
   name: memgraph-data-{{ .id }}-external
 spec:
-{{ if eq $.Values.memgraph.externalAccessConfig.dataInstance.serviceType "NodePort"}}
+{{ if eq $.Values.externalAccessConfig.dataInstance.serviceType "NodePort"}}
   type: NodePort
 {{ else }}
   type: LoadBalancer
@@ -24,7 +24,7 @@ spec:
   ports:
     - protocol: TCP
       name: bolt
-      port: {{ $.Values.memgraph.ports.boltPort }}
-      targetPort: {{ $.Values.memgraph.ports.boltPort }}
+      port: {{ $.Values.ports.boltPort }}
+      targetPort: {{ $.Values.ports.boltPort }}
 {{- end }}
 {{ end }}

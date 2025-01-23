@@ -73,9 +73,9 @@ Users can connect to any coordinator or data instance by distinguishing bolt por
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<organization>,memgraph.affinity.nodeSelection=true,\
-memgraph.externalAccessConfig.dataInstance.serviceType=IngressNginx,memgraph.externalAccessConfig.coordinator.serviceType=IngressNginx
+env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
+env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+externalAccessConfig.dataInstance.serviceType=IngressNginx,externalAccessConfig.coordinator.serviceType=IngressNginx
 ```
 
 Next, install `IngressNginx` resource:
@@ -148,9 +148,9 @@ are used and so that each data and coordinator instance is exposed through LoadB
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<organization>,memgraph.affinity.nodeSelection=true,\
-memgraph.externalAccessConfig.dataInstance.serviceType=LoadBalancer,memgraph.externalAccessConfig.coordinator.serviceType=LoadBalancer
+env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
+env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+externalAccessConfig.dataInstance.serviceType=LoadBalancer,externalAccessConfig.coordinator.serviceType=LoadBalancer
 ```
 
 By running `kubectl get svc -o=wide` and `kubectl get pods -o=wide` we can verify that deployment finished successfully. Example:
