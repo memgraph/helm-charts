@@ -82,23 +82,21 @@ spec:
         - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
           mountPath: /var/log/memgraph
         command: [ "/bin/sh","-c" ]
-        args: [ "chown -R memgraph:memgraph /var/log; chown -R memgraph:memgraph /var/lib" ]
+        args: [ "chown -R memgraph:memgraph /var/log/memgraph; chown -R memgraph:memgraph /var/lib/memgraph" ]
         securityContext:
-          privileged: true
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
+          runAsUser: 0 # Run as root
           capabilities:
-            drop: [ "all" ]
+            drop: [ "ALL" ]
             add: [ "CHOWN" ]
-          runAsUser: 0
-          runAsNonRoot: false
-    {{- if $.Values.sysctlInitContainer.enabled }}
+      {{- if $.Values.sysctlInitContainer.enabled }}
       - name: init-sysctl
         image: busybox
         command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
         securityContext:
           privileged: true
           runAsUser: 0
-        {{- end }}
+      {{- end }}
 
       containers:
       - name: memgraph-coordinator
@@ -140,9 +138,7 @@ spec:
       spec:
         accessModes:
         - {{ $.Values.storage.libStorageAccessMode}}
-        {{- if $.Values.storage.libStorageClassName }}
         storageClassName: {{ $.Values.storage.libStorageClassName }}
-        {{- end }}
         resources:
           requests:
             storage: {{ $.Values.storage.libPVCSize }}
@@ -152,9 +148,7 @@ spec:
       spec:
         accessModes:
         - {{ $.Values.storage.logStorageAccessMode}}
-        {{- if $.Values.storage.logStorageClassName }}
         storageClassName: {{ $.Values.storage.logStorageClassName }}
-        {{- end }}
         resources:
           requests:
             storage: {{ $.Values.storage.logPVCSize }}
