@@ -132,6 +132,12 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
             mountPath: /var/log/memgraph
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ "ALL" ]
+          # Run by 'memgraph' user as specified in the Dockerfile
+
   volumeClaimTemplates:
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage

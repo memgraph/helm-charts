@@ -1,7 +1,6 @@
 image:
-  repository: memgraphacrha.azurecr.io/memgraph/memgraph
-    #tag: 2.22.0_23_8cb3c39c21
-  tag: 2.22.0_30_8a58da1477
+  repository: memgraph/memgraph
+  tag: 2.22.0
   pullPolicy: IfNotPresent
 
 env:
@@ -12,7 +11,7 @@ storage:
   libPVCSize: "1Gi"
   libStorageAccessMode: "ReadWriteOnce"
   # By default the name of the storage class isn't set which means that the default storage class will be used.
-  # If you set any name, the storage class with such name must exist.
+  # If you set any name, such storage class must exist.
   libStorageClassName:
   logPVCSize: "1Gi"
   logStorageAccessMode: "ReadWriteOnce"
