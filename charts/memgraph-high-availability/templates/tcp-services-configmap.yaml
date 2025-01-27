@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tcp-services
+  name: tcp-services  # If you change it, make sure that you change in the ingress-nginx.yaml file too
   namespace: ingress-nginx
 data:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
