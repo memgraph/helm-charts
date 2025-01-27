@@ -62,13 +62,11 @@ spec:
               chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }};
               {{- end }}
           securityContext:
-            privileged: true
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop: ["all"]
-              add: ["CHOWN"]
+            readOnlyRootFilesystem: true
             runAsUser: 0
-            runAsNonRoot: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN"]
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
           image: busybox
@@ -128,6 +126,11 @@ spec:
               containerPort: {{ .Values.service.websocketPortMonitoring }}
             - name: http
               containerPort: {{ .Values.service.httpPortMonitoring }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ "ALL" ]
+          # Run by 'memgraph' user as specified in the Dockerfile
           livenessProbe:
             exec:
               command:
