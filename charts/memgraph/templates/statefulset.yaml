@@ -126,6 +126,11 @@ spec:
               containerPort: {{ .Values.service.websocketPortMonitoring }}
             - name: http
               containerPort: {{ .Values.service.httpPortMonitoring }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ "ALL" ]
+          # Run by 'memgraph' user as specified in the Dockerfile
           livenessProbe:
             exec:
               command:
