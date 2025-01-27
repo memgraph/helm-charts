@@ -1,20 +1,11 @@
 image:
-  repository: memgraphacrha.azurecr.io/memgraph/memgraph
-  tag: 2.22.0_23_8cb3c39c21
+  repository: memgraph/memgraph
+  tag: 2.22.0
   pullPolicy: IfNotPresent
+
 env:
   MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
   MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
-probes:
-  startup:
-    failureThreshold: 30
-    periodSeconds: 10
-  readiness:
-    initialDelaySeconds: 5
-    periodSeconds: 5
-  liveness:
-    initialDelaySeconds: 30
-    periodSeconds: 10
 
 storage:
   libPVCSize: "1Gi"
@@ -31,6 +22,7 @@ ports:
   managementPort: 10000
   replicationPort: 20000
   coordinatorPort: 12000
+
 externalAccessConfig:
   dataInstance:
     serviceType: "NodePort"

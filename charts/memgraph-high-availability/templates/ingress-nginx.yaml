@@ -1,3 +1,4 @@
+{{- if or (eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx") }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -10,6 +11,22 @@ metadata:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services  # If you change it, make sure that you change in the ingress-nginx.yaml file too
+  namespace: ingress-nginx
+data:
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
+  9000: "default/memgraph-data-0:7687"
+  9001: "default/memgraph-data-1:7687"
+  {{- end }}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
+  9011: "default/memgraph-coordinator-1:7687"
+  9012: "default/memgraph-coordinator-2:7687"
+  9013: "default/memgraph-coordinator-3:7687"
+  {{- end }}
 ---
 apiVersion: v1
 automountServiceAccountToken: true
@@ -354,6 +371,7 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   - name: data-0
     port: 9000
     targetPort: 9000
@@ -362,6 +380,8 @@ spec:
     port: 9001
     targetPort: 9001
     protocol: TCP
+  {{- end }}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   - name: coord-1
     port: 9011
     targetPort: 9011
@@ -374,6 +394,7 @@ spec:
     port: 9013
     targetPort: 9013
     protocol: TCP
+  {{- end }}
   - appProtocol: http
     name: http
     port: 80
@@ -689,3 +710,4 @@ webhooks:
     resources:
     - ingresses
   sideEffects: None
+{{- end }}
