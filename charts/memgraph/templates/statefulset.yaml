@@ -53,13 +53,13 @@ spec:
           args:
             - >
               {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-              chown -R memgraph:memgraph /var/lib/memgraph;
+              chown -R memgraph:memgraph /var/lib/memgraph || true;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createLogStorage }}
-              chown -R memgraph:memgraph /var/log/memgraph;
+              chown -R memgraph:memgraph /var/log/memgraph || true;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }};
+              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }} || true;
               {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
