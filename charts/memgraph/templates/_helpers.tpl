@@ -89,4 +89,3 @@ startupProbe:
   timeoutSeconds: {{ .timeoutSeconds }}
   periodSeconds: {{ .periodSeconds }}
 {{- end }}
-

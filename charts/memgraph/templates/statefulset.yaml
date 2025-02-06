@@ -116,7 +116,7 @@ spec:
           - {{ . | quote }}
           {{- end }}
           {{- if not .Values.persistentVolumeClaim.createLogStorage }}
-          - "--log-file=''"
+          - "--log-file="
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
