@@ -147,6 +147,9 @@ spec:
           capabilities:
             drop: [ "ALL" ]
           # Run by 'memgraph' user as specified in the Dockerfile
+        {{- include "container.readinessProbe" $.Values.container.readinessProbe | nindent 8 }}
+        {{- include "container.livenessProbe" $.Values.container.livenessProbe | nindent 8 }}
+        {{- include "container.startupProbe" $.Values.container.startupProbe | nindent 8 }}
 
   volumeClaimTemplates:
     - metadata:

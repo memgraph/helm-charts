@@ -42,3 +42,32 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "container.readinessProbe" -}}
+readinessProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
+
+
+{{- define "container.livenessProbe" -}}
+livenessProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
+
+
+{{- define "container.startupProbe" -}}
+startupProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
