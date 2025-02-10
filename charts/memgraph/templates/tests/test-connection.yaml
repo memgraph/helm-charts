@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: memgraph-test
-        image: memgraph/memgraph:2.22.0
+        image: memgraph/memgraph:3.0.0
         command: ["/bin/sh", "-c"]
         args:
           - |

@@ -116,7 +116,7 @@ spec:
           - {{ . | quote }}
           {{- end }}
           {{- if not .Values.persistentVolumeClaim.createLogStorage }}
-          - "--log-file=''"
+          - "--log-file="
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -131,48 +131,9 @@ spec:
             capabilities:
               drop: [ "ALL" ]
           # Run by 'memgraph' user as specified in the Dockerfile
-          livenessProbe:
-            exec:
-              command:
-              - sh
-              - -c
-              - |
-                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
-                else
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
-                fi
-            initialDelaySeconds: {{ .Values.container.probes.liveliness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.container.probes.liveliness.periodSeconds }}
-            failureThreshold: {{ .Values.container.probes.liveliness.failureThreshold }}
-          readinessProbe:
-            exec:
-              command:
-              - sh
-              - -c
-              - |
-                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
-                else
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
-                fi
-            initialDelaySeconds: {{ .Values.container.probes.readiness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.container.probes.readiness.periodSeconds }}
-            failureThreshold: {{ .Values.container.probes.readiness.failureThreshold }}
-          startupProbe:
-            exec:
-              command:
-              - sh
-              - -c
-              - |
-                if [ -z "$MEMGRAPH_USER" ] || [ -z "$MEMGRAPH_PASSWORD" ]; then
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }}
-                else
-                  echo 'RETURN 0;' | mgconsole --host localhost --port {{ .Values.service.boltPort }} --username "$MEMGRAPH_USER" --password "$MEMGRAPH_PASSWORD";
-                fi
-            failureThreshold: {{ .Values.container.probes.startup.failureThreshold }}
-            periodSeconds: {{ .Values.container.probes.startup.periodSeconds }}
-            initialDelaySeconds: {{ .Values.container.probes.startup.initialDelaySeconds }}
+          {{- include "container.readinessProbe" .Values.container.readinessProbe | nindent 10 }}
+          {{- include "container.livenessProbe" .Values.container.livenessProbe | nindent 10 }}
+          {{- include "container.startupProbe" .Values.container.startupProbe | nindent 10 }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
