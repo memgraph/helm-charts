@@ -60,6 +60,29 @@ secrets:
   userKey: USER
   passwordKey: PASSWORD
 
+container:
+  # When a container is ready to be used. Disabled until startupProbe succeeds.
+  readinessProbe:
+    tcpSocket:
+      port: 7687
+    failureThreshold: 20
+    timeoutSeconds: 10
+    periodSeconds: 5
+  # To know when a container needs to be restarted.
+  # Disabled until startupProbe succeeds.
+  livenessProbe:
+    tcpSocket:
+      port: 7687
+    failureThreshold: 20
+    timeoutSeconds: 10
+    periodSeconds: 5
+  # When restoring Memgraph from a backup, it is important to give enough time app to start. Here, we set it to 2h by default.
+  startupProbe:
+    tcpSocket:
+      port: 7687
+    failureThreshold: 1440
+    periodSeconds: 5
+
 data:
 - id: "0"
   args:
