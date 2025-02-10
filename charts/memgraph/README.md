@@ -85,6 +85,12 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `container.startupProbe.periodSeconds`       | Period seconds for startup probe                                                                                                 | `10`                                   |
 | `nodeSelectors`                              | Node selectors for pod. Left empty by default.                                                                                   | `{}`                                   |
 | `customQueryModules`                         | List of custom Query modules that should be mounted to Memgraph Pod                                                              | `[]`                                   |
+| `storageClass.name`                          | Name of the StorageClass                                                                                                         | `"memgraph-generic-storage-class"`     |
+| `storageClass.provisioner`                   | Provisioner for the StorageClass                                                                                                 | `""`                                   |
+| `storageClass.storageType`                   | Type of storage for the StorageClass                                                                                             | `""`                                   |
+| `storageClass.fsType`                        | Filesystem type for the StorageClass                                                                                             | `""`                                   |
+| `storageClass.reclaimPolicy`                 | Reclaim policy for the StorageClass                                                                                              | `Retain`                               |
+| `storageClass.volumeBindingMode`             | Volume binding mode for the StorageClass                                                                                         | `Immediate`                            |
 | `sysctlInitContainer.enabled`                | Enable the init container to set sysctl parameters                                                                               | `true`                                 |
 | `sysctlInitContainer.maxMapCount`            | Value for `vm.max_map_count` to be set by the init container                                                                     | `262144`                               |
 

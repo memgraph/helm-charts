@@ -83,6 +83,14 @@ persistentVolumeClaim:
 # Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
 
+storageClass:
+  name: memgraph-generic-storage-class
+  provisioner: "k8s.io/minikube-hostpath"
+  storageType: "hostPath"
+  fsType: ext4
+  reclaimPolicy: Retain
+  volumeBindingMode: Immediate
+
 memgraphConfig:
 - "--also-log-to-stderr=true"
 
