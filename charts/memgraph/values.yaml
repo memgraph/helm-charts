@@ -84,6 +84,7 @@ persistentVolumeClaim:
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
 
 storageClass:
+  create: false
   name: memgraph-generic-storage-class
   provisioner: "k8s.io/minikube-hostpath"
   storageType: "hostPath"
