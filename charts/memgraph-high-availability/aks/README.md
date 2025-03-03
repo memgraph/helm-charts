@@ -69,7 +69,7 @@ In the following chapters, we will go over several most common deployment types:
 
 The most cost-friendly way to manage a Memgraph HA cluster in K8s is using a IngressNginx contoller. This controller is capable of routing TCP messages on Bolt level
 protocol to the K8s Memgraph services. To achieve this, it uses only a single LoadBalancer which means there is only a single external IP for connecting to the cluster.
-Users can connect to any coordinator or data instance by distinguishing bolt ports. The 1st step is to install Memgraph HA:
+Users can connect to any coordinator or data instance by distinguishing bolt ports. First install Memgraph HA:
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
@@ -78,58 +78,7 @@ env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
 externalAccessConfig.dataInstance.serviceType=IngressNginx,externalAccessConfig.coordinator.serviceType=IngressNginx
 ```
 
-Next, install `IngressNginx` resource:
-
-```
-helm upgrade --install ingress-nginx ingress-nginx \
---repo https://kubernetes.github.io/ingress-nginx \
---namespace ingress-nginx --create-namespace \
---set controller.tcp.services.configMapNamespace=ingress-nginx \
---set controller.tcp.services.configMapName=tcp-services
-```
-
-After installing Memgraph HA Chart and IngressNginx resource, we need to customize a configuration of the newly created Controller and Deployment
-K8s object. Open the `ingress-nginx-controller` service for editing by running:
-```
-kubectl edit svc ingress-nginx-controller -n ingress-nginx
-```
-
-Locate the `spec.ports` section and append the following services configuration:
-```
-- name: data-0
-  port: 9000
-  targetPort: 9000
-  protocol: TCP
-- name: data-1
-  port: 9001
-  targetPort: 9001
-  protocol: TCP
-- name: coord-1
-  port: 9011
-  targetPort: 9011
-  protocol: TCP
-- name: coord-2
-  port: 9012
-  targetPort: 9012
-  protocol: TCP
-- name: coord-3
-  port: 9013
-  targetPort: 9013
-  protocol: TCP
-```
-
-After you are done, save and close the file. Next, open the `ingress-nginx-controller` deployment by running:
-```
-kubectl edit deployment ingress-nginx-controller -n ingress-nginx
-```
-
-Locate the `args` section and append the following configuration option:
-```
-- --tcp-services-configmap=ingress-nginx/tcp-services
-```
-
-If you get stuck, more info can be found [here](https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/). Save and close the file.
-The only remaining step is to connect Memgraph instances. For that, we need to find out which external IP will a LoadBalancer use. You can find that out
+After that, connect Memgraph instances using LoadBalancer's external IP. You can find that out
 by running `kubectl get svc -o=wide -A`.
 
 ```

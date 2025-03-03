@@ -372,25 +372,25 @@ spec:
   ipFamilyPolicy: SingleStack
   ports:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
-  - name: data-0
+  - name: tcp-data-0
     port: 9000
     targetPort: 9000
     protocol: TCP
-  - name: data-1
+  - name: tcp-data-1
     port: 9001
     targetPort: 9001
     protocol: TCP
   {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
-  - name: coord-1
+  - name: tcp-coord-1
     port: 9011
     targetPort: 9011
     protocol: TCP
-  - name: coord-2
+  - name: tcp-coord-2
     port: 9012
     targetPort: 9012
     protocol: TCP
-  - name: coord-3
+  - name: tcp-coord-3
     port: 9013
     targetPort: 9013
     protocol: TCP

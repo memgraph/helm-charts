@@ -23,7 +23,7 @@ spec:
     app: memgraph-data-{{ .id }}
   ports:
     - protocol: TCP
-      name: bolt
+      name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
 {{- end }}

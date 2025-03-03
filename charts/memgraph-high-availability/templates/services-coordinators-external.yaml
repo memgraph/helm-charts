@@ -16,7 +16,7 @@ spec:
     role: coordinator
   ports:
     - protocol: TCP
-      name: bolt
+      name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
 {{ else }}
@@ -36,7 +36,7 @@ spec:
     app: memgraph-coordinator-{{ .id }}
   ports:
     - protocol: TCP
-      name: bolt
+      name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
 {{- end }}
