@@ -10,15 +10,15 @@ spec:
     app: memgraph-data-{{ .id }}
   ports:
     - protocol: TCP
-      name: bolt
+      name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
     - protocol: TCP
-      name: management
+      name: tcp-management-port
       port: {{ $.Values.ports.managementPort }}
       targetPort: {{ $.Values.ports.managementPort }}
     - protocol: TCP
-      name: replication
+      name: tcp-replication-port
       port: {{ $.Values.ports.replicationPort }}
       targetPort: {{ $.Values.ports.replicationPort }}
 {{- end }}

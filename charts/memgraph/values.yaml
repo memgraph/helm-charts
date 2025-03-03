@@ -35,17 +35,14 @@ service:
   # Bolt Port
   enableBolt: true
   boltPort: 7687  # NOTE: Make sure to change port in probes if you change this value.
-  boltProtocol: TCP
 
   # Websocket Monitoring
   enableWebsocketMonitoring: false
   websocketPortMonitoring: 7444
-  websocketPortMonitoringProtocol: TCP
 
   # HTTP Monitoring
   enableHttpMonitoring: false
   httpPortMonitoring: 9091
-  httpPortMonitoringProtocol: http
   annotations: {}
 
 persistentVolumeClaim:
