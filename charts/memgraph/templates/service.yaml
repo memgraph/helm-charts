@@ -14,19 +14,19 @@ spec:
     {{- if .Values.service.boltPort }}
     - port: {{ .Values.service.boltPort }}
       targetPort: {{ .Values.service.boltPort }}
-      protocol: {{ .Values.service.boltProtocol }}
-      name: bolt-port
+      protocol: TCP
+      name: tcp-bolt-port
     {{- end }}
     {{- if .Values.service.enableWebsocketMonitoring }}
     - port: {{ .Values.service.websocketPortMonitoring }}
       targetPort: {{ .Values.service.websocketPortMonitoring }}
-      protocol: {{ .Values.service.websocketPortMonitoringProtocol }}
-      name: websocket-monitoring-port
+      protocol: TCP
+      name: tcp-websocket-monitoring-port
     {{- end }}
     {{- if .Values.service.enableHttpMonitoring }}
     - port: {{ .Values.service.httpPortMonitoring }}
       targetPort: {{ .Values.service.httpPortMonitoring }}
-      protocol: {{ .Values.service.httpPortMonitoringProtocol }}
+      protocol: http
       name: http-monitoring-port
     {{- end }}
   selector:
