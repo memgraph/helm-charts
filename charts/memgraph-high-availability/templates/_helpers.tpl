@@ -43,7 +43,7 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "container.readinessProbe" -}}
+{{- define "container.data.readinessProbe" -}}
 readinessProbe:
   tcpSocket:
     port: {{ .tcpSocket.port }}
@@ -53,7 +53,7 @@ readinessProbe:
 {{- end }}
 
 
-{{- define "container.livenessProbe" -}}
+{{- define "container.data.livenessProbe" -}}
 livenessProbe:
   tcpSocket:
     port: {{ .tcpSocket.port }}
@@ -63,7 +63,38 @@ livenessProbe:
 {{- end }}
 
 
-{{- define "container.startupProbe" -}}
+{{- define "container.data.startupProbe" -}}
+startupProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
+
+
+
+{{- define "container.coordinators.readinessProbe" -}}
+readinessProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
+
+
+{{- define "container.coordinators.livenessProbe" -}}
+livenessProbe:
+  tcpSocket:
+    port: {{ .tcpSocket.port }}
+  failureThreshold: {{ .failureThreshold }}
+  timeoutSeconds: {{ .timeoutSeconds }}
+  periodSeconds: {{ .periodSeconds }}
+{{- end }}
+
+
+{{- define "container.coordinators.startupProbe" -}}
 startupProbe:
   tcpSocket:
     port: {{ .tcpSocket.port }}
