@@ -87,7 +87,8 @@ spec:
 
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
-          image: busybox
+          image: "{{ .Values.sysctlInitContainer.image.repository }}:{{ .Values.sysctlInitContainer.image.tag }}"
+          imagePullPolicy: {{ .Values.sysctlInitContainer.image.pullPolicy }}
           command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ .Values.sysctlInitContainer.maxMapCount }}']
           securityContext:
             privileged: true
