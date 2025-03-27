@@ -3,6 +3,10 @@ Thank you for installing Memgraph! 🎉
 Connect to Memgraph via Lab, mgconsole, or any other client to your Memgraph instance. By default Memgraph listens on port 7687 for a bolt connection inside the cluster.
 Make sure your are connecting to the correct ip address of your instance. For details check the configuration on your cloud provider(aws, gcp, azure, etc.)
 
+Important notes
+- always fix the Memgraph image tag to a specific version. Setting the image tag to "latest" can trigger automatic upgrades on pod restarts in some cases combined with respective pullPolicy of the image.
+- check the requested and maximum limits of memory. Setting Memgraph's flag --memory-limit to an amount that is less to the maximum amount your pod has been given can trigger pod restarts because of preemptive eviction
+
 If you are connecting via mgconsole, you can use the following command:
 
 mgconsole --host <your-instance-ip> --port <your-instance-port>
