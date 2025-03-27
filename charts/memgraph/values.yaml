@@ -1,6 +1,8 @@
 image:
   repository: memgraph/memgraph
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
+  # It is a bad practice to set the image tag name to latest as it can trigger automatic upgrade of the charts
+  # With some of the pullPolicy values. Please consider fixing the tag to a specific Memgraph version
   tag:
   pullPolicy: IfNotPresent
 
@@ -90,6 +92,9 @@ storageClass:
   volumeBindingMode: Immediate
 
 memgraphConfig:
+# If setting the --memory-limit flag, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
+# Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
+# the pod. For further information, check the `resources` section in this file about setting pod memory and cpu limits.
 - "--also-log-to-stderr=true"
 
 secrets:
