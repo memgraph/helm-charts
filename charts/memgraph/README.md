@@ -91,6 +91,9 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `storageClass.volumeBindingMode`             | Volume binding mode for the StorageClass                                                                                         | `Immediate`                            |
 | `sysctlInitContainer.enabled`                | Enable the init container to set sysctl parameters                                                                               | `true`                                 |
 | `sysctlInitContainer.maxMapCount`            | Value for `vm.max_map_count` to be set by the init container                                                                     | `262144`                               |
+| `sysctlInitContainer.image.repository`       | Busybox image repository                                                                                                         | `library/busybox`                      |
+| `sysctlInitContainer.image.tag`              | Specific tag for the Busybox Docker image                                                                                        | `latest`                               |
+| `sysctlInitContainer.image.pullPolicy`       | Image pull policy for busybox                                                                                                    | `IfNotPresent`                         |
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
