@@ -26,7 +26,7 @@ eksctl create cluster -f cluster.yaml`
 ```
 
 should be sufficient. Make sure to change the path to the public SSH key if you want to have SSH access to EC2 instances. After creating the cluster, `kubectl` should pick up
-the AWS context and you can verify this by running `kubectl config current-context`. My is pointing to `andi.skrgat@test-cluster-ha.eu-west-1.eksctl.io`.
+the AWS context and you can verify this by running `kubectl config current-context`. My is pointing to `andi.skrgat@mg-ha.eu-west-1.eksctl.io`.
 
 ## Add Helm Charts repository
 
@@ -51,14 +51,14 @@ kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernete
 Before deploying the cluster, you need to provide access to the NodeInstanceRole. First find the name of the role with
 
 ```
-aws eks describe-nodegroup --cluster-name test-cluster-ha --nodegroup-name standard-workers
+aws eks describe-nodegroup --cluster-name mg-ha --nodegroup-name standard-workers
 ```
 
 and then provide full access to it:
 
 ```
-aws iam attach-role-policy --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID> --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
-aws iam list-attached-role-policies --role-name eksctl-test-cluster-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID>
+aws iam attach-role-policy --role-name eksctl-mg-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID> --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+aws iam list-attached-role-policies --role-name eksctl-mg-ha-nodegroup-s-NodeInstanceRole-<ROLE-ID>
 ```
 
 When using `NodePort` services, it is important to create Inbound Rule in the Security Group attached to the eksctl cluster which will allow TCP traffic
