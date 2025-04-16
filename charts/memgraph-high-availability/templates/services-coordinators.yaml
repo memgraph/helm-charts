@@ -5,7 +5,9 @@ kind: Service
 metadata:
   name: memgraph-coordinator-{{ .id }}
 spec:
-  type: ClusterIP
+  {{- if $.Values.headlessService.enabled }}
+  clusterIP: None
+  {{- end }}
   selector:
     app: memgraph-coordinator-{{ .id }}
   ports:
