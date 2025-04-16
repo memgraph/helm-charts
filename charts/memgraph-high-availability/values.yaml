@@ -31,6 +31,9 @@ externalAccessConfig:
   coordinator:
     serviceType: "NodePort"
 
+headlessService:
+  enabled: false  # If set to true, each data and coordinator instance will use headless service
+
 # Affinity controls the scheduling of the memgraph-high-availability pods.
 # By default data pods will avoid being scheduled on the same node as other data pods,
 # and coordinator pods will avoid being scheduled on the same node as other coordinator pods.
