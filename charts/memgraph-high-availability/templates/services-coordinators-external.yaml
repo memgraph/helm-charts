@@ -1,11 +1,11 @@
-{{- $validCoordServices := list "CommonLoadBalancer" "LoadBalancer" "NodePort" "IngressNginx" }}
+{{- $validCoordServices := list "" "CommonLoadBalancer" "LoadBalancer" "NodePort" "IngressNginx" }}
 {{- if not (has .Values.externalAccessConfig.coordinator.serviceType $validCoordServices) }}
-{{- fail "Invalid environment value for externalAccessConfig.coordinator.serviceType. Use 'CommonLoadBalancer', 'LoadBalancer', 'NodePort' or 'IngressNginx'."}}
+  {{- fail "Invalid value for externalAccessConfig.coordinator.serviceType. Use '', 'CommonLoadBalancer', 'LoadBalancer', 'NodePort' or 'IngressNginx'." }}
 {{- end }}
 
-{{ if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
-# Placeholder
-{{ else if eq $.Values.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer"}}
+{{- if or (eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.coordinator.serviceType "") }}
+  {{- /* No external service rendered for IngressNginx or empty string */}}
+{{- else if eq $.Values.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -23,8 +23,8 @@ spec:
       name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
-{{ else }}
-{{- range .Values.coordinators }}
+{{- else }}
+  {{- range .Values.coordinators }}
 ---
 apiVersion: v1
 kind: Service
@@ -35,11 +35,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{ if eq $.Values.externalAccessConfig.coordinator.serviceType "LoadBalancer"}}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "LoadBalancer" }}
   type: LoadBalancer
-{{ else }}
+  {{- else if eq $.Values.externalAccessConfig.coordinator.serviceType "NodePort" }}
   type: NodePort
-{{ end }}
+  {{- end }}
   selector:
     app: memgraph-coordinator-{{ .id }}
   ports:
@@ -47,5 +47,5 @@ spec:
       name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
+  {{- end }}
 {{- end }}
-{{ end}}

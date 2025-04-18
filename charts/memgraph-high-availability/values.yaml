@@ -27,10 +27,10 @@ ports:
 
 externalAccessConfig:
   dataInstance:
-    serviceType: "NodePort"
+    serviceType: ""
     annotations: {}
   coordinator:
-    serviceType: "NodePort"
+    serviceType: ""
     annotations: {}
 
 headlessService:
