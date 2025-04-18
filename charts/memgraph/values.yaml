@@ -46,6 +46,7 @@ service:
   enableHttpMonitoring: false
   httpPortMonitoring: 9091
   annotations: {}
+  labels: {}
 
 persistentVolumeClaim:
   ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim

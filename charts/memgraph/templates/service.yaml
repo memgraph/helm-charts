@@ -2,8 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "memgraph.fullname" . }}
+  {{- with .Values.service.labels }}
   labels:
-    {{- include "memgraph.labels" . | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
