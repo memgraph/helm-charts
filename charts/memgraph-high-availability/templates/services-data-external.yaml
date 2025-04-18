@@ -1,13 +1,12 @@
-{{- $validDataServices := list "LoadBalancer" "NodePort" "IngressNginx" }}
+{{- $validDataServices := list "" "LoadBalancer" "NodePort" "IngressNginx" }}
 {{- if not (has .Values.externalAccessConfig.dataInstance.serviceType $validDataServices) }}
-{{- fail "Invalid environment value for externalAccessConfig.dataInstance.serviceType. Use 'LoadBalancer', 'NodePort' or 'IngressNginx'."}}
+  {{- fail "Invalid value for externalAccessConfig.dataInstance.serviceType. Use '', 'LoadBalancer', 'NodePort', or 'IngressNginx'." }}
 {{- end }}
 
-
-{{ if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
-# Placeholder
-{{ else }}
-{{- range .Values.data }}
+{{- if or (eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.dataInstance.serviceType "") }}
+  {{- /* No external service rendered for IngressNginx or empty string */}}
+{{- else }}
+  {{- range .Values.data }}
 ---
 apiVersion: v1
 kind: Service
@@ -18,11 +17,11 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{ if eq $.Values.externalAccessConfig.dataInstance.serviceType "NodePort"}}
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "NodePort" }}
   type: NodePort
-{{ else }}
+  {{- else if eq $.Values.externalAccessConfig.dataInstance.serviceType "LoadBalancer" }}
   type: LoadBalancer
-{{ end }}
+  {{- end }}
   selector:
     app: memgraph-data-{{ .id }}
   ports:
@@ -30,5 +29,5 @@ spec:
       name: tcp-bolt-port
       port: {{ $.Values.ports.boltPort }}
       targetPort: {{ $.Values.ports.boltPort }}
+  {{- end }}
 {{- end }}
-{{ end }}

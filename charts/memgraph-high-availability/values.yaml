@@ -27,10 +27,12 @@ ports:
 
 externalAccessConfig:
   dataInstance:
-    serviceType: "NodePort"
+    # Empty = no external access service will be created
+    serviceType: ""
     annotations: {}
   coordinator:
-    serviceType: "NodePort"
+    # Empty = no external access service will be created
+    serviceType: ""
     annotations: {}
 
 headlessService:
