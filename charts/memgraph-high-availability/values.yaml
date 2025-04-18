@@ -28,8 +28,10 @@ ports:
 externalAccessConfig:
   dataInstance:
     serviceType: "NodePort"
+    annotations: {}
   coordinator:
     serviceType: "NodePort"
+    annotations: {}
 
 headlessService:
   enabled: false  # If set to true, each data and coordinator instance will use headless service
