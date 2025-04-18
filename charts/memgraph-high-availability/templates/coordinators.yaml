@@ -140,6 +140,10 @@ spec:
         {{- include "container.coordinators.readinessProbe" $.Values.container.coordinators.readinessProbe | nindent 8 }}
         {{- include "container.coordinators.livenessProbe" $.Values.container.coordinators.livenessProbe | nindent 8 }}
         {{- include "container.coordinators.startupProbe" $.Values.container.coordinators.startupProbe | nindent 8 }}
+        {{- with $.Values.resources.coordinators }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
 
   volumeClaimTemplates:
     - metadata:
