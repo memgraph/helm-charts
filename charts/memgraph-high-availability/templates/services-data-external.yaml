@@ -13,6 +13,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: memgraph-data-{{ .id }}-external
+  {{- with $.Values.externalAccessConfig.dataInstance.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
 {{ if eq $.Values.externalAccessConfig.dataInstance.serviceType "NodePort"}}
   type: NodePort
