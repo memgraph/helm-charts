@@ -25,6 +25,15 @@ jobs:
           python-version: '3.12'
           check-latest: true
 
+      - name: Download dependencies
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+      - name: Update chart dependencies
+        run: |
+          helm dependency update charts/memgraph-high-availability
+
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
 

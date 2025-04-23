@@ -23,6 +23,12 @@ sources:
 - "https://github.com/memgraph/memgraph"
 - "https://github.com/memgraph/helm-charts"
 
+dependencies:
+  - name: prometheus
+    version: "25.19.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: prometheus.enabled
+
 maintainers:
 - name: Memgraph
   email: tech@memgraph.com
