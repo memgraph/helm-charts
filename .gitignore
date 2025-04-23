@@ -1,2 +1,9 @@
 .DS_store
 docker/
+*.tgz
+.helm/
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+charts/memgraph-high-availability/charts/
