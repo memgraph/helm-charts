@@ -26,6 +26,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Helm dependency update
+        run: |
+          for dir in charts/*/; do
+            helm dependency update "$dir"
+          done
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         env:
