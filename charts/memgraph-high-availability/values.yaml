@@ -10,14 +10,24 @@ env:
   MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
 
 storage:
-  libPVCSize: "1Gi"
-  libStorageAccessMode: "ReadWriteOnce"
-  # By default the name of the storage class isn't set which means that the default storage class will be used.
-  # If you set any name, such storage class must exist.
-  libStorageClassName:
-  logPVCSize: "1Gi"
-  logStorageAccessMode: "ReadWriteOnce"
-  logStorageClassName:
+  data:
+    libPVCSize: "1Gi"
+    libStorageAccessMode: "ReadWriteOnce"
+    # By default the name of the storage class isn't set which means that the default storage class will be used.
+    # If you set any name, such storage class must exist.
+    libStorageClassName:
+    logPVCSize: "1Gi"
+    logStorageAccessMode: "ReadWriteOnce"
+    logStorageClassName:
+  coordinators:
+    libPVCSize: "1Gi"
+    libStorageAccessMode: "ReadWriteOnce"
+    # By default the name of the storage class isn't set which means that the default storage class will be used.
+    # If you set any name, such storage class must exist.
+    libStorageClassName:
+    logPVCSize: "1Gi"
+    logStorageAccessMode: "ReadWriteOnce"
+    logStorageClassName:
 
 ports:
   boltPort: 7687   # If you change this value, change it also in probes definition

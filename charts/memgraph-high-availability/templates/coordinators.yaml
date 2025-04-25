@@ -150,20 +150,20 @@ spec:
         name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
       spec:
         accessModes:
-        - {{ $.Values.storage.libStorageAccessMode}}
-        storageClassName: {{ $.Values.storage.libStorageClassName }}
+        - {{ $.Values.storage.coordinators.libStorageAccessMode }}
+        storageClassName: {{ $.Values.storage.coordinators.libStorageClassName }}
         resources:
           requests:
-            storage: {{ $.Values.storage.libPVCSize }}
+            storage: {{ $.Values.storage.coordinators.libPVCSize }}
 
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
       spec:
         accessModes:
-        - {{ $.Values.storage.logStorageAccessMode}}
-        storageClassName: {{ $.Values.storage.logStorageClassName }}
+        - {{ $.Values.storage.coordinators.logStorageAccessMode }}
+        storageClassName: {{ $.Values.storage.coordinators.logStorageClassName }}
         resources:
           requests:
-            storage: {{ $.Values.storage.logPVCSize }}
+            storage: {{ $.Values.storage.coordinators.logPVCSize }}
 ---
 {{- end }}

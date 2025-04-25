@@ -161,20 +161,20 @@ spec:
         name: memgraph-data-{{ $data.id }}-lib-storage
       spec:
         accessModes:
-        - {{ $.Values.storage.libStorageAccessMode}}
-        storageClassName: {{ $.Values.storage.libStorageClassName }}
+        - {{ $.Values.storage.data.libStorageAccessMode }}
+        storageClassName: {{ $.Values.storage.data.libStorageClassName }}
         resources:
           requests:
-            storage: {{ $.Values.storage.libPVCSize }}
+            storage: {{ $.Values.storage.data.libPVCSize }}
     - metadata:
         name: memgraph-data-{{ $data.id }}-log-storage
       spec:
         accessModes:
-        - {{ $.Values.storage.logStorageAccessMode}}
-        storageClassName: {{ $.Values.storage.logStorageClassName }}
+        - {{ $.Values.storage.data.logStorageAccessMode }}
+        storageClassName: {{ $.Values.storage.data.logStorageClassName }}
         resources:
           requests:
-            storage: {{ $.Values.storage.logPVCSize }}
+            storage: {{ $.Values.storage.data.logPVCSize }}
 
 ---
 {{- end }}
