@@ -86,8 +86,10 @@ We can now install Memgraph HA chart using the following command:
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
 env.MEMGRAPH_ENTERPRISE_LICENSE=<YOUR_LICENSE>, \
 env.MEMGRAPH_ORGANIZATION_NAME=<YOUR_ORGANIZATION_NAME>, \
-storage.libStorageClassName=gp2, \
-storage.logStorageClassName=gp2, \
+storage.coordinators.libStorageClassName=gp2, \
+storage.data.libStorageClassName=gp2, \
+storage.coordinators.logStorageClassName=gp2, \
+storage.data.logStorageClassName=gp2, \
 affinity.nodeSelection=true, \
 externalAccessConfig.dataInstance.serviceType=NodePort, \
 externalAccessConfig.coordinator.serviceType=NodePort
