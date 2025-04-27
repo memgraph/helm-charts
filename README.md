@@ -66,13 +66,14 @@ Deploys high available Memgraph cluster, that includes two data instances and th
 
 For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-high-availability/README.md).
 
-To install Memgraph standalone, run the following command:
+To install the chart, run the following command:
 
 ```
-helm install my-release memgraph/memgraph-high-availability --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,memgraph.env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>
+helm install my-release memgraph/memgraph-high-availability --set env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>
 ```
 Replace `my-release` with a name of your choice for the release.
 
+There are a few additional steps to make the cluster fully operational. Please take a look under the [Setting up the cluster](https://memgraph.com/docs/getting-started/install-memgraph/kubernetes#setting-up-the-cluster) docs section.
 
 Once Memgraph cluster is up and running, you can access it using the provided services and endpoints. Refer to the [Memgraph documentation](https://memgraph.com/docs/memgraph/connect-to-memgraph) for details on how to connect to and interact with Memgraph.
 
