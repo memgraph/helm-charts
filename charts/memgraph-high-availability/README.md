@@ -4,3 +4,5 @@ This Helm Chart requires an [Enterprise version of Memgraph](https://memgraph.co
 
 Docs for how to use High availability Helm chart is available [here](https://memgraph.com/docs/getting-started/install-memgraph/kubernetes).
 In the aks/ and aws/ directories you find specific guides used for deploying this chart on Azure's and AWS's K8s platforms.
+
+For the quick start please refer to the [top-level README section](https://github.com/memgraph/helm-charts?tab=readme-ov-file#memgraph-high-availability).
