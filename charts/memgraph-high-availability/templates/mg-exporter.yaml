@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mg-exporter-config
+data:
+  ha_config.yaml: |
+    exporter:
+      port: 9115  # TODO: (andi) abstract
+      pull_frequency_seconds: 5  # TODO: (andi) abstract
+    instances:
+      # TODO: (andi) Needs to be added to the section about upgrading, try to templatize
+      - name: coord1
+        url:  http://memgraph-coordinator-1.default.svc.cluster.local
+        port: 9091
+        type: coordinator
+      - name: coord2
+        url:  http://memgraph-coordinator-2.default.svc.cluster.local
+        port: 9091
+        type: coordinator
+      - name: coord3
+        url:  http://memgraph-coordinator-3.default.svc.cluster.local
+        port: 9091
+        type: coordinator
+      - name: data1
+        url:  http://memgraph-data-0.default.svc.cluster.local
+        port: 9091
+        type: data_instance
+      - name: data2
+        url:  http://memgraph-data-1.default.svc.cluster.local
+        port: 9091
+        type: data_instance
+---
+apiVersion: apps/v1
+kind: Deployment # Because I don't need stable pod names or persistent storage
+metadata:
+  name: mg-exporter
+  labels:
+    app: mg-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mg-exporter
+  template:
+    metadata:
+      labels:
+        app: mg-exporter
+    spec:
+      containers:
+        - name: exporter
+        # image: memgraph/prometheus-exporter:0.2.0
+      image: memgraphcrha.azurecr.io/memgraph/mg-exporter:0.2.2  # TODO: (andi) Change to official version
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/mg-exporter/ha_config.yaml
+              subPath: ha_config.yaml
+          ports:
+            - containerPort: 9115 # TODO: (andi) Abstract port configuration
+          env:
+            - name: DEPLOYMENT_TYPE
+              value: HA  # HA stands for high availability
+            - name: CONFIG_FILE
+              value: /etc/mg-exporter/ha_config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mg-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mg-exporter
+  labels:
+    app: mg-exporter
+spec:
+  selector:
+    app: mg-exporter
+  ports:
+    - protocol: TCP
+      name: tcp-metrics-port
+      port: 9115 # TODO: (andi) Abstract port configuration
+      targetPort: 9115 # TODO: (andi) Abstract port configuration
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mg-exporter
+  labels:
+    release: prometheus-stack  # must match your release name, abstract it
+spec:
+  selector:
+    matchLabels:
+      app: mg-exporter
+  endpoints:
+    - port: tcp-metrics-port  # must be the same as on the top
+      interval: 15s  # TODO: (andi) Abstract
+  namespaceSelector:
+    matchNames:
+      - default  # TODO: (andi) Abstract and this whether this should be in default. This refers to where our service exposing the exporter is
+
+      # This needs to be added TODO: (andi) to the values.yaml
+# prometheus.prometheusSpec.serviceMonitorNamespaceSelector:
+#  any: true

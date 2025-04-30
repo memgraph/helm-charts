@@ -23,4 +23,8 @@ spec:
       name: tcp-replication-port
       port: {{ $.Values.ports.replicationPort }}
       targetPort: {{ $.Values.ports.replicationPort }}
+    - protocol: TCP
+      name: tcp-metrics-port
+      port: 9091
+      targetPort: 9091
 {{- end }}
