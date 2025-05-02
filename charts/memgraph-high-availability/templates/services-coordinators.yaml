@@ -23,8 +23,11 @@ spec:
       name: tcp-management-port
       port: {{ $.Values.ports.managementPort }}
       targetPort: {{ $.Values.ports.managementPort }}
+    {{- if $.Values.prometheus.enabled }}
     - protocol: TCP
       name: tcp-metrics-port
       port: 9091
       targetPort: 9091
+    {{- end }}
+
 {{- end }}
