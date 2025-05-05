@@ -26,6 +26,7 @@ spec:
       annotations:
         {{- toYaml . | nindent 4 }}
       {{- end }}
+
     spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccount: {{ include "memgraph.serviceAccountName" . }}
@@ -48,7 +49,10 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-user-storage
               mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
           {{- end }}
-
+          {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+              mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
+          {{- end }}
           command: ["/bin/sh", "-c"]
           args:
             - >
@@ -61,12 +65,17 @@ spec:
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
               chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }} || true;
               {{- end }}
+              {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+              mkdir -p {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
+              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} || true;
+              {{- end }}
           securityContext:
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: true # TODO(gitbuda): The above chown commands fail...
             runAsUser: 0
             capabilities:
               drop: ["ALL"]
               add: ["CHOWN"]
+
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
           image: busybox
@@ -74,7 +83,17 @@ spec:
           securityContext:
             privileged: true
             runAsUser: 0
-          {{- end }}
+        {{- end }}
+
+        {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        - name: init-core-dumps
+          image: busybox
+          command: ['sh', '-c', 'echo "{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p" > /proc/sys/kernel/core_pattern']
+          securityContext:
+            privileged: true
+            runAsUser: 0
+        {{- end }}
+
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       securityContext:
       {{- if .Values.useImagePullSecrets }}
@@ -100,6 +119,11 @@ spec:
         - name: {{ include "memgraph.fullname" . }}-user-storage
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-user-storage
+      {{- end }}
+      {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-core-dumps-storage
       {{- end }}
       {{- range .Values.customQueryModules }}
         - name: {{ .volume | quote }}
@@ -164,6 +188,10 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
+          {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+              mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
+          {{- end }}
           {{- if .Values.persistentVolumeClaim.createUserClaim }}
             - name: {{ include "memgraph.fullname" . }}-user-storage
               mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
@@ -210,6 +238,7 @@ spec:
         volumeName: {{ .Values.persistentVolumeClaim.storageVolumeName }}
         {{- end }}
   {{- end }}
+
   {{- if .Values.persistentVolumeClaim.createLogStorage }}
     - metadata:
         name: {{ include "memgraph.fullname" . }}-log-storage
@@ -222,6 +251,20 @@ spec:
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.logStorageSize }}
+  {{- end }}
+
+  {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    - metadata:
+        name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        storageClassName: {{ .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumeClaim.coreDumpsStorageSize }}
   {{- end }}
 
   {{- if .Values.persistentVolumeClaim.createUserClaim }}
