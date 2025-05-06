@@ -132,7 +132,7 @@ prometheus:
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
-    repository: memgraph/mg-exporter
+    repository: memgraph/prometheus-exporter
     tag: 0.2.1
   serviceMonitor:
     kubePrometheusStackReleaseName: kube-prometheus-stack
