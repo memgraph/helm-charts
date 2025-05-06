@@ -56,21 +56,16 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - >
-              {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-              chown -R memgraph:memgraph /var/lib/memgraph || true;
-              {{- end }}
-              {{- if .Values.persistentVolumeClaim.createLogStorage }}
-              chown -R memgraph:memgraph /var/log/memgraph || true;
-              {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }} || true;
+              mkdir -p {{ .Values.persistentVolumeClaim.createUserClaim }};
+              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.userMountPath }};
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-              mkdir -p {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
-              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} || true;
+              mkdir -p {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
+              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
               {{- end }}
           securityContext:
-            readOnlyRootFilesystem: true # TODO(gitbuda): The above chown commands fail...
+            readOnlyRootFilesystem: true
             runAsUser: 0
             capabilities:
               drop: ["ALL"]
@@ -88,7 +83,11 @@ spec:
         {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
         - name: init-core-dumps
           image: busybox
-          command: ['sh', '-c', 'echo "{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p" > /proc/sys/kernel/core_pattern']
+          command: ['/bin/sh', '-c']
+          args:
+            - >
+              echo "{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s" > /proc/sys/kernel/core_pattern;
+              echo 0 | tee /proc/sys/kernel/yama/ptrace_scope;
           securityContext:
             privileged: true
             runAsUser: 0

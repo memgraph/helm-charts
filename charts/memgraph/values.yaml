@@ -103,6 +103,8 @@ memgraphConfig:
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod. For further information, check the `resources` section in this file about setting pod memory and cpu limits.
 - "--also-log-to-stderr=true"
+# TODO(gitbuda): Document -> it depends on our image mage vs memgraph, we should have always the same user and group ids, used for user and core dump claim permissons.
+memgraphUserGroupId: "100:101"
 
 secrets:
   enabled: false
