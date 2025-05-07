@@ -86,8 +86,8 @@ spec:
           command: ['/bin/sh', '-c']
           args:
             - >
-              echo "{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s" > /proc/sys/kernel/core_pattern;
-              echo 0 | tee /proc/sys/kernel/yama/ptrace_scope;
+              echo '{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+              if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
           securityContext:
             privileged: true
             runAsUser: 0
