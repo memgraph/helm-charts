@@ -54,19 +54,25 @@ spec:
               mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
           {{- end }}
           command: ["/bin/sh", "-c"]
+          # The permissions have to be explicitly adjusted because under some
+          # k8s environments permissions set under
+          # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
+          # get overwritten. Sometimes, PVC are created using new partitions ->
+          # .lost+found directory should not / can't change its permissions so
+          # it has to be excluded.
           args:
-            - > # Document or change the || true.
+            - > 
               {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-              chown -R {{ .Values.memgraphUserGroupId }} /var/lib/memgraph || true;
+              find /var/lib/memgraph -path ./lost+found -prune -o -exec chown -hR {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createLogStorage }}
-              chown -R {{ .Values.memgraphUserGroupId }} /var/log/memgraph || true;
+              find /var/log/memgraph -path ./lost+found -prune -o -exec chown -hR {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.userMountPath }} || true;
+              find {{ .Values.persistentVolumeClaim.userMountPath }} -path ./lost+found -prune -o -exec chown -hR {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} || true;
+              find {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} -path ./lost+found -prune -o -exec chown -hR {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
@@ -74,6 +80,11 @@ spec:
             capabilities:
               drop: ["ALL"]
               add: ["CHOWN"]
+              # TODO(gitbuda): Test on AKS and remove below if above is working.
+              # chown -R {{ .Values.memgraphUserGroupId }} /var/lib/memgraph || true;
+              # chown -R {{ .Values.memgraphUserGroupId }} /var/log/memgraph || true;
+              # chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.userMountPath }} || true;
+              # chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} || true;
 
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
