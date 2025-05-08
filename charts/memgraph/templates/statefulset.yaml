@@ -61,7 +61,7 @@ spec:
           # .lost+found directory should not / can't change its permissions so
           # it has to be excluded.
           args:
-            - > 
+            - >
               {{- if .Values.persistentVolumeClaim.createStorageClaim }}
               find /var/lib/memgraph -path ./lost+found -prune -o -exec chown -hR {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
