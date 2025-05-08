@@ -55,14 +55,18 @@ spec:
           {{- end }}
           command: ["/bin/sh", "-c"]
           args:
-            - >
+            - > # Document or change the || true.
+              {{- if .Values.persistentVolumeClaim.createStorageClaim }}
+              chown -R {{ .Values.memgraphUserGroupId }} /var/lib/memgraph || true;
+              {{- end }}
+              {{- if .Values.persistentVolumeClaim.createLogStorage }}
+              chown -R {{ .Values.memgraphUserGroupId }} /var/log/memgraph || true;
+              {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              mkdir -p {{ .Values.persistentVolumeClaim.createUserClaim }};
-              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.userMountPath }};
+              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.userMountPath }} || true;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-              mkdir -p {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
-              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
+              chown -R {{ .Values.memgraphUserGroupId }} {{ .Values.persistentVolumeClaim.coreDumpsMountPath }} || true;
               {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
