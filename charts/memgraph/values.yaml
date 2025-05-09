@@ -80,7 +80,7 @@ persistentVolumeClaim:
   userMountPath:
 
   ## Create a Persistant Volume Claim for core dumps.
-  createCoreDumpsClaim: true
+  createCoreDumpsClaim: false
   coreDumpsStorageClassName:
   coreDumpsStorageSize: 10Gi
   coreDumpsMountPath: /var/core/memgraph

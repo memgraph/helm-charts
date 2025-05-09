@@ -82,7 +82,13 @@ spec:
         - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
           mountPath: /var/log/memgraph
         command: [ "/bin/sh","-c" ]
-        args: [ "chown -R memgraph:memgraph /var/log/memgraph /var/lib/memgraph || true" ]
+        # The permissions have to be explicitly adjusted because under some k8s
+        # environments permissions set under
+        # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
+        # get overwritten. Sometimes, PVC are created using new partitions ->
+        # lost+found directory should not / can't change its permissions so it
+        # has to be excluded.
+        args: [ "chown -R {{ .Values.memgraphUserGroupId }} /var/log/memgraph /var/lib/memgraph || true" ]
         securityContext:
           readOnlyRootFilesystem: true
           runAsUser: 0 # Run as root
