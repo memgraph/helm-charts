@@ -6,8 +6,9 @@ CLUSTER_NAME="${CLUSTER_NAME:-memgraph-standalone}"
 CLUSTER_SIZE="${CLUSTER_SIZE:-1}"
 NODE_VM_SIZE="${NODE_VM_SIZE:-Standard_A2_v2}"
 
-# NOTE: Assumes installed az and being logged in.
-
+# NOTE: Assumes installed az and being logged in
+# https://learn.microsoft.com/en-us/cli/azure/install-azure-cli.
+ 
 create_cluster() {
   az group create --name $RESOURCE_GROUP --location $LOCATION
   az aks create --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME \
