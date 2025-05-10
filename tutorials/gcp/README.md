@@ -1,10 +1,12 @@
 # Deploying Memgraph under GCP's GKE
 
-To deploy cluster follow
-https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster.
+In general, to deploy GKE cluster follow the [offical
+documentation](https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster).
+For a specific example, take a look below.
 
-To install `gcloud` follow https://cloud.google.com/sdk/docs/install-sdk. In
-addition, `gke-gcloud-auth-plugin` is required, to install it run:
+To install `gcloud` follow [install SDK
+instructions](https://cloud.google.com/sdk/docs/install-sdk). In addition,
+`gke-gcloud-auth-plugin` is required, to install it run:
 ```
 gcloud components install kubectl
 ```
