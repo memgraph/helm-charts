@@ -98,7 +98,12 @@ spec:
         # get overwritten. Sometimes, PVC are created using new partitions ->
         # lost+found directory should not / can't change its permissions so it
         # has to be excluded.
-        args: [ "chown -R {{ $.Values.memgraphUserGroupId }} /var/log/memgraph /var/lib/memgraph || true" ]
+        args:
+          - >
+            cd /var/log/memgraph;
+            find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+            cd /var/lib/memgraph;
+            find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
         securityContext:
           readOnlyRootFilesystem: true
           runAsUser: 0 # Run as root

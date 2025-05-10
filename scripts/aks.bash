@@ -21,14 +21,14 @@ delete_cluster() {
 }
 
 case $1 in
-  create)
+  create_cluster)
     create_cluster
   ;;
-  delete)
+  delete_cluster)
     delete_cluster
   ;;
   *)
-    echo "$0 create|delete"
+    echo "$0 create_cluster|delete_cluster"
     exit 1
   ;;
 esac
