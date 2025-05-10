@@ -79,6 +79,12 @@ persistentVolumeClaim:
   userStorageAccessMode: "ReadWriteOnce"
   userMountPath:
 
+  ## Create a Persistant Volume Claim for core dumps.
+  createCoreDumpsClaim: false
+  coreDumpsStorageClassName:
+  coreDumpsStorageSize: 10Gi
+  coreDumpsMountPath: /var/core/memgraph
+
 # Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
 # Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
@@ -97,6 +103,12 @@ memgraphConfig:
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod. For further information, check the `resources` section in this file about setting pod memory and cpu limits.
 - "--also-log-to-stderr=true"
+
+# The explicit user and group setup is required because at the init container
+# time, there is not yet a user created. This seems fine because under both
+# Memgraph and Mage images we actually hard-code the user and group id. The
+# config is used to chown user storage and core dumps claims' month paths.
+memgraphUserGroupId: "100:101"
 
 secrets:
   enabled: false
