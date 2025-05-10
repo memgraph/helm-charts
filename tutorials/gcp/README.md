@@ -13,3 +13,10 @@ gcloud components install kubectl
 
 Check out our [gke.bash](../../scripts/gke.bash) script for basic management of
 the GKE k8s cluster.
+
+To make sure that the `kubectl` config is right or switch back to the previous
+context use the following commands:
+```
+kubectl config get-contexts
+kubectl config use-context <context-name>
+```

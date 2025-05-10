@@ -281,10 +281,3 @@ kubectl exec -it debug-pod -- /bin/sh
 ```
 
 Your data should now be seen at `/coord1-logs` directory.
-
-## Switch the context back
-
-```
-kubectl config get-contexts
-kubectl config use-context <context-name>
-```
