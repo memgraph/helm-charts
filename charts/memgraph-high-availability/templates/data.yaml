@@ -96,14 +96,14 @@ spec:
         # environments permissions set under
         # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
         # get overwritten. Sometimes, PVC are created using new partitions ->
-        # lost+found directory should not / can't change its permissions so it
-        # has to be excluded.
+        # lost+found directory should not change its permissions so it has to
+        # be excluded.
         args:
           - >
             cd /var/log/memgraph;
-            find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
-            find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
         securityContext:
           readOnlyRootFilesystem: true
           runAsUser: 0 # Run as root
