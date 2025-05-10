@@ -1,28 +1,13 @@
 # Deploying Memgraph under GCP's GKE
 
-To deploy cluster follow https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster.
+To deploy cluster follow
+https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster.
 
-To install `gcloud` follow https://cloud.google.com/sdk/docs/install-sdk.
-
+To install `gcloud` follow https://cloud.google.com/sdk/docs/install-sdk. In
+addition, `gke-gcloud-auth-plugin` is required, to install it run:
 ```
-gcloud container clusters create "memgraph-ha" \
-    --zone "europe-west2-a" \
-    --num-nodes 5 \
-    --machine-type "e2-medium"
+gcloud components install kubectl
 ```
 
-```
-gcloud container node-pools list --cluster "memgraph-ha" --zone "europe-west2-a"
-```
-
-```
-gcloud container clusters get-credentials "memgraph" --zone europe-central
-```
-
-```
-gcloud container clusters list
-```
-
-```
-gcloud compute ssh <node-name>
-```
+Check out our [gke.bash](../../scripts/gke.bash) script for basic management of
+the GKE k8s cluster.
