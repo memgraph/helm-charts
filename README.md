@@ -94,5 +94,11 @@ Contributions are welcome! If you have any improvements, bug fixes, or new chart
   </a>
 </p>
 
+## Debugging Memgraph Pods
+
+Find more details under [Debugging Running
+Pods](https://memgraph.com/docs/database-management/debugging#debugging-running-pods)
+documentation section.
+
 ## License
 This repository is licensed under the [Apache 2.0 License](https://github.com/memgraph/helm-charts/blob/main/LICENSE).
