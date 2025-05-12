@@ -26,6 +26,7 @@ spec:
       annotations:
         {{- toYaml . | nindent 4 }}
       {{- end }}
+
     spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccount: {{ include "memgraph.serviceAccountName" . }}
@@ -48,18 +49,34 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-user-storage
               mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
           {{- end }}
-
+          {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+              mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
+          {{- end }}
           command: ["/bin/sh", "-c"]
+          # The permissions have to be explicitly adjusted because under some
+          # k8s environments permissions set under
+          # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
+          # get overwritten. Sometimes, PVC are created using new partitions ->
+          # lost+found directory should not change its permissions so it has to
+          # be excluded.
           args:
             - >
               {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-              chown -R memgraph:memgraph /var/lib/memgraph || true;
+              cd /var/lib/memgraph;
+              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createLogStorage }}
-              chown -R memgraph:memgraph /var/log/memgraph || true;
+              cd /var/log/memgraph;
+              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              chown -R memgraph:memgraph {{ .Values.persistentVolumeClaim.userMountPath }} || true;
+              cd {{ .Values.persistentVolumeClaim.userMountPath }};
+              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+              {{- end }}
+              {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+              cd {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
+              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
@@ -67,6 +84,7 @@ spec:
             capabilities:
               drop: ["ALL"]
               add: ["CHOWN"]
+
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
           image: busybox
@@ -74,7 +92,21 @@ spec:
           securityContext:
             privileged: true
             runAsUser: 0
-          {{- end }}
+        {{- end }}
+
+        {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        - name: init-core-dumps
+          image: busybox
+          command: ['/bin/sh', '-c']
+          args:
+            - >
+              echo '{{ .Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+              if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
+          securityContext:
+            privileged: true
+            runAsUser: 0
+        {{- end }}
+
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       securityContext:
       {{- if .Values.useImagePullSecrets }}
@@ -100,6 +132,11 @@ spec:
         - name: {{ include "memgraph.fullname" . }}-user-storage
           persistentVolumeClaim:
             claimName: {{ include "memgraph.fullname" . }}-user-storage
+      {{- end }}
+      {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+          persistentVolumeClaim:
+            claimName: {{ include "memgraph.fullname" . }}-core-dumps-storage
       {{- end }}
       {{- range .Values.customQueryModules }}
         - name: {{ .volume | quote }}
@@ -164,6 +201,10 @@ spec:
             - name: {{ include "memgraph.fullname" . }}-log-storage
               mountPath: /var/log/memgraph
           {{- end }}
+          {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+              mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
+          {{- end }}
           {{- if .Values.persistentVolumeClaim.createUserClaim }}
             - name: {{ include "memgraph.fullname" . }}-user-storage
               mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
@@ -210,6 +251,7 @@ spec:
         volumeName: {{ .Values.persistentVolumeClaim.storageVolumeName }}
         {{- end }}
   {{- end }}
+
   {{- if .Values.persistentVolumeClaim.createLogStorage }}
     - metadata:
         name: {{ include "memgraph.fullname" . }}-log-storage
@@ -222,6 +264,20 @@ spec:
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.logStorageSize }}
+  {{- end }}
+
+  {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    - metadata:
+        name: {{ include "memgraph.fullname" . }}-core-dumps-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        storageClassName: {{ .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumeClaim.coreDumpsStorageSize }}
   {{- end }}
 
   {{- if .Values.persistentVolumeClaim.createUserClaim }}
