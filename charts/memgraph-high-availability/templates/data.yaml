@@ -104,8 +104,8 @@ spec:
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
-            {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
-            cd {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }};
+            {{- if $.Values.storage.data.createCoreDumpsClaim }}
+            cd {{ $.Values.storage.data.coreDumpsMountPath }};
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             {{- end }}
         securityContext:
@@ -123,13 +123,13 @@ spec:
           runAsUser: 0
       {{- end }}
 
-      {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+      {{- if $.Values.storage.data.createCoreDumpsClaim }}
       - name: init-core-dumps
         image: busybox
         command: ['/bin/sh', '-c']
         args:
           - >
-            echo '{{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+            echo '{{ $.Values.storage.data.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
             if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
         securityContext:
           privileged: true
@@ -170,9 +170,9 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-data-{{ $data.id }}-log-storage
             mountPath: /var/log/memgraph
-          {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+          {{- if $.Values.storage.data.createCoreDumpsClaim }}
           - name: memgraph-data-{{ $data.id }}-core-dumps-storage
-            mountPath: {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}
+            mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
           {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
@@ -207,18 +207,18 @@ spec:
           requests:
             storage: {{ $.Values.storage.data.logPVCSize }}
 
-    {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    {{- if $.Values.storage.data.createCoreDumpsClaim }}
     - metadata:
         name: memgraph-data-{{ $data.id }}-core-dumps-storage
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
-        storageClassName: {{ $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- if $.Values.storage.data.coreDumpsStorageClassName }}
+        storageClassName: {{ $.Values.storage.data.coreDumpsStorageClassName }}
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.persistentVolumeClaim.coreDumpsStorageSize }}
+            storage: {{ $.Values.storage.data.coreDumpsStorageSize }}
     {{- end }}
 ---
 {{- end }}

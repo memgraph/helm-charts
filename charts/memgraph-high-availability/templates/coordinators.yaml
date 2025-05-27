@@ -94,8 +94,8 @@ spec:
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
-            {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
-            cd {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }};
+            {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
+            cd {{ $.Values.storage.coordinators.coreDumpsMountPath }};
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             {{- end }}
         securityContext:
@@ -113,13 +113,13 @@ spec:
           runAsUser: 0
       {{- end }}
 
-      {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+      {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
       - name: init-core-dumps
         image: busybox
         command: ['/bin/sh', '-c']
         args:
           - >
-            echo '{{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+            echo '{{ $.Values.storage.coordinators.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
             if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
         securityContext:
           privileged: true
@@ -194,18 +194,18 @@ spec:
           requests:
             storage: {{ $.Values.storage.coordinators.logPVCSize }}
 
-    {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
     - metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
-        storageClassName: {{ $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- if $.Values.storage.coordinators.coreDumpsStorageClassName }}
+        storageClassName: {{ $.Values.storage.coordinators.coreDumpsStorageClassName }}
         {{- end }}
         resources:
           requests:
-            storage: {{ $.Values.persistentVolumeClaim.coreDumpsStorageSize }}
+            storage: {{ $.Values.storage.coordinators.coreDumpsStorageSize }}
     {{- end }}
 ---
 {{- end }}
