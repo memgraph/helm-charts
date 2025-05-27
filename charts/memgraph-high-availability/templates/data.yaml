@@ -104,6 +104,10 @@ spec:
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            cd {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }};
+            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            {{- end }}
         securityContext:
           readOnlyRootFilesystem: true
           runAsUser: 0 # Run as root
@@ -114,6 +118,19 @@ spec:
       - name: init-sysctl
         image: busybox
         command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      {{- end }}
+
+      {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+      - name: init-core-dumps
+        image: busybox
+        command: ['/bin/sh', '-c']
+        args:
+          - >
+            echo '{{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+            if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
         securityContext:
           privileged: true
           runAsUser: 0
@@ -153,6 +170,10 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-data-{{ $data.id }}-log-storage
             mountPath: /var/log/memgraph
+          {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+          - name: memgraph-data-{{ $data.id }}-core-dumps-storage
+            mountPath: {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}
+          {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -165,7 +186,6 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-
 
   volumeClaimTemplates:
     - metadata:
@@ -186,6 +206,20 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.data.logPVCSize }}
+
+    {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    - metadata:
+        name: memgraph-data-{{ $data.id }}-core-dumps-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        storageClassName: {{ $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $.Values.persistentVolumeClaim.coreDumpsStorageSize }}
+    {{- end }}
 
 ---
 {{- end }}

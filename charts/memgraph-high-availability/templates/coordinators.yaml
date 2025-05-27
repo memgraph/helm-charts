@@ -94,6 +94,10 @@ spec:
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
             find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+            cd {{ $.Values.persistentVolumeClaim.coreDumpsMountPath }};
+            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            {{- end }}
         securityContext:
           readOnlyRootFilesystem: true
           runAsUser: 0 # Run as root
@@ -104,6 +108,19 @@ spec:
       - name: init-sysctl
         image: busybox
         command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      {{- end }}
+
+      {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+      - name: init-core-dumps
+        image: busybox
+        command: ['/bin/sh', '-c']
+        args:
+          - >
+            echo '{{ $.Values.persistentVolumeClaim.coreDumpsMountPath }}/core.%e.%p.%t.%s' | tee /proc/sys/kernel/core_pattern;
+            if [ -d /proc/sys/kernel/yama ]; then echo '0' | tee /proc/sys/kernel/yama/ptrace_scope; fi
         securityContext:
           privileged: true
           runAsUser: 0
@@ -176,5 +193,19 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.coordinators.logPVCSize }}
+
+    {{- if $.Values.persistentVolumeClaim.createCoreDumpsClaim }}
+    - metadata:
+        name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        {{- if $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        storageClassName: {{ $.Values.persistentVolumeClaim.coreDumpsStorageClassName }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $.Values.persistentVolumeClaim.coreDumpsStorageSize }}
+    {{- end }}
 ---
 {{- end }}

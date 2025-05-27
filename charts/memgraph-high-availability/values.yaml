@@ -19,6 +19,11 @@ storage:
     logPVCSize: "1Gi"
     logStorageAccessMode: "ReadWriteOnce"
     logStorageClassName:
+    ## Create a Persistant Volume Claim for core dumps.
+    createCoreDumpsClaim: false
+    coreDumpsStorageClassName:
+    coreDumpsStorageSize: 10Gi
+    coreDumpsMountPath: /var/core/memgraph
   coordinators:
     libPVCSize: "1Gi"
     libStorageAccessMode: "ReadWriteOnce"
@@ -28,6 +33,12 @@ storage:
     logPVCSize: "1Gi"
     logStorageAccessMode: "ReadWriteOnce"
     logStorageClassName:
+    ## Create a Persistant Volume Claim for core dumps.
+    createCoreDumpsClaim: false
+    coreDumpsStorageClassName:
+    coreDumpsStorageSize: 10Gi
+    coreDumpsMountPath: /var/core/memgraph
+
 
 ports:
   boltPort: 7687   # If you change this value, change it also in probes definition
@@ -200,3 +211,5 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
+
+  
