@@ -211,3 +211,4 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
+  
