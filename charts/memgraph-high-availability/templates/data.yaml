@@ -220,6 +220,5 @@ spec:
           requests:
             storage: {{ $.Values.persistentVolumeClaim.coreDumpsStorageSize }}
     {{- end }}
-
 ---
 {{- end }}

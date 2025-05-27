@@ -39,7 +39,6 @@ storage:
     coreDumpsStorageSize: 10Gi
     coreDumpsMountPath: /var/core/memgraph
 
-
 ports:
   boltPort: 7687   # If you change this value, change it also in probes definition
   managementPort: 10000
@@ -211,4 +210,3 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
-  
