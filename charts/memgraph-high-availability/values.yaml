@@ -144,6 +144,10 @@ prometheus:
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
 
+# If ptrace is set to true, it will be possible to use gdb inside K8s Pod
+debugging:
+  ptrace: false
+
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.

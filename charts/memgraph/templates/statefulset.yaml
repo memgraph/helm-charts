@@ -34,6 +34,13 @@ spec:
       serviceAccount: {{ .Values.serviceAccount.name | quote }}
       {{- end }}
       initContainers:
+      {{- if .Values.debugging.ptrace }}
+        - name: ptrace
+          image: busybox
+          command: ["sh", "-c", "echo 0 > /proc/sys/kernel/yama/ptrace_scope"]
+          securityContext:
+            privileged: true
+      {{- end }}
         - name: init-volume-mounts
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           volumeMounts:

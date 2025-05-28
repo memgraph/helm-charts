@@ -194,3 +194,7 @@ customQueryModules: []
 sysctlInitContainer:
   enabled: true
   maxMapCount: 262144
+
+# If ptrace is set to true, it will be possible to use gdb inside K8s Pod
+debugging:
+  ptrace: false

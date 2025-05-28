@@ -84,6 +84,13 @@ spec:
         {{- end }}
 
       initContainers:
+      {{- if $.Values.debugging.ptrace }}
+      - name: ptrace
+        image: busybox
+        command: ["sh", "-c", "echo 0 > /proc/sys/kernel/yama/ptrace_scope"]
+        securityContext:
+          privileged: true
+      {{- end }}
       - name: init
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
         volumeMounts:
