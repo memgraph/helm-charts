@@ -28,7 +28,7 @@ spec:
     {{- if .Values.service.enableHttpMonitoring }}
     - port: {{ .Values.service.httpPortMonitoring }}
       targetPort: {{ .Values.service.httpPortMonitoring }}
-      protocol: http
+      protocol: TCP
       name: http-monitoring-port
     {{- end }}
   selector:
