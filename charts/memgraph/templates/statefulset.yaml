@@ -237,7 +237,9 @@ spec:
       {{- end }}
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ include "memgraph.fullname" . }}-lib-storage
       spec:
         accessModes:
@@ -254,7 +256,9 @@ spec:
   {{- end }}
 
   {{- if .Values.persistentVolumeClaim.createLogStorage }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ include "memgraph.fullname" . }}-log-storage
       spec:
         accessModes:
@@ -268,7 +272,9 @@ spec:
   {{- end }}
 
   {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ include "memgraph.fullname" . }}-core-dumps-storage
       spec:
         accessModes:
@@ -282,7 +288,9 @@ spec:
   {{- end }}
 
   {{- if .Values.persistentVolumeClaim.createUserClaim }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: {{ include "memgraph.fullname" . }}-user-storage
       spec:
         accessModes:
