@@ -175,7 +175,9 @@ spec:
         {{- end }}
 
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
       spec:
         accessModes:
@@ -185,7 +187,9 @@ spec:
           requests:
             storage: {{ $.Values.storage.coordinators.libPVCSize }}
 
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
       spec:
         accessModes:
@@ -196,7 +200,9 @@ spec:
             storage: {{ $.Values.storage.coordinators.logPVCSize }}
 
     {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
       spec:
         accessModes:
