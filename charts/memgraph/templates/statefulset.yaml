@@ -64,19 +64,19 @@ spec:
             - >
               {{- if .Values.persistentVolumeClaim.createStorageClaim }}
               cd /var/lib/memgraph;
-              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createLogStorage }}
               cd /var/log/memgraph;
-              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createUserClaim }}
               cd {{ .Values.persistentVolumeClaim.userMountPath }};
-              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
               {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
               cd {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
-              find . -path ./lost+found -prune -o -exec chown {{ .Values.memgraphUserGroupId }} {} +;
+              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
               {{- end }}
           securityContext:
             readOnlyRootFilesystem: true

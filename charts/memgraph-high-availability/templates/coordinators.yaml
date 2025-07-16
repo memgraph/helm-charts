@@ -91,12 +91,12 @@ spec:
         args:
           - >
             cd /var/log/memgraph;
-            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
             cd /var/lib/memgraph;
-            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
             {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
             cd {{ $.Values.storage.coordinators.coreDumpsMountPath }};
-            find . -path ./lost+found -prune -o -exec chown {{ $.Values.memgraphUserGroupId }} {} +;
+            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
             {{- end }}
         securityContext:
           readOnlyRootFilesystem: true
