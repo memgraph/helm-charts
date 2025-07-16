@@ -9,10 +9,15 @@ NODE_VM_SIZE="${NODE_VM_SIZE:-Standard_A2_v2}"
 # NOTE: Assumes installed az and being logged in
 # https://learn.microsoft.com/en-us/cli/azure/install-azure-cli.
 
+# USE:
+# kubectl config get-contexts       # To list all contexts.
+# kubectl config use-context <name> # Change the context.
+
 create_cluster() {
   az group create --name $RESOURCE_GROUP --location $LOCATION
   az aks create --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME \
     --node-count $CLUSTER_SIZE --node-vm-size $NODE_VM_SIZE --generate-ssh-keys
+  # Get remote context from Azure AKS into your local kubectl.
   az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME
 }
 
