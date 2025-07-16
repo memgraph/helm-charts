@@ -3,6 +3,8 @@
 RESOURCE_GROUP="${RESOURCE_GROUP:-TestingResourceGroup}"
 LOCATION="${LOCATION:-northeurope}"
 CLUSTER_NAME="${CLUSTER_NAME:-memgraph-standalone}"
+# NOTE: If running memgraph HA -> cluster size has to be 5 otherwise cluster
+# won't initialize because of the affinity.
 CLUSTER_SIZE="${CLUSTER_SIZE:-1}"
 NODE_VM_SIZE="${NODE_VM_SIZE:-Standard_A2_v2}"
 
