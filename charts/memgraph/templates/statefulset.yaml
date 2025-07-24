@@ -26,65 +26,17 @@ spec:
       annotations:
         {{- toYaml . | nindent 4 }}
       {{- end }}
-
     spec:
+      securityContext:
+        runAsUser: {{ .Values.memgraphUserId }}
+        runAsGroup: {{ .Values.memgraphGroupId }}
+        fsGroup: {{ .Values.memgraphGroupId }}
       {{- if .Values.serviceAccount.create }}
       serviceAccount: {{ include "memgraph.serviceAccountName" . }}
       {{- else if .Values.serviceAccount.name }}
       serviceAccount: {{ .Values.serviceAccount.name | quote }}
       {{- end }}
       initContainers:
-        - name: init-volume-mounts
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          volumeMounts:
-          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-            - name: {{ include "memgraph.fullname" . }}-lib-storage
-              mountPath: /var/lib/memgraph
-          {{- end }}
-          {{- if .Values.persistentVolumeClaim.createLogStorage }}
-            - name: {{ include "memgraph.fullname" . }}-log-storage
-              mountPath: /var/log/memgraph
-          {{- end }}
-          {{- if .Values.persistentVolumeClaim.createUserClaim }}
-            - name: {{ include "memgraph.fullname" . }}-user-storage
-              mountPath: {{ .Values.persistentVolumeClaim.userMountPath }}
-          {{- end }}
-          {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-            - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
-              mountPath: {{ .Values.persistentVolumeClaim.coreDumpsMountPath }}
-          {{- end }}
-          command: ["/bin/sh", "-c"]
-          # The permissions have to be explicitly adjusted because under some
-          # k8s environments permissions set under
-          # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
-          # get overwritten. Sometimes, PVC are created using new partitions ->
-          # lost+found directory should not change its permissions so it has to
-          # be excluded.
-          args:
-            - >
-              {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-              cd /var/lib/memgraph;
-              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
-              {{- end }}
-              {{- if .Values.persistentVolumeClaim.createLogStorage }}
-              cd /var/log/memgraph;
-              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
-              {{- end }}
-              {{- if .Values.persistentVolumeClaim.createUserClaim }}
-              cd {{ .Values.persistentVolumeClaim.userMountPath }};
-              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
-              {{- end }}
-              {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-              cd {{ .Values.persistentVolumeClaim.coreDumpsMountPath }};
-              find . -path ./lost+found -prune -o -exec chown -h {{ .Values.memgraphUserGroupId }} {} +;
-              {{- end }}
-          securityContext:
-            readOnlyRootFilesystem: true
-            runAsUser: 0
-            capabilities:
-              drop: ["ALL"]
-              add: ["CHOWN"]
-
         {{- if .Values.sysctlInitContainer.enabled }}
         - name: init-sysctl
           image: "{{ .Values.sysctlInitContainer.image.repository }}:{{ .Values.sysctlInitContainer.image.tag }}"
@@ -109,42 +61,16 @@ spec:
         {{- end }}
 
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
-      securityContext:
       {{- if .Values.useImagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 4 }}
       {{- end }}
       volumes:
-        - name: {{ include "memgraph.fullname" . }}-lib-storage
-          persistentVolumeClaim:
-          {{- if .Values.persistentVolumeClaim.createStorageClaim }}
-            claimName: {{ include "memgraph.fullname" . }}-lib-storage
-          {{- else }}
-            claimName: {{ .Values.persistentVolumeClaim.existingClaim }}
-          {{- end}}
-
-      {{- if .Values.persistentVolumeClaim.createLogStorage }}
-        - name: {{ include "memgraph.fullname" . }}-log-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-log-storage
-      {{- end }}
-
-      {{- if .Values.persistentVolumeClaim.createUserClaim }}
-        - name: {{ include "memgraph.fullname" . }}-user-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-user-storage
-      {{- end }}
-      {{- if .Values.persistentVolumeClaim.createCoreDumpsClaim }}
-        - name: {{ include "memgraph.fullname" . }}-core-dumps-storage
-          persistentVolumeClaim:
-            claimName: {{ include "memgraph.fullname" . }}-core-dumps-storage
-      {{- end }}
       {{- range .Values.customQueryModules }}
         - name: {{ .volume | quote }}
           configMap:
             name: {{ .volume | quote }}
       {{- end }}
-
 
       containers:
         - name: memgraph
@@ -244,9 +170,7 @@ spec:
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if .Values.persistentVolumeClaim.storageClassName }}
         storageClassName: {{ .Values.persistentVolumeClaim.storageClassName }}
-        {{- end }}
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.storageSize }}
@@ -263,9 +187,7 @@ spec:
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if .Values.persistentVolumeClaim.logStorageClassName }}
         storageClassName: {{ .Values.persistentVolumeClaim.logStorageClassName }}
-        {{- end }}
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.logStorageSize }}
@@ -279,9 +201,7 @@ spec:
       spec:
         accessModes:
         - "ReadWriteOnce"
-        {{- if .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
         storageClassName: {{ .Values.persistentVolumeClaim.coreDumpsStorageClassName }}
-        {{- end }}
         resources:
           requests:
             storage: {{ .Values.persistentVolumeClaim.coreDumpsStorageSize }}
