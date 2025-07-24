@@ -16,6 +16,11 @@ spec:
         app: memgraph-coordinator-{{ $coordinator.id }}
         role: coordinator
     spec:
+      securityContext:
+        runAsUser: {{ $.Values.memgraphUserId }}
+        runAsGroup: {{ $.Values.memgraphGroupId }}
+        fsGroup: {{ $.Values.memgraphGroupId }}
+
       affinity:
         {{- if $.Values.affinity.nodeSelection }}
         # Node Selection Affinity: Scheduled on nodes with specific label key and value
@@ -74,36 +79,6 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
         {{- end }}
       initContainers:
-      - name: init
-        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
-        volumeMounts:
-        - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
-          mountPath: /var/lib/memgraph
-        - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
-          mountPath: /var/log/memgraph
-        command: [ "/bin/sh","-c" ]
-        # The permissions have to be explicitly adjusted because under some k8s
-        # environments permissions set under
-        # https://github.com/memgraph/memgraph/blob/master/release/debian/postinst
-        # get overwritten. Sometimes, PVC are created using new partitions ->
-        # lost+found directory should not change its permissions so it has to
-        # be excluded.
-        args:
-          - >
-            cd /var/log/memgraph;
-            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
-            cd /var/lib/memgraph;
-            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
-            {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
-            cd {{ $.Values.storage.coordinators.coreDumpsMountPath }};
-            find . -path ./lost+found -prune -o -exec chown -h {{ $.Values.memgraphUserGroupId }} {} +;
-            {{- end }}
-        securityContext:
-          readOnlyRootFilesystem: true
-          runAsUser: 0 # Run as root
-          capabilities:
-            drop: [ "ALL" ]
-            add: [ "CHOWN" ]
       {{- if $.Values.sysctlInitContainer.enabled }}
       - name: init-sysctl
         image: "{{ $.Values.sysctlInitContainer.image.repository }}:{{ $.Values.sysctlInitContainer.image.tag }}"

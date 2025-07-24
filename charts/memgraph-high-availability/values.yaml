@@ -93,7 +93,8 @@ sysctlInitContainer:
 # time, there is not yet a user created. This seems fine because under both
 # Memgraph and Mage images we actually hard-code the user and group id. The
 # config is used to chown user storage and core dumps claims' month paths.
-memgraphUserGroupId: "101:103"
+memgraphUserId: 101
+memgraphGroupId: 103
 
 secrets:
   enabled: false
