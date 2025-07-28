@@ -7,7 +7,7 @@ NODEGROUP_NAME="standard-workers"
 print_help() {
   echo "Usage: $0 [command]"
   echo
-  echo "The script assumes you already installed eksctl and that you've run aws configure to login."
+  echo "The script assumes you already installed eksctl and that you've run aws configure to login. The script will configure a cluster of 6 nodes which you can use to install Memgraph HA chart."
   echo "Commands:"
   echo "  create_cluster   Create the EKS cluster using aws_cluster.yaml"
   echo "  delete_cluster   Delete the EKS cluster (not yet implemented)"
