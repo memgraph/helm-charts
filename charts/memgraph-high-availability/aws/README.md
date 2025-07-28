@@ -108,3 +108,7 @@ SET INSTANCE instance_1 TO MAIN;
 
 
 You can check the state of the cluster with `kubectl get pods -o wide`.
+
+## Clean resources
+
+To delete all resources, you need to delete group of workers, cluster and stacks associated with the cluster.
