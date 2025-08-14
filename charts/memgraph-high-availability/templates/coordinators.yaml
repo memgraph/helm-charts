@@ -3,6 +3,11 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: memgraph-coordinator-{{ $coordinator.id }}
+  labels:
+    {{- with $.Values.labels.coordinators.statefulSetLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    
 spec:
   serviceName: "memgraph-coordinator-{{ $coordinator.id }}"
   replicas: 1
@@ -15,6 +20,9 @@ spec:
       labels:
         app: memgraph-coordinator-{{ $coordinator.id }}
         role: coordinator
+        {{- with $.Values.labels.coordinators.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       securityContext:
         runAsUser: {{ $.Values.memgraphUserId }}
