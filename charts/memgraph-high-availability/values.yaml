@@ -111,8 +111,7 @@ labels:
     podLabels: {}
     statefulSetLabels: {}
     serviceLabels: {}
-      
-    
+
 container:
   data:
     readinessProbe:
