@@ -93,7 +93,8 @@ sysctlInitContainer:
 # time, there is not yet a user created. This seems fine because under both
 # Memgraph and Mage images we actually hard-code the user and group id. The
 # config is used to chown user storage and core dumps claims' month paths.
-memgraphUserGroupId: "101:103"
+memgraphUserId: 101
+memgraphGroupId: 103
 
 secrets:
   enabled: false
@@ -169,6 +170,7 @@ data:
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--log-file=/var/log/memgraph/memgraph.log"
+  - "--data-directory=/var/lib/memgraph/mg_data"
 
 - id: "1"
   args:
@@ -177,6 +179,7 @@ data:
   - "--also-log-to-stderr"
   - "--log-level=TRACE"
   - "--log-file=/var/log/memgraph/memgraph.log"
+  - "--data-directory=/var/lib/memgraph/mg_data"
 
 coordinators:
 - id: "1"
@@ -190,6 +193,7 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
+  - "--data-directory=/var/lib/memgraph/mg_data"
 
 - id: "2"
   args:
@@ -202,6 +206,7 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
+  - "--data-directory=/var/lib/memgraph/mg_data"
 
 - id: "3"
   args:
@@ -214,3 +219,4 @@ coordinators:
   - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
+  - "--data-directory=/var/lib/memgraph/mg_data"
