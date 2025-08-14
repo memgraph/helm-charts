@@ -4,6 +4,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: memgraph-data-{{ .id }}
+  labels:
+    {{- with $.Values.labels.data.serviceLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   {{- if $.Values.headlessService.enabled }}
   clusterIP: None

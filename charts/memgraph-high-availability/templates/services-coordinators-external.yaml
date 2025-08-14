@@ -14,6 +14,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  labels:
+    {{- with $.Values.labels.coordinators.serviceLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: LoadBalancer
   selector:
@@ -34,6 +38,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  labels:
+    {{- with $.Values.labels.coordinators.serviceLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "LoadBalancer" }}
   type: LoadBalancer
