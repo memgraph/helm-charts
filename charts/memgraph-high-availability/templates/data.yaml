@@ -10,6 +10,8 @@ spec:
     matchLabels:
       app: memgraph-data-{{ $data.id }}
       role: data
+  updateStrategy:
+    type: OnDelete
   template:
     metadata:
       labels:
