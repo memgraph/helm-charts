@@ -60,6 +60,10 @@ spec:
             runAsUser: 0
         {{- end }}
 
+        {{- with .Values.initContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       {{- if .Values.useImagePullSecrets }}
       imagePullSecrets:
