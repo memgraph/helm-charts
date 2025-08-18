@@ -105,10 +105,8 @@ memgraphConfig:
 - "--data-directory=/var/lib/memgraph/mg_data"
 - "--also-log-to-stderr=true"
 
-# The explicit user and group setup is required because at the init container
-# time, there is not yet a user created. This seems fine because under both
-# Memgraph and Mage images we actually hard-code the user and group id. The
-# config is used to chown user storage and core dumps claims' month paths.
+# This is fine because under both
+# Memgraph and Mage images we actually hard-code the user and group id.
 memgraphUserId: 101
 memgraphGroupId: 103
 
