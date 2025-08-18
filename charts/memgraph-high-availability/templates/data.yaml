@@ -171,6 +171,10 @@ spec:
         accessModes:
         - {{ $.Values.storage.data.libStorageAccessMode }}
         storageClassName: {{ $.Values.storage.data.libStorageClassName }}
+        dataSource:
+          name: new-snapshot-demo 
+          kind: VolumeSnapshot
+          apiGroup: snapshot.storage.k8s.io
         resources:
           requests:
             storage: {{ $.Values.storage.data.libPVCSize }}
