@@ -148,7 +148,7 @@ resources:
 
 
 updateStrategy:
-  type: RollingUpdate # Set to OnDelete to support ISSU
+  type: RollingUpdate  # Set to OnDelete to support ISSU
 
 prometheus:
   enabled: false
