@@ -10,8 +10,10 @@ spec:
     matchLabels:
       app: memgraph-coordinator-{{ $coordinator.id }}
       role: coordinator
+  {{- with $.Values.updateStrategy }}
   updateStrategy:
-    type: OnDelete
+  {{ toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:

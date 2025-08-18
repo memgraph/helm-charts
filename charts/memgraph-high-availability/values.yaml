@@ -146,6 +146,10 @@ resources:
   data: {}
   coordinators: {}
 
+
+updateStrategy:
+  type: RollingUpdate # Set to OnDelete to support ISSU
+
 prometheus:
   enabled: false
   namespace: monitoring  # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed

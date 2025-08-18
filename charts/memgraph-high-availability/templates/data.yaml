@@ -10,8 +10,10 @@ spec:
     matchLabels:
       app: memgraph-data-{{ $data.id }}
       role: data
+  {{- with $.Values.updateStrategy }}
   updateStrategy:
-    type: OnDelete
+  {{ toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
