@@ -100,6 +100,16 @@ secrets:
   userKey: USER
   passwordKey: PASSWORD
 
+labels:
+  coordinators:
+    podLabels: {}
+    statefulSetLabels: {}
+    serviceLabels: {}
+  data:
+    podLabels: {}
+    statefulSetLabels: {}
+    serviceLabels: {}
+
 container:
   data:
     readinessProbe:
