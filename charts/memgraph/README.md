@@ -27,6 +27,8 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `image.repository`                           | Memgraph Docker image repository                                                                                                 | `memgraph/memgraph`                    |
 | `image.tag`                                  | Specific tag for the Memgraph Docker image. Overrides the image tag whose default is chart version.                              | `""` (Defaults to chart's app version) |
 | `image.pullPolicy`                           | Image pull policy                                                                                                                | `IfNotPresent`                         |
+| `memgraphUserId`                             | The user id that is hardcoded in Memgraph and Mage images                                                                        | `101`                                  |
+| `memgraphGroupId`                            | The group id that is hardcoded in Memgraph and Mage images                                                                       | `103`                                  |
 | `useImagePullSecrets`                        | Override the default imagePullSecrets                                                                                            | `false`                                |
 | `imagePullSecrets`                           | Specify image pull secrets                                                                                                       | `- name: regcred`                      |
 | `replicaCount`                               | Number of Memgraph instances to run. Note: no replication or HA support.                                                         | `1`                                    |
@@ -41,6 +43,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `service.enableHttpMonitoring`               | Enable HTTP monitoring                                                                                                           | `false`                                |
 | `service.httpPortMonitoring`                 | HTTP monitoring port                                                                                                             | `9091`                                 |
 | `service.annotations`                        | Annotations to add to the service                                                                                                | `{}`                                   |
+| `service.labels`                             | Labels to add to the service                                                                                                     | `{}`                                   |
 | `persistentVolumeClaim.createStorageClaim`   | Enable creation of a Persistent Volume Claim for storage                                                                         | `true`                                 |
 | `persistentVolumeClaim.storageClassName`     | Storage class name for the persistent volume claim                                                                               | `""`                                   |
 | `persistentVolumeClaim.storageSize`          | Size of the persistent volume claim for storage                                                                                  | `10Gi`                                 |
@@ -94,6 +97,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `sysctlInitContainer.image.repository`       | Busybox image repository                                                                                                         | `library/busybox`                      |
 | `sysctlInitContainer.image.tag`              | Specific tag for the Busybox Docker image                                                                                        | `latest`                               |
 | `sysctlInitContainer.image.pullPolicy`       | Image pull policy for busybox                                                                                                    | `IfNotPresent`                         |
+| `initContainers`                             | User specific init containers                                                                                                    | `[]`                                   |
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 
