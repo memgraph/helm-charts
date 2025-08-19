@@ -165,7 +165,7 @@ prometheus:
 data:
 - id: "0"
   restoreDataFromSnapshot: false
-  volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
+  volumeSnapshotName: data-0-snap  # Used only if restoreDataFromSnapshot is set to true
   args:
   - "--management-port=10000"
   - "--bolt-port=7687"
@@ -176,7 +176,7 @@ data:
 
 - id: "1"
   restoreDataFromSnapshot: false
-  volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
+  volumeSnapshotName: data-1-snap  # Used only if restoreDataFromSnapshot is set to true
   args:
   - "--management-port=10000"
   - "--bolt-port=7687"
@@ -188,7 +188,7 @@ data:
 coordinators:
 - id: "1"
   restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
+  volumeSnapshotName: coord-1-snap  # Used only if restoreDataFromSnapshot is set to true
   args:
   - "--coordinator-id=1"
   - "--coordinator-port=12000"
@@ -203,7 +203,7 @@ coordinators:
 
 - id: "2"
   restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
+  volumeSnapshotName: coord-2-snap  # Used only if restoreDataFromSnapshot is set to true
   args:
   - "--coordinator-id=2"
   - "--coordinator-port=12000"
@@ -218,7 +218,7 @@ coordinators:
 
 - id: "3"
   restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
+  volumeSnapshotName: coord-3-snap  # Used only if restoreDataFromSnapshot is set to true
   args:
   - "--coordinator-id=3"
   - "--coordinator-port=12000"
