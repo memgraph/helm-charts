@@ -158,6 +158,12 @@ spec:
         accessModes:
         - {{ $.Values.storage.coordinators.libStorageAccessMode }}
         storageClassName: {{ $.Values.storage.coordinators.libStorageClassName }}
+        {{- if $coordinator.restoreDataFromSnapshot }}
+        dataSource:
+          name: {{ $coordinator.volumeSnapshotName }}
+          kind: VolumeSnapshot
+          apiGroup: snapshot.storage.k8s.io
+        {{- end }}
         resources:
           requests:
             storage: {{ $.Values.storage.coordinators.libPVCSize }}
