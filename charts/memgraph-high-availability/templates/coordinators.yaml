@@ -114,6 +114,10 @@ spec:
           runAsUser: 0
       {{- end }}
 
+      {{- with $.Values.initContainers.coordinators }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
       containers:
       - name: memgraph-coordinator
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"

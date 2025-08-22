@@ -122,6 +122,10 @@ spec:
           runAsUser: 0
       {{- end }}
 
+      {{- with $.Values.initContainers.data }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
       containers:
       - name: memgraph-data
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
