@@ -6,7 +6,7 @@ type: application
 version: 0.1.8
 # Version number of the docker image memgraph/lab.
 # Use it with quotes.
-appVersion: "3.4.0"
+appVersion: "3.5.0"
 description: Memgraph Lab Helm Chart
 keywords:
 - graph
