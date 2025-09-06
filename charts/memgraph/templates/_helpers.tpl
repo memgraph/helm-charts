@@ -63,29 +63,56 @@ Create the name of the service account to use
 
 {{- define "container.readinessProbe" -}}
 readinessProbe:
+{{- if .exec }}
+  exec:
+    command:
+{{- range .exec.command }}
+    - {{ . | quote }}
+{{- end }}
+{{- else }}
   tcpSocket:
     port: {{ .tcpSocket.port }}
+{{- end }}
   failureThreshold: {{ .failureThreshold }}
   timeoutSeconds: {{ .timeoutSeconds }}
   periodSeconds: {{ .periodSeconds }}
+  initialDelaySeconds: {{ .initialDelaySeconds }}
 {{- end }}
 
 
 {{- define "container.livenessProbe" -}}
 livenessProbe:
+{{- if .exec }}
+  exec:
+    command:
+{{- range .exec.command }}
+    - {{ . | quote }}
+{{- end }}
+{{- else }}
   tcpSocket:
     port: {{ .tcpSocket.port }}
+{{- end }}
   failureThreshold: {{ .failureThreshold }}
   timeoutSeconds: {{ .timeoutSeconds }}
   periodSeconds: {{ .periodSeconds }}
+  initialDelaySeconds: {{ .initialDelaySeconds }}
 {{- end }}
 
 
 {{- define "container.startupProbe" -}}
 startupProbe:
+{{- if .exec }}
+  exec:
+    command:
+{{- range .exec.command }}
+    - {{ . | quote }}
+{{- end }}
+{{- else }}
   tcpSocket:
     port: {{ .tcpSocket.port }}
+{{- end }}
   failureThreshold: {{ .failureThreshold }}
   timeoutSeconds: {{ .timeoutSeconds }}
   periodSeconds: {{ .periodSeconds }}
+  initialDelaySeconds: {{ .initialDelaySeconds }}
 {{- end }}
