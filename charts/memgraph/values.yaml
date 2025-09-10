@@ -154,11 +154,15 @@ container:
   terminationGracePeriodSeconds: 1800
   # When a container is ready to be used. Disabled until startupProbe succeeds.
   readinessProbe:
+    # Defining exec.command overrides tcpSocket.
+    # exec:
+    #   command: ["/bin/sh", "-c", "echo 'RETURN 0;' | mgconsole"]
     tcpSocket:
       port: 7687
     failureThreshold: 20
     timeoutSeconds: 10
     periodSeconds: 5
+    initialDelaySeconds: 0
   # To know when a container needs to be restarted.
   # Disabled until startupProbe succeeds.
   livenessProbe:
@@ -167,12 +171,15 @@ container:
     failureThreshold: 20
     timeoutSeconds: 10
     periodSeconds: 5
+    initialDelaySeconds: 0
   # When restoring Memgraph from a backup, it is important to give enough time app to start. Here, we set it to 2h by default.
   startupProbe:
     tcpSocket:
       port: 7687
     failureThreshold: 1440
+    timeoutSeconds: 1
     periodSeconds: 5
+    initialDelaySeconds: 0
 
 # List of custom query modules to be mounted into the app.
 # These will be loaded automatically, on startup.
