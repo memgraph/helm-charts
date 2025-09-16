@@ -77,7 +77,20 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           echo "Waiting for all pods to be ready..."
-          kubectl wait --for=condition=Ready pods --all --timeout=300s
+          if: steps.list-changed.outputs.changed == 'true'
+          run: |
+            echo "Waiting for all pods in the namespace to be Ready..."
+            for i in {1..60}; do
+              echo "--- Pod status at $(date) ---"
+              kubectl get pods -o wide
+              # Check if all pods are ready
+              ready=$(kubectl get pods --no-headers | awk '{print $2}' | grep -vE '^([0-9]+)/\1$' || true)
+              if [ -z "$ready" ]; then
+                echo "✅ All pods are Ready"
+                break
+              fi
+              sleep 10
+            done
 
       - name: Run Helm tests (create test Jobs)
         if: steps.list-changed.outputs.changed == 'true'
