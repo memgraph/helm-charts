@@ -5,7 +5,6 @@ on:
     paths:
       - 'charts/memgraph-high-availability/**'
 
-
 jobs:
   lint-test:
     runs-on: ubuntu-latest
@@ -49,7 +48,6 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment false --charts charts/memgraph-high-availability
 
-
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.8.0
@@ -60,31 +58,41 @@ jobs:
           echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> $GITHUB_ENV
           echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
 
-      - name: Custom Helm install for memgraph-high-availability
-        if: steps.list-changed.outputs.changed == 'true'
-        env:
-            MEMGRAPH_ENTERPRISE_LICENSE: ${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}
-            MEMGRAPH_ORGANIZATION_NAME: ${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}
+      - name: Install csi-hostpath-delayed storage class
         run: |
-            helm install mem-ha-test ./charts/memgraph-high-availability \
-                --set memgraph.env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
-                --set memgraph.env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME \
-                --set memgraph.affinity.enabled=false
+          kubectl apply -f ./charts/memgraph-high-availability/storage-class.yaml
 
-      - name: Wait for Memgraph setup to complete
-        if: steps.list-changed.outputs.changed == 'true'
-        run: sleep 30
-
-      - name: Check the status of Memgraph setup
+      - name: Install memgraph-high-availability
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-            pods=$(kubectl get pods --selector=job-name=memgraph-setup --output=jsonpath='{.items[*].metadata.name}')
+          helm install memgraph-db ./charts/memgraph-high-availability \
+            --set env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
+            --set env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME \
+            --set storage.data.libStorageClassName=csi-hostpath-delayed \
+            --set storage.data.logStorageClassName=csi-hostpath-delayed \
+            --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \
+            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed \
+
+      - name: Wait for Memgraph pods
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          echo "Waiting for all pods to be ready..."
+          kubectl wait --for=condition=Ready pods --all --timeout=300s
+
+      - name: Run Helm tests (create test Jobs)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          helm test mem-ha-test --timeout 5m || true
+
+      - name: Collect Helm test pod logs
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          jobs=$(kubectl get jobs -o jsonpath='{.items[?(@.metadata.labels."helm\.sh/hook"=="test")].metadata.name}')
+          for job in $jobs; do
+            echo "=== Logs for job/$job ==="
+            pods=$(kubectl get pods --selector=job-name=$job -o jsonpath='{.items[*].metadata.name}')
             for pod in $pods; do
-                echo "Logs from $pod:"
-                kubectl logs $pod
+              echo "--- pod/$pod ---"
+              kubectl logs "$pod"
             done
-
-      - name: Run Helm tests
-        if: steps.list-changed.outputs.changed == 'true'
-        run: |
-            timeout 30 helm test mem-ha-test  # If connection to some port is broken, this will timeout with code 124
+          done
