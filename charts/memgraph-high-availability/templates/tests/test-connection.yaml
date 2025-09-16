@@ -1,0 +1,109 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mg-ha-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: memgraph-test
+          image: memgraph/memgraph:3.5.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              PORT=7687
+
+              echo "=== Cluster init via coordinator-1 ==="
+              cat > /tmp/cluster-setup.cypher <<'EOF'
+              ADD COORDINATOR 1 WITH CONFIG {
+                "bolt_server": "memgraph-coordinator-1.default.svc.cluster.local:7687",
+                "management_server":  "memgraph-coordinator-1.default.svc.cluster.local:10000",
+                "coordinator_server":  "memgraph-coordinator-1.default.svc.cluster.local:12000"
+              };
+              ADD COORDINATOR 2 WITH CONFIG {
+                "bolt_server": "memgraph-coordinator-2.default.svc.cluster.local:7687",
+                "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000",
+                "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"
+              };
+              ADD COORDINATOR 3 WITH CONFIG {
+                "bolt_server": "memgraph-coordinator-3.default.svc.cluster.local:7687",
+                "management_server":  "memgraph-coordinator-3.default.svc.cluster.local:10000",
+                "coordinator_server":  "memgraph-coordinator-3.default.svc.cluster.local:12000"
+              };
+              REGISTER INSTANCE instance_0 WITH CONFIG {
+                "bolt_server": "memgraph-data-0.default.svc.cluster.local:7687",
+                "management_server": "memgraph-data-0.default.svc.cluster.local:10000",
+                "replication_server": "memgraph-data-0.default.svc.cluster.local:20000"
+              };
+              REGISTER INSTANCE instance_1 WITH CONFIG {
+                "bolt_server": "memgraph-data-1.default.svc.cluster.local:7687",
+                "management_server": "memgraph-data-1.default.svc.cluster.local:10000",
+                "replication_server": "memgraph-data-1.default.svc.cluster.local:20000"
+              };
+              SET INSTANCE instance_0 TO MAIN;
+              EOF
+
+              echo "Applying cluster setup..."
+              mgconsole \
+                --host "memgraph-coordinator-1.default.svc.cluster.local" \
+                --port "$PORT" < /tmp/cluster-setup.cypher
+
+              hosts_coordinators="
+                memgraph-coordinator-1.default.svc.cluster.local
+                memgraph-coordinator-2.default.svc.cluster.local
+                memgraph-coordinator-3.default.svc.cluster.local
+              "
+              hosts_data="
+                memgraph-data-0.default.svc.cluster.local
+                memgraph-data-1.default.svc.cluster.local
+              "
+
+              echo "=== Checking coordinators with SHOW INSTANCES ==="
+              try_coordinator() {
+                local host="$1"
+                echo "Coordinator: $host"
+                for i in $(seq 1 15); do
+                  if echo "SHOW INSTANCES;" | mgconsole --host="$host" --port="$PORT"; then
+                    echo "OK: $host"
+                    return 0
+                  fi
+                  echo "  attempt $i failed; sleeping 2s..."
+                  sleep 2
+                done
+                echo "FAIL: $host"
+                return 1
+              }
+
+              for h in $hosts_coordinators; do
+                try_coordinator "$h"
+              done
+
+              sleep 25
+
+              echo "=== Checking data nodes with RETURN 0 ==="
+              try_data() {
+                local host="$1"
+                echo "Data node: $host"
+                for i in $(seq 1 15); do
+                  if echo "RETURN 0;" | mgconsole --host="$host" --port="$PORT"; then
+                    echo "OK: $host"
+                    return 0
+                  fi
+                  echo "  attempt $i failed; sleeping 2s..."
+                  sleep 2
+                done
+                echo "FAIL: $host"
+                return 1
+              }
+
+              for h in $hosts_data; do
+                try_data "$h"
+              done
+
+              echo "=== Done ==="
