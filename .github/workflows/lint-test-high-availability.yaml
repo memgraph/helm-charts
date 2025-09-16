@@ -58,7 +58,11 @@ jobs:
       - name: Create Minikube cluster (5 nodes)
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          minikube start --nodes=5 --driver=docker --kubernetes-version=v1.28.3
+          minikube start --nodes=5 --driver=docker
+          minikube addons disable storage-provisioner
+          minikube addons disable default-storageclass
+          minikube addons enable volumesnapshots
+          minikube addons enable csi-hostpath-driver
           kubectl get nodes -o wide
 
       - name: Set up Memgraph environment variables
