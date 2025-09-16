@@ -48,9 +48,18 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment false --charts charts/memgraph-high-availability
 
-      - name: Create kind cluster
+      # 🔹 Minikube instead of kind
+      - name: Set up Minikube
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.8.0
+        uses: medyagh/setup-minikube@latest
+        with:
+          driver: docker
+
+      - name: Create Minikube cluster (5 nodes)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          minikube start --nodes=5 --driver=docker --kubernetes-version=v1.28.3
+          kubectl get nodes -o wide
 
       - name: Set up Memgraph environment variables
         if: steps.list-changed.outputs.changed == 'true'
