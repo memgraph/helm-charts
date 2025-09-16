@@ -71,25 +71,35 @@ jobs:
             --set storage.data.libStorageClassName=csi-hostpath-delayed \
             --set storage.data.logStorageClassName=csi-hostpath-delayed \
             --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \
-            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed \
+            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed
 
       - name: Wait for Memgraph pods
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          echo "Waiting for all pods to be ready..."
-          run: |
-            echo "Waiting for all pods in the namespace to be Ready..."
-            for i in {1..60}; do
-              echo "--- Pod status at $(date) ---"
-              kubectl get pods -o wide
-              # Check if all pods are ready
-              ready=$(kubectl get pods --no-headers | awk '{print $2}' | grep -vE '^([0-9]+)/\1$' || true)
-              if [ -z "$ready" ]; then
-                echo "✅ All pods are Ready"
-                break
-              fi
-              sleep 10
-            done
+          echo "Waiting for all pods in the namespace to be Ready..."
+          for i in {1..60}; do
+            echo "--- Pod status at $(date) ---"
+            kubectl get pods -o wide
+
+            # If any pods are Pending, describe them
+            pending=$(kubectl get pods --no-headers | awk '$3=="Pending"{print $1}')
+            if [ -n "$pending" ]; then
+              echo "⚠️ Some pods are Pending, describing..."
+              for pod in $pending; do
+                echo ">>> kubectl describe pod $pod"
+                kubectl describe pod "$pod"
+              done
+            fi
+
+            # Check if all pods are ready
+            not_ready=$(kubectl get pods --no-headers | awk '{print $2}' | grep -vE '^([0-9]+)/\1$' || true)
+            if [ -z "$not_ready" ]; then
+              echo "✅ All pods are Ready"
+              break
+            fi
+
+            sleep 10
+          done
 
       - name: Run Helm tests (create test Jobs)
         if: steps.list-changed.outputs.changed == 'true'
