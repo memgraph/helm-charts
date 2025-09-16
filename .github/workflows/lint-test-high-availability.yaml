@@ -117,7 +117,7 @@ jobs:
       - name: Run Helm tests (create test Jobs)
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          helm test mem-ha-test --timeout 5m || true
+          helm test memgraph-db --timeout 5m || true
 
       - name: Collect Helm test pod logs
         if: steps.list-changed.outputs.changed == 'true'
