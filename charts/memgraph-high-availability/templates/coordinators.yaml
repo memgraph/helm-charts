@@ -143,6 +143,9 @@ spec:
             value: {{ $.Values.env.MEMGRAPH_ENTERPRISE_LICENSE }}
           - name: MEMGRAPH_ORGANIZATION_NAME
             value: {{ $.Values.env.MEMGRAPH_ORGANIZATION_NAME }}
+          {{- with $.Values.extraEnv.coordinators }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         volumeMounts:
           - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
             mountPath: /var/lib/memgraph
