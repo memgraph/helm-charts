@@ -186,7 +186,6 @@ extraEnv:
   #     value: "coord"
   #   - name: COORD_TWO
   #     value: "two_rr"
-    
 
 
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
