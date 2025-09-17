@@ -1,6 +1,6 @@
 image:
   repository: memgraph/memgraph
-  # It is a bad practice to set the image tag name to latest as it can trigger automatic upgrade of the charts
+  # It is a bad practice to set the image tag name to 'latest' as it can trigger automatic upgrade of the charts
   # With some of the pullPolicy values. Please consider fixing the tag to a specific Memgraph version
   tag: 3.5.0
   pullPolicy: IfNotPresent
@@ -170,6 +170,23 @@ prometheus:
   serviceMonitor:
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
+
+extraEnv:
+  data: []
+  # Example
+  # data:
+  #   - name: DATA_LABEL_ONE
+  #     value: "123"
+  #   - name: DATA_LABEL_TWO
+  #     value: "labellinho"
+  coordinators: []
+  # Example
+  # coordinators:
+  #   - name: COORD_ONE
+  #     value: "coord"
+  #   - name: COORD_TWO
+  #     value: "two_rr"
+
 
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
