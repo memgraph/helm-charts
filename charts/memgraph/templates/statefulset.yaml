@@ -126,7 +126,7 @@ spec:
               value: {{ .Values.memgraphOrganizationName}}
           {{- end}}
           {{- with .Values.extraEnv }}
-          {{- toYaml . | nindent 10 }}
+          {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
             - name: {{ include "memgraph.fullname" . }}-lib-storage
