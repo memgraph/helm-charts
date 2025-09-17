@@ -128,6 +128,17 @@ statefulSetAnnotations: {}
 # Annotations to add to the Pod
 podAnnotations: {}
 
+extraEnv: []
+# Example:
+# extraEnv:
+#   - name: CUSTOM_FEATURE_FLAG
+#     value: "true"
+#   - name: API_KEY
+#     valueFrom:
+#       secretKeyRef:
+#         name: my-secret
+#         key: api-key
+
 resources: {}
 # We usually recommend not to specify default resources and to leave this as a conscious
 # choice for the user. This also increases chances charts run on environments with little

@@ -125,6 +125,9 @@ spec:
             - name: MEMGRAPH_ORGANIZATION_NAME
               value: {{ .Values.memgraphOrganizationName}}
           {{- end}}
+          {{- with .Values.extraEnv }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
           volumeMounts:
             - name: {{ include "memgraph.fullname" . }}-lib-storage
               mountPath: /var/lib/memgraph
