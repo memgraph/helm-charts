@@ -13,7 +13,7 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    {{- if .Values.service.boltPort }}
+    {{- if .Values.service.enableBolt }}
     - port: {{ .Values.service.boltPort }}
       targetPort: {{ .Values.service.boltPort }}
       protocol: TCP
