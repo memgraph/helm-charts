@@ -10,27 +10,18 @@ data:
       port: {{ $.Values.prometheus.memgraphExporter.port }}
       pull_frequency_seconds: {{ $.Values.prometheus.memgraphExporter.pullFrequencySeconds }}
     instances:
-      # TODO: (andi) Needs to be added to the section about upgrading, try to templatize
-      - name: coord1
-        url:  http://memgraph-coordinator-1.default.svc.cluster.local
+      {{- range $.Values.coordinators }}
+      - name: coord{{ .id }}
+        url: http://memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
         port: 9091
         type: coordinator
-      - name: coord2
-        url:  http://memgraph-coordinator-2.default.svc.cluster.local
-        port: 9091
-        type: coordinator
-      - name: coord3
-        url:  http://memgraph-coordinator-3.default.svc.cluster.local
-        port: 9091
-        type: coordinator
-      - name: data1
-        url:  http://memgraph-data-0.default.svc.cluster.local
+      {{- end }}
+      {{- range $.Values.data }}
+      - name: data{{ .id }}
+        url: http://memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
         port: 9091
         type: data_instance
-      - name: data2
-        url:  http://memgraph-data-1.default.svc.cluster.local
-        port: 9091
-        type: data_instance
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
