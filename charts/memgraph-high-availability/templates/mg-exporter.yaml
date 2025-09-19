@@ -84,6 +84,7 @@ spec:
       port: {{ $.Values.prometheus.memgraphExporter.port }}
       targetPort: {{ $.Values.prometheus.memgraphExporter.port }}
 ---
+{{- if $.Values.prometheus.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -101,4 +102,5 @@ spec:
   namespaceSelector:
     matchNames:
       - {{ $.Values.prometheus.namespace }} # This refers to where our service exposing the exporter is located
+{{- end }}
 {{- end }}
