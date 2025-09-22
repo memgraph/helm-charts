@@ -202,6 +202,18 @@ customQueryModules: []
 #   Must be present in the ConfigMap referenced with `volume`
 #   file: ""
 
+## @param lifecycleHooks For the memgraph container(s) to automate configuration before or after startup
+##
+lifecycleHooks: {}
+
+## @param extraVolumes Optionally specify extra list of additional volumes
+##
+extraVolumes: []
+
+## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts
+##
+extraVolumeMounts: []
+
 
 # If you are experiencing issues with the sysctlInitContainer, you can disable it here.
 # This is made to increase the max_map_count, necessary for high memory loads in Memgraph
