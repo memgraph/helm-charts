@@ -101,6 +101,7 @@ The following table lists the configurable parameters of the Memgraph chart and 
 | `sysctlInitContainer.image.tag`              | Specific tag for the Busybox Docker image                                                                                        | `latest`                               |
 | `sysctlInitContainer.image.pullPolicy`       | Image pull policy for busybox                                                                                                    | `IfNotPresent`                         |
 | `initContainers`                             | User specific init containers                                                                                                    | `[]`                                   |
+| `extraEnv`                                   | Env variables that users can define                                                                                              | `[]`                                   |
 
 **Note:** It's often recommended not to specify default resources and leave it as a conscious choice for the user. If you want to specify resources, uncomment the following lines in your `values.yaml`, adjust them as necessary:
 

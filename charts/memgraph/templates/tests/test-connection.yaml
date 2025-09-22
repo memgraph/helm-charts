@@ -11,11 +11,15 @@ spec:
     spec:
       containers:
       - name: memgraph-test
-        image: memgraph/memgraph:3.0.0
+        image: memgraph/memgraph:3.5.1
         command: ["/bin/sh", "-c"]
         args:
           - |
             echo "Running test connection to Memgraph";
-            echo "RETURN 0;" | mgconsole --username memgraph --password memgraph --host {{ include "memgraph.fullname" . }} --port 7687;
+            if echo "RETURN 0;" | mgconsole --username memgraph --password memgraph --host {{ include "memgraph.fullname" . }} --port 7687; then
+              echo "OK"
+              return 0
+            fi
+            return 1
       restartPolicy: Never
   backoffLimit: 4
