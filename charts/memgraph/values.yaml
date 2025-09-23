@@ -203,15 +203,29 @@ customQueryModules: []
 #   file: ""
 
 ## @param lifecycleHooks For the memgraph container(s) to automate configuration before or after startup
-##
+## ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+## e.g.:
+## lifecycleHooks:
+##   preStop:
+##     exec:
+##       command: ["/scripts/pre-stop.sh"]
 lifecycleHooks: {}
 
 ## @param extraVolumes Optionally specify extra list of additional volumes
-##
+## e.g.:
+## extraVolumes:
+## - name: scripts
+##   configMap:
+##     name: scripts
+##     defaultMode: 0755
 extraVolumes: []
 
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts
-##
+## e.g.:
+## extraVolumeMounts:
+## - name: scripts
+##   mountPath: /scripts
+##   readOnly: true
 extraVolumeMounts: []
 
 
