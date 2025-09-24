@@ -75,6 +75,9 @@ spec:
           configMap:
             name: {{ .volume | quote }}
       {{- end }}
+      {{- if .Values.extraVolumes }}
+      {{- toYaml .Values.extraVolumes | nindent 8 }}
+      {{- end }}
 
       containers:
         - name: memgraph
@@ -102,6 +105,10 @@ spec:
           {{- include "container.readinessProbe" .Values.container.readinessProbe | nindent 10 }}
           {{- include "container.livenessProbe" .Values.container.livenessProbe | nindent 10 }}
           {{- include "container.startupProbe" .Values.container.startupProbe | nindent 10 }}
+          {{- if .Values.lifecycleHooks }}
+          lifecycle:
+            {{- toYaml .Values.lifecycleHooks | nindent 12 }}
+          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -147,6 +154,9 @@ spec:
             - name: {{ .volume | quote }}
               mountPath: {{ printf "/var/lib/memgraph/internal_modules/%s" .file }}
               subPath: {{ .file | quote }}
+          {{- end }}
+          {{- if .Values.extraVolumeMounts }}
+            {{- toYaml .Values.extraVolumeMounts | nindent 12}}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
