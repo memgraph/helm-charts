@@ -38,6 +38,9 @@ The following table lists the configurable parameters of the Memgraph Lab chart 
 | `serviceAccount.create`      | Specifies whether a service account should be created                                                   | `true`                                 |
 | `serviceAccount.annotations` | Annotations to add to the service account                                                               | `{}`                                   |
 | `serviceAccount.name`        | The name of the service account to use. If not set and create is true, a name is generated.             | `""`                                   |
+| `secrets.enabled`            | Enable the use of Kubernetes secrets. Will be injected as env variables.                                | `false`                                |
+| `secrets.name`               | The name of the Kubernetes secret that will be used.                                                    | `memgraph-secrets`                     |
+| `secrets.keys`               | Keys from the `secrets.name` that will be stored as env variables inside the pod.                       | ``.                                    |
 
 Memgraph Lab can be further configured with environment variables in your `values.yaml` file.
 

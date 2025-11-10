@@ -47,13 +47,22 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.env }}
           env:
-            {{- range . }}
-            - name: {{ .name }}
-              value: "{{ .value  }}"
+            {{- if .Values.secrets.enabled }}
+            {{- range .Values.secrets.keys }}
+            - name: {{ . }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.name }}
+                  key: {{ . }}
             {{- end }}
-          {{- end }}
+            {{- end }}
+
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: "{{ .value }}"
+            {{- end }}
+
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
