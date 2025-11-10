@@ -186,7 +186,7 @@ spec:
         name: {{ include "memgraph.fullname" . }}-lib-storage
       spec:
         accessModes:
-        - "ReadWriteOnce"
+        - {{ .Values.persistentVolumeClaim.libStorageAccessMode }}
         storageClassName: {{ .Values.persistentVolumeClaim.storageClassName }}
         resources:
           requests:

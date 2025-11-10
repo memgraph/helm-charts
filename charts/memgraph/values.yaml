@@ -59,7 +59,8 @@ persistentVolumeClaim:
   ## See documentation for choosing the right size depending on the number of Snapshots you want to keep
   ## Default is 3 snapshots and you need space to create a new one and WAL files
   storageSize: 10Gi
-
+  # Volume claim access mode
+  libStorageAccessMode: "ReadWriteOnce"
   ## if `createStoragePVC` is `false` you can choose to use an existing Persistant Volume Claim
   ## Write the name and exising Persistant Volume Claim
   existingClaim: memgraph-0
