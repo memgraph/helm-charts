@@ -91,3 +91,11 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+secrets:
+  enabled: false
+  name: memgraph-secrets
+  keys: []
+    # Here you can define any number of items for the secret, all will be injected as env variables
+    # - MEMGRAPH_USER
+    # - MEMGRAPH_PASSWORD
