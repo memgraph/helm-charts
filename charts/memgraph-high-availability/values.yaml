@@ -273,3 +273,13 @@ coordinators:
   - "--log-file=/var/log/memgraph/memgraph.log"
   - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
   - "--data-directory=/var/lib/memgraph/mg_data"
+
+
+userContainers:
+  data: []
+  coordinators: []
+  # Example:
+  # coordinators:
+  #  - name: my-debugger
+  #    image: busybox
+  #    command: ["sh", "-c", "echo hi; sleep 10000"]

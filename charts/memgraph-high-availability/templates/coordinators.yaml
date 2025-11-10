@@ -167,6 +167,9 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- with $.Values.userContainers.coordinators }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
 
   volumeClaimTemplates:
     - apiVersion: v1
