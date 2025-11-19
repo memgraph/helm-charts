@@ -2,8 +2,8 @@ apiVersion: v2
 name: memgraph-high-availability
 description: A Helm chart for Kubernetes with Memgraph High availabiliy capabilites
 
-version: 0.2.10
-appVersion: "3.6.2"
+version: 0.2.11
+appVersion: "3.7.0"
 
 type: application
 
