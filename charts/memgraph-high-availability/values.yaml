@@ -40,10 +40,10 @@ storage:
     coreDumpsMountPath: /var/core/memgraph
 
 ports:
-  boltPort: 7687   # If you change this value, change it also in probes definition
+  boltPort: 7687 # If you change this value, change it also in probes definition
   managementPort: 10000
   replicationPort: 20000
-  coordinatorPort: 12000  # If you change this value, change it also in probes definition
+  coordinatorPort: 12000 # If you change this value, change it also in probes definition
 
 externalAccessConfig:
   dataInstance:
@@ -56,7 +56,7 @@ externalAccessConfig:
     annotations: {}
 
 headlessService:
-  enabled: false  # If set to true, each data and coordinator instance will use headless service
+  enabled: false # If set to true, each data and coordinator instance will use headless service
 
 # Affinity controls the scheduling of the memgraph-high-availability pods.
 # By default data pods will avoid being scheduled on the same node as other data pods,
@@ -114,33 +114,33 @@ container:
   data:
     readinessProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     # When restoring Memgraph from a backup, it is important to give enough time app to start. Here, we set it to 2h by default.
     startupProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 1440
       timeoutSeconds: 10
       periodSeconds: 5
   coordinators:
     readinessProbe:
       tcpSocket:
-        port: 12000  # If you change coordinator port, change this also
+        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
       tcpSocket:
-        port: 12000  # If you change coordinator port, change this also
+        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
@@ -155,13 +155,12 @@ resources:
   data: {}
   coordinators: {}
 
-
 updateStrategy:
-  type: RollingUpdate  # Set to OnDelete to support ISSU
+  type: RollingUpdate # Set to OnDelete to support ISSU
 
 prometheus:
   enabled: false
-  namespace: monitoring  # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
+  namespace: monitoring # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
@@ -188,7 +187,6 @@ extraEnv:
   #   - name: COORD_TWO
   #     value: "two_rr"
 
-
 ## @param initContainers Add additional init containers for data instances and coordinators
 ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 ## e.g:
@@ -206,74 +204,70 @@ initContainers:
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.
 data:
-- id: "0"
-  restoreDataFromSnapshot: false
-  volumeSnapshotName: data-0-snap  # Used only if restoreDataFromSnapshot is set to true
-  args:
-  - "--management-port=10000"
-  - "--bolt-port=7687"
-  - "--also-log-to-stderr"
-  - "--log-level=TRACE"
-  - "--log-file=/var/log/memgraph/memgraph.log"
-  - "--data-directory=/var/lib/memgraph/mg_data"
+  - id: "0"
+    restoreDataFromSnapshot: false
+    volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--also-log-to-stderr"
+      - "--log-level=TRACE"
+      - "--log-file=/var/log/memgraph/memgraph.log"
+      - "--data-directory=/var/lib/memgraph/mg_data"
 
-- id: "1"
-  restoreDataFromSnapshot: false
-  volumeSnapshotName: data-1-snap  # Used only if restoreDataFromSnapshot is set to true
-  args:
-  - "--management-port=10000"
-  - "--bolt-port=7687"
-  - "--also-log-to-stderr"
-  - "--log-level=TRACE"
-  - "--log-file=/var/log/memgraph/memgraph.log"
-  - "--data-directory=/var/lib/memgraph/mg_data"
+  - id: "1"
+    restoreDataFromSnapshot: false
+    volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--also-log-to-stderr"
+      - "--log-level=TRACE"
+      - "--log-file=/var/log/memgraph/memgraph.log"
+      - "--data-directory=/var/lib/memgraph/mg_data"
 
 coordinators:
-- id: "1"
-  restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-1-snap  # Used only if restoreDataFromSnapshot is set to true
-  args:
-  - "--coordinator-id=1"
-  - "--coordinator-port=12000"
-  - "--management-port=10000"
-  - "--bolt-port=7687"
-  - "--also-log-to-stderr"
-  - "--log-level=TRACE"
-  - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local"
-  - "--log-file=/var/log/memgraph/memgraph.log"
-  - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
-  - "--data-directory=/var/lib/memgraph/mg_data"
+  - id: "1"
+    restoreDataFromSnapshot: false
+    volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
+    args:
+      - "--coordinator-id=1"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--also-log-to-stderr"
+      - "--log-level=TRACE"
+      - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local"
+      - "--log-file=/var/log/memgraph/memgraph.log"
+      - "--data-directory=/var/lib/memgraph/mg_data"
 
-- id: "2"
-  restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-2-snap  # Used only if restoreDataFromSnapshot is set to true
-  args:
-  - "--coordinator-id=2"
-  - "--coordinator-port=12000"
-  - "--management-port=10000"
-  - "--bolt-port=7687"
-  - "--also-log-to-stderr"
-  - "--log-level=TRACE"
-  - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local"
-  - "--log-file=/var/log/memgraph/memgraph.log"
-  - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
-  - "--data-directory=/var/lib/memgraph/mg_data"
+  - id: "2"
+    restoreDataFromSnapshot: false
+    volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
+    args:
+      - "--coordinator-id=2"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--also-log-to-stderr"
+      - "--log-level=TRACE"
+      - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local"
+      - "--log-file=/var/log/memgraph/memgraph.log"
+      - "--data-directory=/var/lib/memgraph/mg_data"
 
-- id: "3"
-  restoreDataFromSnapshot: false
-  volumeSnapshotName: coord-3-snap  # Used only if restoreDataFromSnapshot is set to true
-  args:
-  - "--coordinator-id=3"
-  - "--coordinator-port=12000"
-  - "--management-port=10000"
-  - "--bolt-port=7687"
-  - "--also-log-to-stderr"
-  - "--log-level=TRACE"
-  - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
-  - "--log-file=/var/log/memgraph/memgraph.log"
-  - "--nuraft-log-file=/var/log/memgraph/memgraph.log"
-  - "--data-directory=/var/lib/memgraph/mg_data"
-
+  - id: "3"
+    restoreDataFromSnapshot: false
+    volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
+    args:
+      - "--coordinator-id=3"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--also-log-to-stderr"
+      - "--log-level=TRACE"
+      - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
+      - "--log-file=/var/log/memgraph/memgraph.log"
+      - "--data-directory=/var/lib/memgraph/mg_data"
 
 userContainers:
   data: []
