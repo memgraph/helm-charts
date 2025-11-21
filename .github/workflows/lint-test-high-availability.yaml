@@ -3,7 +3,7 @@ name: Lint and Test Charts High Availability
 on:
   pull_request:
     paths:
-      - 'charts/memgraph-high-availability/**'
+      - "charts/memgraph-high-availability/**"
 
 jobs:
   lint-test:
@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           check-latest: true
 
       - name: Download dependencies
@@ -90,12 +90,13 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           echo "Waiting for all pods in the namespace to be Ready..."
-          for i in {1..60}; do
+          all_ready=false
+          for _ in {1..60}; do
             echo "--- Pod status at $(date) ---"
-            kubectl get pods -o wide
+            kubectl get pods -o wide | grep -E '(NAME|memgraph-coordinator|memgraph-data)'
 
             # If any pods are Pending, describe them
-            pending=$(kubectl get pods --no-headers | awk '$3=="Pending"{print $1}')
+            pending=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' | awk '$3=="Pending"{print $1}')
             if [ -n "$pending" ]; then
               echo "⚠️ Some pods are Pending, describing..."
               for pod in $pending; do
@@ -104,15 +105,21 @@ jobs:
               done
             fi
 
-            # Check if all pods are ready
-            not_ready=$(kubectl get pods --no-headers | awk '{print $2}' | grep -vE '^([0-9]+)/\1$' || true)
+            # Check if all pods are Ready
+            not_ready=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' awk "{print $2}" | grep -vE '^([0-9]+)/\1$' || true)
             if [ -z "$not_ready" ]; then
               echo "✅ All pods are Ready"
+            all_ready=true
               break
             fi
-
             sleep 10
           done
+
+          if [ "$all_ready" = false ]; then
+            echo "❌ ERROR: Timeout waiting for pods to become ready after 10 minutes"
+            kubectl get pods | grep -E '(NAME|memgraph-coordinator|memgraph-data)'
+            exit 1
+          fi
 
       - name: Run Helm tests (create test Jobs)
         if: steps.list-changed.outputs.changed == 'true'

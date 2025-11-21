@@ -50,13 +50,13 @@ spec:
           wait_for_service "memgraph-data-0.default.svc.cluster.local" 7687
           wait_for_service "memgraph-data-1.default.svc.cluster.local" 7687
 
-          # Check if instances are already registered 
+          # Check if instances are already registered
           INSTANCE_COUNT=$(echo "SHOW INSTANCES;" | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687 --output-format=csv 2>/dev/null | tail -n +2 | wc -l)
           if [ "$INSTANCE_COUNT" -gt 1 ]; then
             echo "✅ Cluster already configured with $INSTANCE_COUNT instances. Skipping registration."
             exit 0
           fi
-      
+
 
           echo 'ADD COORDINATOR 1 WITH CONFIG {"bolt_server": "memgraph-coordinator-1.default.svc.cluster.local:7687", "management_server":  "memgraph-coordinator-1.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-1.default.svc.cluster.local:12000"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687
           echo 'ADD COORDINATOR 2 WITH CONFIG {"bolt_server": "memgraph-coordinator-2.default.svc.cluster.local:7687", "management_server":  "memgraph-coordinator-2.default.svc.cluster.local:10000", "coordinator_server":  "memgraph-coordinator-2.default.svc.cluster.local:12000"};' | mgconsole --host memgraph-coordinator-1.default.svc.cluster.local --port 7687
