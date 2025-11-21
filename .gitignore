@@ -7,3 +7,4 @@ docker/
 .DS_Store
 Thumbs.db
 charts/memgraph-high-availability/charts/
+.vscode/
