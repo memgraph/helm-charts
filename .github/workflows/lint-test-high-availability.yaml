@@ -106,7 +106,7 @@ jobs:
             fi
 
             # Check if all pods are Ready
-            not_ready=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' | awk "{print $2}" | grep -vE '^([0-9]+)/\1$' || true)
+            not_ready=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' | awk '{print $2}' | grep -vE '^([0-9]+)/\1$' || true)
             if [ -z "$not_ready" ]; then
               echo "✅ All pods are Ready"
             all_ready=true
