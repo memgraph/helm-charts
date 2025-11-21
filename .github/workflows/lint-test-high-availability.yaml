@@ -46,7 +46,7 @@ jobs:
 
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment false --charts charts/memgraph-high-availability
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment false --lint-conf lintconf.yaml --charts charts/memgraph-high-availability
 
       # 🔹 Minikube instead of kind
       - name: Set up Minikube
@@ -106,7 +106,7 @@ jobs:
             fi
 
             # Check if all pods are Ready
-            not_ready=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' awk "{print $2}" | grep -vE '^([0-9]+)/\1$' || true)
+            not_ready=$(kubectl get pods --no-headers | grep -E 'memgraph-(coordinator|data)' | awk "{print $2}" | grep -vE '^([0-9]+)/\1$' || true)
             if [ -z "$not_ready" ]; then
               echo "✅ All pods are Ready"
             all_ready=true
