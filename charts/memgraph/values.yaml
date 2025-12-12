@@ -254,3 +254,16 @@ sysctlInitContainer:
 ##    command: ['sh', '-c', 'echo "hello world"']
 ##
 initContainers: []
+
+prometheus:
+  enabled: false
+  namespace: monitoring # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
+  memgraphExporter:
+    port: 9115
+    pullFrequencySeconds: 5
+    repository: memgraph/prometheus-exporter
+    tag: 0.2.1
+  serviceMonitor:
+    enabled: true
+    kubePrometheusStackReleaseName: kube-prometheus-stack
+    interval: 15s
