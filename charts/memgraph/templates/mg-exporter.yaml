@@ -12,7 +12,7 @@ data:
       endpoint_url: http://{{ include "memgraph.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
       port: 9091
     general:
-      pull_frequency_seconds: {{ .Values.prometheus.memgraphExporter.pullFrequencySeconds }} 
+      pull_frequency_seconds: {{ .Values.prometheus.memgraphExporter.pullFrequencySeconds }}
 ---
 apiVersion: apps/v1
 kind: Deployment
