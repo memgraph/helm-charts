@@ -84,11 +84,7 @@ jobs:
             --set storage.data.libStorageClassName=csi-hostpath-delayed \
             --set storage.data.logStorageClassName=csi-hostpath-delayed \
             --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \
-            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed \
-            --set storage.data.createCoreDumpsClaim=true \
-            --set storage.data.coreDumpsStorageClassName=csi-hostpath-delayed \
-            --set storage.coordinators.createCoreDumpsClaim=true \
-            --set storage.coordinators.coreDumpsStorageClassName=csi-hostpath-delayed
+            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed 
 
       - name: Wait for Memgraph pods
         if: steps.list-changed.outputs.changed == 'true'
