@@ -22,7 +22,7 @@ storage:
     ## Create a Persistant Volume Claim for core dumps.
     createCoreDumpsClaim: false
     coreDumpsStorageClassName:
-    coreDumpsStorageSize: 10Gi
+    coreDumpsStorageSize: 1Gi
     coreDumpsMountPath: /var/core/memgraph
   coordinators:
     libPVCSize: "1Gi"
@@ -36,7 +36,7 @@ storage:
     ## Create a Persistant Volume Claim for core dumps.
     createCoreDumpsClaim: false
     coreDumpsStorageClassName:
-    coreDumpsStorageSize: 10Gi
+    coreDumpsStorageSize: 1Gi
     coreDumpsMountPath: /var/core/memgraph
 
 ports:
