@@ -155,6 +155,10 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
             mountPath: /var/log/memgraph
+          {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
+          - name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
+            mountPath: {{ $.Values.storage.coordinators.coreDumpsMountPath }}
+          {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
