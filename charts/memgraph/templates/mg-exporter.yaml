@@ -1,0 +1,88 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mg-exporter-config
+  namespace: {{ .Values.prometheus.namespace }}
+data:
+  standalone_config.yaml: |
+    exporter:
+      port: {{ .Values.prometheus.memgraphExporter.port }}
+    memgraph:
+      endpoint_url: http://{{ include "memgraph.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+      port: 9091
+    general:
+      pull_frequency_seconds: {{ .Values.prometheus.memgraphExporter.pullFrequencySeconds }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mg-exporter
+  namespace: {{ .Values.prometheus.namespace }}
+  labels:
+    app: mg-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mg-exporter
+  template:
+    metadata:
+      labels:
+        app: mg-exporter
+    spec:
+      containers:
+        - name: exporter
+          image: {{ .Values.prometheus.memgraphExporter.repository }}:{{ .Values.prometheus.memgraphExporter.tag }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/mg-exporter/standalone_config.yaml
+              subPath: standalone_config.yaml
+          ports:
+            - containerPort: {{ .Values.prometheus.memgraphExporter.port }}
+          env:
+            - name: DEPLOYMENT_TYPE
+              value: standalone
+            - name: CONFIG_FILE
+              value: /etc/mg-exporter/standalone_config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: mg-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mg-exporter
+  namespace: {{ .Values.prometheus.namespace }}
+  labels:
+    app: mg-exporter
+spec:
+  selector:
+    app: mg-exporter
+  ports:
+    - protocol: TCP
+      name: tcp-metrics-port
+      port: {{ .Values.prometheus.memgraphExporter.port }}
+      targetPort: {{ .Values.prometheus.memgraphExporter.port }}
+---
+{{- if .Values.prometheus.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mg-exporter
+  namespace: {{ .Values.prometheus.namespace }}
+  labels:
+    release: {{ .Values.prometheus.serviceMonitor.kubePrometheusStackReleaseName }}
+spec:
+  selector:
+    matchLabels:
+      app: mg-exporter
+  endpoints:
+    - port: tcp-metrics-port  # must be the same as the service port name
+      interval: {{ .Values.prometheus.serviceMonitor.interval }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.prometheus.namespace }} # This refers to where our service exposing the exporter is located
+{{- end }}
+{{- end }}
