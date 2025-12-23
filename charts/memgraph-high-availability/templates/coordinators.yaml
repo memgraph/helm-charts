@@ -32,7 +32,10 @@ spec:
         runAsUser: {{ $.Values.memgraphUserId }}
         runAsGroup: {{ $.Values.memgraphGroupId }}
         fsGroup: {{ $.Values.memgraphGroupId }}
-
+      {{- with $.Values.tolerations.coordinators }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       affinity:
         {{- if $.Values.affinity.nodeSelection }}
         # Node Selection Affinity: Scheduled on nodes with specific label key and value
