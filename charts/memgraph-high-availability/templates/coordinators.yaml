@@ -28,6 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      terminationGracePeriodSeconds: {{ $.Values.container.coordinators.terminationGracePeriodSeconds }}
       securityContext:
         runAsUser: {{ $.Values.memgraphUserId }}
         runAsGroup: {{ $.Values.memgraphGroupId }}
