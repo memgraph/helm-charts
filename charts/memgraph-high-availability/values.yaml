@@ -283,3 +283,19 @@ userContainers:
   #  - name: my-debugger
   #    image: busybox
   #    command: ["sh", "-c", "echo hi; sleep 10000"]
+
+tolerations:
+  data: []
+  # Example:
+  # data:
+  #   - key: "key2"
+  #     operator: "Equal"
+  #     value: "value2"
+  #     effect: "NoSchedule"
+  coordinators: []
+  # Example:
+  # coordinators:
+  #   - key: "key1"
+  #     operator: "Equal"
+  #     value: "value1"
+  #     effect: "NoSchedule"
