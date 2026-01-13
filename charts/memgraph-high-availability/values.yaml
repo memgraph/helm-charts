@@ -40,10 +40,10 @@ storage:
     coreDumpsMountPath: /var/core/memgraph
 
 ports:
-  boltPort: 7687  # If you change this value, change it also in probes definition
+  boltPort: 7687 # If you change this value, change it also in probes definition
   managementPort: 10000
   replicationPort: 20000
-  coordinatorPort: 12000  # If you change this value, change it also in probes definition
+  coordinatorPort: 12000 # If you change this value, change it also in probes definition
 
 externalAccessConfig:
   dataInstance:
@@ -56,7 +56,7 @@ externalAccessConfig:
     annotations: {}
 
 headlessService:
-  enabled: false  # If set to true, each data and coordinator instance will use headless service
+  enabled: false # If set to true, each data and coordinator instance will use headless service
 
 # Affinity controls the scheduling of the memgraph-high-availability pods.
 # By default data pods will avoid being scheduled on the same node as other data pods,
@@ -115,20 +115,20 @@ container:
     terminationGracePeriodSeconds: 1800
     readinessProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     # When restoring Memgraph from a backup, it is important to give enough time app to start. Here, we set it to 2h by default.
     startupProbe:
       tcpSocket:
-        port: 7687  # If you change bolt port, change this also
+        port: 7687 # If you change bolt port, change this also
       failureThreshold: 1440
       timeoutSeconds: 10
       periodSeconds: 5
@@ -136,13 +136,13 @@ container:
     terminationGracePeriodSeconds: 1800
     readinessProbe:
       tcpSocket:
-        port: 12000  # If you change coordinator port, change this also
+        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
       tcpSocket:
-        port: 12000  # If you change coordinator port, change this also
+        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
@@ -158,11 +158,11 @@ resources:
   coordinators: {}
 
 updateStrategy:
-  type: RollingUpdate  # Set to OnDelete to support ISSU
+  type: RollingUpdate # Set to OnDelete to support ISSU
 
 prometheus:
   enabled: false
-  namespace: monitoring  # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
+  namespace: monitoring # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
@@ -208,7 +208,7 @@ initContainers:
 data:
   - id: "0"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: data-0-snap  # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
@@ -219,7 +219,7 @@ data:
 
   - id: "1"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: data-1-snap  # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
@@ -231,7 +231,7 @@ data:
 coordinators:
   - id: "1"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-1-snap  # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
     args:
       - "--coordinator-id=1"
       - "--coordinator-port=12000"
@@ -245,7 +245,7 @@ coordinators:
 
   - id: "2"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-2-snap  # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
     args:
       - "--coordinator-id=2"
       - "--coordinator-port=12000"
@@ -259,7 +259,7 @@ coordinators:
 
   - id: "3"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-3-snap  # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
     args:
       - "--coordinator-id=3"
       - "--coordinator-port=12000"
