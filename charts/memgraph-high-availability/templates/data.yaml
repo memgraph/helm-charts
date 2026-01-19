@@ -32,6 +32,9 @@ spec:
         runAsUser: {{ $.Values.memgraphUserId }}
         runAsGroup: {{ $.Values.memgraphGroupId }}
         fsGroup: {{ $.Values.memgraphGroupId }}
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       {{- with $.Values.tolerations.data }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -112,6 +115,7 @@ spec:
         securityContext:
           privileged: true
           runAsUser: 0
+          runAsNonRoot: false
       {{- end }}
 
       {{- if $.Values.storage.data.createCoreDumpsClaim }}
@@ -125,6 +129,7 @@ spec:
         securityContext:
           privileged: true
           runAsUser: 0
+          runAsNonRoot: false
       {{- end }}
 
       {{- with $.Values.initContainers.data }}
@@ -176,6 +181,10 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop: [ "ALL" ]
+          readOnlyRootFilesystem: false # Some python libs like scipy are writing to tmp folder
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
           # Run by 'memgraph' user as specified in the Dockerfile
         {{- include "container.data.readinessProbe" $.Values.container.data.readinessProbe | nindent 8 }}
         {{- include "container.data.livenessProbe" $.Values.container.data.livenessProbe | nindent 8 }}
