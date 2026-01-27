@@ -239,7 +239,7 @@ coordinators:
       - "--bolt-port=7687"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local"
+      - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
 
@@ -253,7 +253,7 @@ coordinators:
       - "--bolt-port=7687"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local"
+      - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
 
@@ -267,7 +267,7 @@ coordinators:
       - "--bolt-port=7687"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local"
+      - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
 
