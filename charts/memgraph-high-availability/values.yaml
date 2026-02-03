@@ -44,6 +44,7 @@ ports:
   managementPort: 10000
   replicationPort: 20000
   coordinatorPort: 12000 # If you change this value, change it also in probes definition
+  metricsPort: 9091
 
 externalAccessConfig:
   dataInstance:

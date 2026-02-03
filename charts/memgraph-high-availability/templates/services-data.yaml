@@ -30,7 +30,7 @@ spec:
     {{- if $.Values.prometheus.enabled }}
     - protocol: TCP
       name: tcp-metrics-port
-      port: 9091
-      targetPort: 9091
+      port: {{ $.Values.ports.metricsPort }}
+      targetPort: {{ $.Values.ports.metricsPort }}
     {{- end }}
 {{- end }}
