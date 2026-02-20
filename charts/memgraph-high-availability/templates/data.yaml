@@ -177,9 +177,9 @@ spec:
           - name: memgraph-data-{{ $data.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
           {{- end }}
-          - name: bolt-certs
-            mountPath: /etc/memgraph/ssl
-            readOnly: true
+          {{- with $.Values.storage.data.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
