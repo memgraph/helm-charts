@@ -177,6 +177,9 @@ spec:
           - name: memgraph-data-{{ $data.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
           {{- end }}
+          {{- with $.Values.storage.data.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -195,6 +198,11 @@ spec:
         {{- end }}
       {{- with $.Values.userContainers.data }}
       {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+      {{- if $.Values.storage.data.extraVolumes }}
+      volumes:
+      {{- toYaml $.Values.storage.data.extraVolumes | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
