@@ -168,6 +168,9 @@ spec:
           - name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.coordinators.coreDumpsMountPath }}
           {{- end }}
+          - name: bolt-certs
+            mountPath: /etc/memgraph/ssl
+            readOnly: true
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -186,6 +189,11 @@ spec:
         {{- end }}
       {{- with $.Values.userContainers.coordinators }}
       {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+      {{- if $.Values.storage.coordinators.extraVolumes }}
+      volumes:
+      {{- toYaml $.Values.storage.coordinators.extraVolumes | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
