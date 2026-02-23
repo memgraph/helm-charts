@@ -251,6 +251,7 @@ data:
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
+      - "--storage-snapshot-on-exit=false"
 
   - id: "1"
     restoreDataFromSnapshot: false
@@ -262,6 +263,7 @@ data:
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
+      - "--storage-snapshot-on-exit=false"
 
 coordinators:
   - id: "1"
@@ -277,6 +279,7 @@ coordinators:
       - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
+      - "--storage-snapshot-on-exit=false"
 
   - id: "2"
     restoreDataFromSnapshot: false
@@ -291,6 +294,7 @@ coordinators:
       - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
+      - "--storage-snapshot-on-exit=false"
 
   - id: "3"
     restoreDataFromSnapshot: false
@@ -305,6 +309,7 @@ coordinators:
       - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
+      - "--storage-snapshot-on-exit=false"
 
 userContainers:
   data: []
@@ -314,6 +319,21 @@ userContainers:
   #  - name: my-debugger
   #    image: busybox
   #    command: ["sh", "-c", "echo hi; sleep 10000"]
+
+coreDumpUploader:
+  enabled: true
+  image:
+    repository: amazon/aws-cli
+    tag: latest
+    pullPolicy: IfNotPresent
+  s3BucketName: "memgraph-ha-cluster"
+  s3Prefix: "core-dumps"
+  awsRegion: "eu-west-1"
+  pollIntervalSeconds: 30
+  # Name of the K8s Secret containing AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+  secretName: "aws-s3-credentials"
+  accessKeySecretKey: "AWS_ACCESS_KEY_ID"
+  secretAccessKeySecretKey: "AWS_SECRET_ACCESS_KEY"
 
 tolerations:
   data: []

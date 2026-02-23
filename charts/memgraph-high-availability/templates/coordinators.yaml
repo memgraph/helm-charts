@@ -188,6 +188,9 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if and $.Values.coreDumpUploader.enabled $.Values.storage.coordinators.createCoreDumpsClaim }}
+      {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "memgraph-coordinator-%s-core-dumps-storage" $coordinator.id) "mountPath" $.Values.storage.coordinators.coreDumpsMountPath "values" $.Values.coreDumpUploader) | nindent 6 }}
+      {{- end }}
       {{- with $.Values.userContainers.coordinators }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
