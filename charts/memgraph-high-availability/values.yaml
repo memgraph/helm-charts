@@ -324,7 +324,7 @@ coreDumpUploader:
   enabled: false
   image:
     repository: amazon/aws-cli
-    tag: latest
+    tag: 2.33.28
     pullPolicy: IfNotPresent
   s3BucketName: "memgraph-ha-cluster"
   s3Prefix: "core-dumps"
