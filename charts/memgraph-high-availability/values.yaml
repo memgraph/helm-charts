@@ -321,7 +321,7 @@ userContainers:
   #    command: ["sh", "-c", "echo hi; sleep 10000"]
 
 coreDumpUploader:
-  enabled: true
+  enabled: false
   image:
     repository: amazon/aws-cli
     tag: latest
