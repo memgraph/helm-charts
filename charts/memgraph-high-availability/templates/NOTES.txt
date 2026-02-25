@@ -1,3 +1,22 @@
 Thank you for installing the Memgraph High-availability cluster (Enterprise)! 🎉
 
 You can find information about installing this chart on Memgraph docs https://memgraph.com/docs/getting-started/install-memgraph/kubernetes.
+
+## Debugging with GDB
+
+To attach GDB to a running Memgraph instance without restarting the pod:
+
+  ./scripts/debug-memgraph.sh <pod-name> [-n <namespace>]
+
+Example:
+  ./scripts/debug-memgraph.sh memgraph-data-0-0
+  ./scripts/debug-memgraph.sh memgraph-coordinator-1-0 -n my-namespace
+
+Or manually (create a custom profile to override the pod's non-root securityContext):
+  echo '{"securityContext":{"runAsUser":0,"runAsGroup":0,"runAsNonRoot":false}}' > /tmp/debug-profile.json
+  kubectl debug -it <pod> --image=ubuntu:22.04 --target=memgraph-data \
+    --profile=sysadmin --custom=/tmp/debug-profile.json -- bash
+  # Inside: apt-get update && apt-get install -y gdb procps
+  # Then:   gdb -p $(pgrep -x memgraph) -ex continue
+
+Requires: kubectl 1.32+, Kubernetes 1.25+, cluster must allow privileged ephemeral containers.
