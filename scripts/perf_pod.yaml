@@ -16,4 +16,3 @@ spec:
   hostPID: true
   nodeName: <node-where-your-pod-is-deployed>
   restartPolicy: Never
-
