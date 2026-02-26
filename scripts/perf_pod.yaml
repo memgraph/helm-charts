@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug
+spec:
+  containers:
+  - args:
+    - "3600"
+    command:
+    - sleep
+    image: ubuntu:22.04
+    name: debug
+    imagePullPolicy: Always
+    securityContext:
+      privileged: true
+  hostPID: true
+  nodeName: <node-where-your-pod-is-deployed>
+  restartPolicy: Never
+
