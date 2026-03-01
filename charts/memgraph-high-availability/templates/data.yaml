@@ -194,7 +194,7 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       {{- with $.Values.userContainers.data }}
-      {{- toYaml . | nindent 6 }}
+      {{- tpl (toYaml .) (dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "Template" $.Template "data" $data) | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
