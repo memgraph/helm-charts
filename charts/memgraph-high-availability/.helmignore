@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+# Infrastructure provisioning
+aks/
+minikube/

@@ -111,7 +111,7 @@ spec:
 
       {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
       - name: init-core-dumps
-        image: busybox
+        image: docker.io/library/busybox:latest
         command: ['/bin/sh', '-c']
         args:
           - >
@@ -168,6 +168,10 @@ spec:
           - name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.coordinators.coreDumpsMountPath }}
           {{- end }}
+          {{- with $.Values.storage.coordinators.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -184,8 +188,16 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if and $.Values.coreDumpUploader.enabled $.Values.storage.coordinators.createCoreDumpsClaim }}
+      {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "memgraph-coordinator-%s-core-dumps-storage" $coordinator.id) "mountPath" $.Values.storage.coordinators.coreDumpsMountPath "values" $.Values.coreDumpUploader) | nindent 6 }}
+      {{- end }}
       {{- with $.Values.userContainers.coordinators }}
       {{- tpl (toYaml .) (dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "Template" $.Template "coordinator" $coordinator) | nindent 6 }}
+      {{- end }}
+
+      {{- if $.Values.storage.coordinators.extraVolumes }}
+      volumes:
+      {{- toYaml $.Values.storage.coordinators.extraVolumes | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:

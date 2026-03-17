@@ -102,3 +102,78 @@ startupProbe:
   timeoutSeconds: {{ .timeoutSeconds }}
   periodSeconds: {{ .periodSeconds }}
 {{- end }}
+
+
+{{/*
+Core dump uploader sidecar container.
+Expects a dict with keys: volumeName, mountPath, values (coreDumpUploader values block).
+*/}}
+{{- define "memgraph.coreDumpUploader" -}}
+- name: core-dump-uploader
+  image: "{{ .values.image.repository }}:{{ .values.image.tag }}"
+  imagePullPolicy: {{ .values.image.pullPolicy }}
+  command: ["/bin/sh", "-c"]
+  args:
+    - |
+      WATCH_DIR="$WATCH_DIR"
+      UPLOADED="/tmp/uploaded_files"
+      touch "$UPLOADED"
+      echo "Core dump uploader started. Watching $WATCH_DIR every ${POLL_INTERVAL}s."
+      while true; do
+        for f in "$WATCH_DIR"/core.*; do
+          [ -e "$f" ] || continue
+          fname=$(basename "$f")
+          if grep -qxF "$fname" "$UPLOADED"; then
+            continue
+          fi
+          echo "New core dump detected: $fname. Waiting 5s for write to complete..."
+          sleep 5
+          echo "Uploading $fname to s3://${S3_BUCKET}/${S3_PREFIX}/${HOSTNAME}/${fname}"
+          aws s3 cp "$f" "s3://${S3_BUCKET}/${S3_PREFIX}/${HOSTNAME}/${fname}" --region "$AWS_REGION"
+          if [ $? -eq 0 ]; then
+            echo "$fname" >> "$UPLOADED"
+            echo "Upload complete: $fname"
+          else
+            echo "Upload failed: $fname. Will retry next cycle."
+          fi
+        done
+        sleep "$POLL_INTERVAL"
+      done
+  env:
+    - name: WATCH_DIR
+      value: {{ .mountPath | quote }}
+    - name: S3_BUCKET
+      value: {{ .values.s3BucketName | quote }}
+    - name: S3_PREFIX
+      value: {{ .values.s3Prefix | quote }}
+    - name: AWS_REGION
+      value: {{ .values.awsRegion | quote }}
+    - name: POLL_INTERVAL
+      value: {{ .values.pollIntervalSeconds | quote }}
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: {{ .values.secretName }}
+          key: {{ .values.accessKeySecretKey }}
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .values.secretName }}
+          key: {{ .values.secretAccessKeySecretKey }}
+  volumeMounts:
+    - name: {{ .volumeName }}
+      mountPath: {{ .mountPath }}
+      readOnly: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  {{- with .values.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

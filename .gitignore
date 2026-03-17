@@ -1,3 +1,5 @@
+.claude/
+CLAUDE.md
 .DS_store
 docker/
 *.tgz
@@ -8,3 +10,10 @@ docker/
 Thumbs.db
 charts/memgraph-high-availability/charts/
 .vscode/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl

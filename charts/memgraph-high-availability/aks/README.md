@@ -3,27 +3,115 @@
 This guide instructs users on how to deploy Memgraph HA to Azure AKS. It serves only as a starting point and there are many ways possible to extend
 what is currently here. In this setup each Memgraph database is deployed to separate, `Standard_A2_v2`.
 
-## Installing tools
+## Prerequisites
 
 You will need:
 - [azure-cli](https://learn.microsoft.com/en-us/cli/azure/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [helm](https://helm.sh/docs/intro/install/)
+- [terraform](https://developer.hashicorp.com/terraform/install) (for automated setup)
 
-We used `azure-cli 2.67.0, kubectl v1.30.0 and helm 3.14.4`.
+We used `azure-cli 2.67.0, kubectl v1.30.0, helm 3.14.4, and terraform >= 1.5.0`.
 
-## Login with Azure-CLI
+## Automated setup with Terraform
+
+The `aks/` directory contains Terraform configuration that automates the full setup:
+resource group, AKS cluster (5 nodes), node labeling, and Helm chart installation.
+
+### Quick start
+
+```bash
+az login
+cd charts/memgraph-high-availability/aks
+
+terraform init
+terraform apply -var="subscription_id=<your-azure-subscription-id>"
+```
+
+Terraform will prompt for confirmation. Type `yes` to proceed, or use `-auto-approve` to skip.
+
+### Configuration
+
+All defaults can be overridden via variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `subscription_id` | (required) | Azure subscription ID |
+| `resource_group_name` | `MG_RG` | Resource group name |
+| `location` | `westeurope` | Azure region |
+| `cluster_name` | `memgraph-ha` | AKS cluster name |
+| `node_count` | `5` | Number of AKS nodes |
+| `node_vm_size` | `Standard_A2_v2` | VM size for nodes |
+| `values_file` | `values-aks.yaml` | Helm values file (relative to `aks/` directory) |
+
+Example with custom values:
+
+```bash
+terraform apply \
+  -var="subscription_id=<sub-id>" \
+  -var="location=northeurope" \
+  -var="node_vm_size=Standard_D2_v2" \
+  -var="values_file=my-custom-values.yaml"
+```
+
+### What Terraform creates
+
+1. **Resource group** (`MG_RG`) in the specified Azure region
+2. **AKS cluster** (`memgraph-ha`) with 5 nodes using SystemAssigned identity
+3. **Node labels** via `label_nodes.sh` — first 3 nodes labeled `role=coordinator-node`, last 2 labeled `role=data-node`
+4. **Helm release** (`memgraph-db`) installing the HA chart with `values-aks.yaml`
+
+### Connecting to the cluster after Terraform apply
+
+Terraform automatically configures kubectl. You can also re-fetch credentials with:
+
+```bash
+az aks get-credentials --resource-group MG_RG --name memgraph-ha --overwrite-existing
+```
+
+Verify the deployment:
+
+```bash
+kubectl get pods -o wide
+kubectl get svc -o wide
+```
+
+### Tear down
+
+```bash
+terraform destroy -var="subscription_id=<your-azure-subscription-id>"
+```
+
+This removes the Helm release, AKS cluster, and resource group.
+
+### Troubleshooting
+
+- **Resource provider registration error**: The Terraform config sets `resource_provider_registrations = "none"`. If you get errors about unregistered providers, register them manually:
+  ```bash
+  az provider register --namespace Microsoft.ContainerService
+  az provider register --namespace Microsoft.Network
+  az provider register --namespace Microsoft.Compute
+  ```
+- **Terraform state**: `.terraform/`, `*.tfstate`, and `*.tfplan` files are gitignored. Do not commit them.
+
+---
+
+## Manual setup
+
+If you prefer to set up the cluster manually without Terraform, follow the steps below.
+
+### Login with Azure-CLI
 
 Use `az login` and enter your authentication details.
 
-## Create resource group
+### Create resource group
 
 The next step involves creating resource group which will later be attached to Kubernetes cluster. Example:
 ```
 az group create --name ResourceGroup2 --location northeurope
 ```
 
-## Provision K8 nodes
+### Provision K8 nodes
 
 After creating resource group, K8 nodes can be created and attached to the previously created resource group. There are many other options
 you can use but we will cover here the simplest deployment scenario in which will we use 5 'Standard_A2_v2' instances where each instance will
@@ -33,14 +121,14 @@ host its own Memgraph database.
 az aks create --resource-group ResourceGroup2 --name memgraph-ha --node-count 5 --node-vm-size Standard_A2_v2 --generate-ssh-keys
 ```
 
-## Configure kubectl
+### Configure kubectl
 
 To get remote context from Azure AKS into your local kubectl, use:
 ```
 az aks get-credentials --resource-group ResourceGroup2 --name memgraph-ha
 ```
 
-## Label nodes
+### Label nodes
 
 By running `kubectl get nodes -o=wide`, you should be able to see your nodes. Example:
 
@@ -64,6 +152,8 @@ kubectl label nodes aks-nodepool1-65392319-vmss000004 role=data-node
 ```
 
 In the following chapters, we will go over several most common deployment types:
+
+---
 
 ## Service type = IngressNginx
 
@@ -259,7 +349,7 @@ spec:
   - operator: "Exists"
   containers:
   - name: debug-container
-    image: busybox
+    image: docker.io/library/busybox:latest
     command: [ "/bin/sh", "-c", "--" ]
     args: [ "while true; do sleep 30; done;" ]
     volumeMounts:

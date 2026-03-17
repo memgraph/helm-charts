@@ -2,12 +2,12 @@ image:
   repository: docker.io/memgraph/memgraph
   # It is a bad practice to set the image tag name to 'latest' as it can trigger automatic upgrade of the charts
   # With some of the pullPolicy values. Please consider fixing the tag to a specific Memgraph version
-  tag: 3.8.1
+  tag: 3.8.0-relwithdebinfo
   pullPolicy: IfNotPresent
 
 env:
-  MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
-  MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
+  MEMGRAPH_ENTERPRISE_LICENSE: ""
+  MEMGRAPH_ORGANIZATION_NAME: ""
 
 storage:
   data:
@@ -147,7 +147,7 @@ labels:
 
 container:
   data:
-    terminationGracePeriodSeconds: 1800
+    terminationGracePeriodSeconds: 10
     readinessProbe:
       tcpSocket:
         port: 7687 # If you change bolt port, change this also
@@ -252,6 +252,7 @@ data:
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
       - "--storage-snapshot-on-exit=false"
+      - "--schema-info-enabled=true"
 
   - id: "1"
     restoreDataFromSnapshot: false
@@ -264,6 +265,8 @@ data:
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
       - "--storage-snapshot-on-exit=false"
+      - "--schema-info-enabled=true"
+
 
 coordinators:
   - id: "1"
@@ -310,6 +313,7 @@ coordinators:
       - "--log-file=/var/log/memgraph/memgraph.log"
       - "--data-directory=/var/lib/memgraph/mg_data"
       - "--storage-snapshot-on-exit=false"
+
 
 userContainers:
   data: []
