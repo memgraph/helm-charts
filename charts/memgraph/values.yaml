@@ -1,5 +1,5 @@
 image:
-  repository: memgraph/memgraph
+  repository: docker.io/memgraph/memgraph
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
   # It is a bad practice to set the image tag name to latest as it can trigger automatic upgrade of the charts
   # With some of the pullPolicy values. Please consider fixing the tag to a specific Memgraph version
@@ -240,7 +240,7 @@ sysctlInitContainer:
   enabled: true
   maxMapCount: 262144
   image:
-    repository: library/busybox
+    repository: docker.io/library/busybox
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -261,7 +261,7 @@ prometheus:
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
-    repository: memgraph/prometheus-exporter
+    repository: docker.io/memgraph/prometheus-exporter
     tag: 0.2.1
   serviceMonitor:
     enabled: true

@@ -120,7 +120,7 @@ spec:
 
       {{- if $.Values.storage.data.createCoreDumpsClaim }}
       - name: init-core-dumps
-        image: busybox
+        image: docker.io/library/busybox:latest
         command: ['/bin/sh', '-c']
         args:
           - >

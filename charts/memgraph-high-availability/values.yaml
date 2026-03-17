@@ -1,5 +1,5 @@
 image:
-  repository: memgraph/memgraph
+  repository: docker.io/memgraph/memgraph
   # It is a bad practice to set the image tag name to 'latest' as it can trigger automatic upgrade of the charts
   # With some of the pullPolicy values. Please consider fixing the tag to a specific Memgraph version
   tag: 3.8.1
@@ -120,7 +120,7 @@ sysctlInitContainer:
   enabled: true
   maxMapCount: 262144
   image:
-    repository: library/busybox
+    repository: docker.io/library/busybox
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -201,7 +201,7 @@ prometheus:
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
-    repository: memgraph/prometheus-exporter
+    repository: docker.io/memgraph/prometheus-exporter
     tag: 0.2.1
   serviceMonitor:
     enabled: true
@@ -317,7 +317,7 @@ userContainers:
   # Example:
   # coordinators:
   #  - name: my-debugger
-  #    image: busybox
+  #    image: docker.io/library/busybox:latest
   #    command: ["sh", "-c", "echo hi; sleep 10000"]
 
 coreDumpUploader:

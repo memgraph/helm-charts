@@ -349,7 +349,7 @@ spec:
   - operator: "Exists"
   containers:
   - name: debug-container
-    image: busybox
+    image: docker.io/library/busybox:latest
     command: [ "/bin/sh", "-c", "--" ]
     args: [ "while true; do sleep 30; done;" ]
     volumeMounts:
