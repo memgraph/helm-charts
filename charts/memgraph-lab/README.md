@@ -24,7 +24,7 @@ The following table lists the configurable parameters of the Memgraph Lab chart 
 
 | Parameter                    | Description                                                                                             | Default                                |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `image.repository`           | Memgraph Lab Docker image repository                                                                    | `memgraph/memgraph-lab`                |
+| `image.repository`           | Memgraph Lab Docker image repository                                                                    | `docker.io/memgraph/lab`               |
 | `image.tag`                  | Specific tag for the Memgraph Lab Docker image. Overrides the image tag whose default is chart version. | `""` (Defaults to chart's app version) |
 | `image.pullPolicy`           | Image pull policy                                                                                       | `IfNotPresent`                         |
 | `replicaCount`               | Number of Memgraph Lab instances to run.                                                                | `1`                                    |

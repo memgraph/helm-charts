@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: wget
-      image: busybox
+      image: docker.io/library/busybox:latest
       command: ['wget']
       args: ['{{ include "memgraph-lab.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
