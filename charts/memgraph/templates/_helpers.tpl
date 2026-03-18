@@ -116,3 +116,72 @@ startupProbe:
   periodSeconds: {{ .periodSeconds }}
   initialDelaySeconds: {{ .initialDelaySeconds }}
 {{- end }}
+
+{{- define "memgraph.vector.script" -}}
+cat > /tmp/vector.yaml << VECEOF
+data_dir: /tmp/vector-data
+
+sources:
+  memgraph_logs:
+    type: websocket
+    uri: "ws://{{ "$" }}{{ "{POD_IP}" }}:{{ .Values.service.websocketPortMonitoring }}"
+
+transforms:
+  enrich:
+    type: remap
+    inputs: [memgraph_logs]
+    source: |
+      if exists(.message) && is_string(.message) {
+        parsed, err = parse_json(.message)
+        if err == null && is_object(parsed) {
+          . = merge!(., parsed)
+        }
+      }
+      if !exists(._msg) {
+        if exists(.message) {
+          ._msg = to_string!(.message)
+        } else if exists(.msg) {
+          ._msg = to_string!(.msg)
+        } else if exists(.log) {
+          ._msg = to_string!(.log)
+        } else {
+          ._msg = encode_json(.)
+        }
+      }
+      .message = ._msg
+      .app = "memgraph"
+      .job = "memgraph"
+      .role = get_env_var!("ROLE")
+      .namespace = get_env_var!("POD_NAMESPACE")
+      .pod = get_env_var!("POD_NAME")
+      .cluster_id = get_env_var!("CLUSTER_ID")
+      .service_name = get_env_var!("SERVICE_NAME")
+      .cluster_env = get_env_var!("CLUSTER_ENV")
+
+sinks:
+  logs:
+    type: loki
+    inputs: [enrich]
+    endpoint: "{{ .Values.vectorRemote.logsEndpoint }}"
+    healthcheck:
+      enabled: false
+    auth:
+      strategy: basic
+      user: "{{ "$" }}{{ "{MONITORING_USERNAME}" }}"
+      password: "{{ "$" }}{{ "{MONITORING_PASSWORD}" }}"
+    encoding:
+      codec: text
+    labels:
+      app: "{{ "{{ app }}" }}"
+      job: "{{ "{{ job }}" }}"
+      role: "{{ "{{ role }}" }}"
+      namespace: "{{ "{{ namespace }}" }}"
+      pod: "{{ "{{ pod }}" }}"
+      cluster_id: "{{ "{{ cluster_id }}" }}"
+      service_name: "{{ "{{ service_name }}" }}"
+      cluster_env: "{{ "{{ cluster_env }}" }}"
+    remove_label_fields: true
+VECEOF
+mkdir -p /tmp/vector-data
+exec vector -c /tmp/vector.yaml
+{{- end }}

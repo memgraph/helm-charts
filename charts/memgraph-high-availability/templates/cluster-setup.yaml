@@ -12,7 +12,11 @@ metadata:
   name: cluster-setup
   annotations:
     "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
 spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 600
   template:
     spec:
       restartPolicy: Never
@@ -30,7 +34,7 @@ spec:
               wait_for_service() {
                 local host=$1
                 local port=$2
-                local max_attempts=60
+                local max_attempts=120
                 local attempt=0
 
                 while [ $attempt -lt $max_attempts ]; do
@@ -59,22 +63,45 @@ spec:
               wait_for_service "memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local" {{ $.Values.ports.boltPort }}
               {{- end }}
 
-              # Check if instances are already registered
+              # Check if instances are already registered (ignore mgconsole errors; treat as 0 instances)
+              set +e
               INSTANCE_COUNT=$(echo "SHOW INSTANCES;" | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.cluster.local --port {{$.Values.ports.boltPort }} --output-format=csv 2>/dev/null | tail -n +2 | wc -l)
+              set -e
+              INSTANCE_COUNT=${INSTANCE_COUNT:-0}
               if [ "$INSTANCE_COUNT" -gt 1 ]; then
                 echo "✅ Cluster already configured with $INSTANCE_COUNT instances. Skipping registration."
                 exit 0
               fi
+              echo "Configuring cluster (instance count: $INSTANCE_COUNT)..."
 
-              # Add all coordinators
-              {{- range .Values.coordinators }}
-              echo 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.coordinatorPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace}}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              # Give Bolt a moment to be ready for setup commands after TCP is open
+              sleep 5
+
+              # Add the *other* coordinators only (we're connected to the first; it becomes leader automatically)
+              {{- range $idx, $c := .Values.coordinators }}
+              {{- if ne $idx 0 }}
+              echo ">>> Adding coordinator {{ $c.id }}..."
+              if ! echo 'ADD COORDINATOR {{ $c.id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ $c.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ $c.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ $c.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.coordinatorPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }} 2>&1; then
+                echo ">>> FAILED adding coordinator {{ $c.id }}" >&2
+                exit 1
+              fi
+              {{- end }}
               {{- end }}
 
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
-              echo 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.replicationPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              echo ">>> Registering instance_{{ add $index 1 }}..."
+              if ! echo 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.replicationPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }} 2>&1; then
+                echo ">>> FAILED registering instance_{{ add $index 1 }}" >&2
+                exit 1
+              fi
               {{- end }}
 
               # Set first data instance as MAIN
-              echo 'SET INSTANCE instance_1 TO MAIN;' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              echo ">>> Setting instance_1 to MAIN..."
+              if ! echo 'SET INSTANCE instance_1 TO MAIN;' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }} 2>&1; then
+                echo ">>> FAILED SET INSTANCE instance_1 TO MAIN" >&2
+                exit 1
+              fi
+
+              echo "✅ Cluster setup complete."

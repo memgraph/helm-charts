@@ -208,6 +208,47 @@ prometheus:
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
 
+## Optional: vmagent for remote monitoring cluster – scrapes the Prometheus exporter and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
+## Requires prometheus.enabled so that mg-exporter is deployed.
+vmagentRemote:
+  enabled: false
+  namespace: ""  # Defaults to prometheus.namespace when empty
+  image:
+    repository: victoriametrics/vmagent
+    tag: latest
+    pullPolicy: IfNotPresent
+  remoteWrite:
+    url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
+    basicAuth:
+      secretName: ""
+      usernameKey: username
+      passwordKey: password
+  scrapeInterval: 15s
+  externalLabels: {}
+  resources: {}
+  httpPort: 8429
+
+## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
+## Add to data and/or coordinator pods. Memgraph must expose the log websocket (e.g. port 7444) in the instance args.
+vectorRemote:
+  enabled: false
+  # Add Vector sidecar to data instance pods
+  data: true
+  # Add Vector sidecar to coordinator pods
+  coordinators: true
+  websocketPort: 7444  # Memgraph log websocket port (must match instance args)
+  image:
+    repository: timberio/vector
+    tag: 0.49.0-debian
+    pullPolicy: IfNotPresent
+  logsEndpoint: ""
+  auth:
+    secretName: ""
+    usernameKey: username
+    passwordKey: password
+  extraLabels: {}  # e.g. cluster_id, service_name, cluster_env; role is set per pod type (data/coordinator)
+  resources: {}
+
 extraEnv:
   data: []
   # Example

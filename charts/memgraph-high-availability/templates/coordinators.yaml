@@ -135,9 +135,21 @@ spec:
         - containerPort: {{ $.Values.ports.boltPort }}
         - containerPort: {{ $.Values.ports.managementPort }}
         - containerPort: {{ $.Values.ports.coordinatorPort }}
+        {{- if $.Values.vectorRemote.enabled }}
+        - containerPort: {{ $.Values.vectorRemote.websocketPort }}
+          name: monitoring
+        {{- end }}
         args:
         {{- range $arg := $coordinator.args }}
+        {{- if hasPrefix "--coordinator-hostname=" $arg }}
+        - "--coordinator-hostname=memgraph-coordinator-{{ $coordinator.id }}.{{ $.Release.Namespace }}.svc.cluster.local"
+        {{- else }}
         - "{{ $arg }}"
+        {{- end }}
+        {{- end }}
+        {{- if $.Values.vectorRemote.enabled }}
+        - "--monitoring-port={{ $.Values.vectorRemote.websocketPort }}"
+        - "--monitoring-address=0.0.0.0"
         {{- end }}
         env:
           {{- if $.Values.secrets.enabled }}
@@ -190,6 +202,9 @@ spec:
         {{- end }}
       {{- if and $.Values.coreDumpUploader.enabled $.Values.storage.coordinators.createCoreDumpsClaim }}
       {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "memgraph-coordinator-%s-core-dumps-storage" $coordinator.id) "mountPath" $.Values.storage.coordinators.coreDumpsMountPath "values" $.Values.coreDumpUploader) | nindent 6 }}
+      {{- end }}
+      {{- if and $.Values.vectorRemote.enabled $.Values.vectorRemote.coordinators }}
+      {{- include "memgraph.vectorSidecar" (dict "ctx" $ "role" "coordinator") | nindent 6 }}
       {{- end }}
       {{- with $.Values.userContainers.coordinators }}
       {{- tpl (toYaml .) (dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "Template" $.Template "coordinator" $coordinator) | nindent 6 }}

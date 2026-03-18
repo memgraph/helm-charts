@@ -177,3 +177,121 @@ Expects a dict with keys: volumeName, mountPath, values (coreDumpUploader values
     {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}
+
+{{/*
+Vector sidecar for log export (VictoriaLogs/Loki).
+Expects dict with: ctx (root context), role ("data" or "coordinator").
+*/}}
+{{- define "memgraph.vectorSidecar" -}}
+{{- $v := .ctx.Values.vectorRemote }}
+- name: memgraph-vector
+  image: "{{ $v.image.repository }}:{{ $v.image.tag }}"
+  imagePullPolicy: {{ $v.image.pullPolicy }}
+  command: ["/bin/sh", "-ec"]
+  args:
+    - |
+      # Wait for Memgraph to open the log websocket so Vector does not exit with "Connection refused"
+      echo "Waiting for Memgraph monitoring port {{ $v.websocketPort }}..."
+      sleep 25
+      cat > /tmp/vector.yaml << VECEOF
+      data_dir: /tmp/vector-data
+
+      sources:
+        memgraph_logs:
+          type: websocket
+          uri: "ws://{{ "$" }}{{ "{POD_IP}" }}:{{ $v.websocketPort }}"
+
+      transforms:
+        enrich:
+          type: remap
+          inputs: [memgraph_logs]
+          source: |
+            if exists(.message) && is_string(.message) {
+              parsed, err = parse_json(.message)
+              if err == null && is_object(parsed) {
+                . = merge!(., parsed)
+              }
+            }
+            if !exists(._msg) {
+              if exists(.message) {
+                ._msg = to_string!(.message)
+              } else if exists(.msg) {
+                ._msg = to_string!(.msg)
+              } else if exists(.log) {
+                ._msg = to_string!(.log)
+              } else {
+                ._msg = encode_json(.)
+              }
+            }
+            .message = ._msg
+            .app = "memgraph"
+            .job = "memgraph"
+            .role = get_env_var!("ROLE")
+            .namespace = get_env_var!("POD_NAMESPACE")
+            .pod = get_env_var!("POD_NAME")
+            .cluster_id = get_env_var!("CLUSTER_ID")
+            .service_name = get_env_var!("SERVICE_NAME")
+            .cluster_env = get_env_var!("CLUSTER_ENV")
+
+      sinks:
+        logs:
+          type: loki
+          inputs: [enrich]
+          endpoint: "{{ $v.logsEndpoint }}"
+          healthcheck:
+            enabled: false
+          auth:
+            strategy: basic
+            user: "{{ "$" }}{{ "{MONITORING_USERNAME}" }}"
+            password: "{{ "$" }}{{ "{MONITORING_PASSWORD}" }}"
+          encoding:
+            codec: text
+          labels:
+            app: "{{ "{{ app }}" }}"
+            job: "{{ "{{ job }}" }}"
+            role: "{{ "{{ role }}" }}"
+            namespace: "{{ "{{ namespace }}" }}"
+            pod: "{{ "{{ pod }}" }}"
+            cluster_id: "{{ "{{ cluster_id }}" }}"
+            service_name: "{{ "{{ service_name }}" }}"
+            cluster_env: "{{ "{{ cluster_env }}" }}"
+          remove_label_fields: true
+      VECEOF
+      mkdir -p /tmp/vector-data
+      exec vector -c /tmp/vector.yaml
+  env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    - name: MONITORING_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: {{ $v.auth.secretName }}
+          key: {{ $v.auth.usernameKey }}
+    - name: MONITORING_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ $v.auth.secretName }}
+          key: {{ $v.auth.passwordKey }}
+    - name: ROLE
+      value: {{ .role | quote }}
+    - name: CLUSTER_ID
+      value: {{ $v.extraLabels.cluster_id | default "" | quote }}
+    - name: SERVICE_NAME
+      value: {{ $v.extraLabels.service_name | default "" | quote }}
+    - name: CLUSTER_ENV
+      value: {{ $v.extraLabels.cluster_env | default "" | quote }}
+  {{- with $v.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
