@@ -45,10 +45,32 @@ service:
   # HTTP Monitoring
   enableHttpMonitoring: false
   httpPortMonitoring: 9091
+
   annotations: {}
   labels: {}
 
-  # Additional Service configuration
+# Creates an additional Service for applications outside the Kubernetes cluster that need access to Memgraph
+loadBalancerService:
+  enabled: false
+
+  type: LoadBalancer
+
+  # Bolt Port
+  enableBolt: true
+  boltPort: 7687  # NOTE: Make sure to change port in probes if you change this value.
+
+  # Websocket Monitoring
+  enableWebsocketMonitoring: false
+  websocketPortMonitoring: 7444
+
+  # HTTP Monitoring
+  enableHttpMonitoring: false
+  httpPortMonitoring: 9091
+
+  annotations: {}
+  labels: {}
+
+  # Additional configuration
   externalTrafficPolicy: null
   ipFamilyPolicy: null
   ipFamilies: null
