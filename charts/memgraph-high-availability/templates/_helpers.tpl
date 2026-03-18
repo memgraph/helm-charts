@@ -203,12 +203,27 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
           type: remap
           inputs: [memgraph_logs]
           source: |
+            normalized_level = ""
             if exists(.message) && is_string(.message) {
               parsed, err = parse_json(.message)
               if err == null && is_object(parsed) {
                 . = merge!(., parsed)
               }
             }
+            if exists(.level) {
+              normalized_level = downcase(to_string!(.level))
+            } else if exists(.severity) {
+              normalized_level = downcase(to_string!(.severity))
+            }
+            if normalized_level == "warning" {
+              normalized_level = "warn"
+            } else if normalized_level == "critical" {
+              normalized_level = "fatal"
+            }
+            if normalized_level == "" {
+              normalized_level = "unknown"
+            }
+            .level = normalized_level
             if !exists(._msg) {
               if exists(.message) {
                 ._msg = to_string!(.message)
@@ -249,6 +264,7 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
             role: "{{ "{{ role }}" }}"
             namespace: "{{ "{{ namespace }}" }}"
             pod: "{{ "{{ pod }}" }}"
+            level: "{{ "{{ level }}" }}"
             cluster_id: "{{ "{{ cluster_id }}" }}"
             service_name: "{{ "{{ service_name }}" }}"
             cluster_env: "{{ "{{ cluster_env }}" }}"
