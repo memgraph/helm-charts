@@ -42,7 +42,10 @@ spec:
   ipFamilies: {{ .Values.loadBalancerService.ipFamilies }}
   {{- end }}
   {{- if .Values.loadBalancerService.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges: {{ .Values.loadBalancerService.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range .Values.loadBalancerService.loadBalancerSourceRanges }}
+    - {{ . }}
+  {{- end }}
   {{- end }}
   selector:
     {{- include "memgraph.selectorLabels" . | nindent 4 }}
