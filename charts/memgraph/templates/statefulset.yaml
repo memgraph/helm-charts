@@ -175,17 +175,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if and .Values.affinity.nodeKey .Values.affinity.nodeValue }}
+      {{- with .Values.nodeAffinity }}
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: {{ .Values.affinity.nodeKey }}
-                    operator: In
-                    values:
-                      - {{ .Values.affinity.nodeValue }}
+          {{- toYaml . | nindent 10 }}
       {{- end }}
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}
