@@ -118,6 +118,8 @@ startupProbe:
 {{- end }}
 
 {{- define "memgraph.vector.script" -}}
+# Give Memgraph time to open the log websocket (avoids "Connection refused" on startup)
+sleep 15
 cat > /tmp/vector.yaml << VECEOF
 data_dir: /tmp/vector-data
 

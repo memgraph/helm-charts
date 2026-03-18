@@ -94,6 +94,10 @@ spec:
           {{- if not .Values.persistentVolumeClaim.createLogStorage }}
           - "--log-file="
           {{- end }}
+          {{- if or .Values.vectorRemote.enabled .Values.service.enableWebsocketMonitoring }}
+          - "--monitoring-port={{ .Values.service.websocketPortMonitoring }}"
+          - "--monitoring-address=0.0.0.0"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: bolt
