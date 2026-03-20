@@ -104,23 +104,23 @@ spec:
                     return 0
                   fi
 
+                  local output_lc="${output,,}"
+
                   # Retry-safe handling for partially applied hook runs.
-                  if echo "$output" | grep -Eqi "already exists|already set|already a main|is already main"; then
+                  if [[ "$output_lc" == *"already exists"* ]] || \
+                     [[ "$output_lc" == *"already set"* ]] || \
+                     [[ "$output_lc" == *"already a main"* ]] || \
+                     [[ "$output_lc" == *"is already main"* ]]; then
                     echo "ℹ️ ${step} already applied; continuing"
                     return 0
                   fi
 
-                  # Transient bootstrap/election errors are expected while the cluster converges.
-                  if echo "$output" | grep -Eqi "leader|raft|temporar|try again|timeout|connection|refused|not ready"; then
-                    attempt=$((attempt+1))
-                    echo "⏳ ${step} not ready yet (attempt ${attempt}/${max_attempts})"
-                    sleep 5
-                    continue
-                  fi
+                  attempt=$((attempt+1))
 
-                  echo "❌ ${step} failed with non-retryable error:"
+                  # Keep retrying by default, because coordinator/bootstrap timing is noisy in CI.
+                  echo "⏳ ${step} failed (attempt ${attempt}/${max_attempts}); retrying"
                   echo "$output"
-                  return 1
+                  sleep 5
                 done
 
                 echo "❌ ${step} failed after ${max_attempts} attempts"
