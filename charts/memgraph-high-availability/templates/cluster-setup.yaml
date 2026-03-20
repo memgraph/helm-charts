@@ -22,7 +22,7 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
-              set -e  # Exit on error
+              set -Eeuo pipefail
 
               echo "Waiting for Memgraph coordinators to be ready..."
 
@@ -59,22 +59,85 @@ spec:
               wait_for_service "memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local" {{ $.Values.ports.boltPort }}
               {{- end }}
 
-              # Check if instances are already registered
-              INSTANCE_COUNT=$(echo "SHOW INSTANCES;" | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.cluster.local --port {{$.Values.ports.boltPort }} --output-format=csv 2>/dev/null | tail -n +2 | wc -l)
-              if [ "$INSTANCE_COUNT" -gt 1 ]; then
-                echo "✅ Cluster already configured with $INSTANCE_COUNT instances. Skipping registration."
-                exit 0
-              fi
+              PRIMARY_COORD_HOST="memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.cluster.local"
+              PRIMARY_COORD_PORT="{{ $.Values.ports.boltPort }}"
+
+              run_mgconsole() {
+                local query="$1"
+                echo "$query" | mgconsole {{ $useSSL }} --host "$PRIMARY_COORD_HOST" --port "$PRIMARY_COORD_PORT" 2>&1
+              }
+
+              wait_for_query_readiness() {
+                local max_attempts=60
+                local attempt=0
+
+                while [ $attempt -lt $max_attempts ]; do
+                  echo "Checking coordinator query readiness (attempt $((attempt+1))/$max_attempts)"
+                  if run_mgconsole "SHOW INSTANCES;" >/dev/null; then
+                    echo "✅ Coordinator query path is ready"
+                    return 0
+                  fi
+
+                  attempt=$((attempt+1))
+                  sleep 5
+                done
+
+                echo "❌ Timeout waiting for coordinator query readiness"
+                return 1
+              }
+
+              run_ddl_with_retries() {
+                local step="$1"
+                local query="$2"
+                local max_attempts=20
+                local attempt=0
+
+                while [ $attempt -lt $max_attempts ]; do
+                  set +e
+                  local output
+                  output="$(run_mgconsole "$query")"
+                  local status=$?
+                  set -e
+
+                  if [ "$status" -eq 0 ]; then
+                    echo "✅ ${step} succeeded"
+                    return 0
+                  fi
+
+                  # Retry-safe handling for partially applied hook runs.
+                  if echo "$output" | grep -Eqi "already exists|already set|already a main|is already main"; then
+                    echo "ℹ️ ${step} already applied; continuing"
+                    return 0
+                  fi
+
+                  # Transient bootstrap/election errors are expected while the cluster converges.
+                  if echo "$output" | grep -Eqi "leader|raft|temporar|try again|timeout|connection|refused|not ready"; then
+                    attempt=$((attempt+1))
+                    echo "⏳ ${step} not ready yet (attempt ${attempt}/${max_attempts})"
+                    sleep 5
+                    continue
+                  fi
+
+                  echo "❌ ${step} failed with non-retryable error:"
+                  echo "$output"
+                  return 1
+                done
+
+                echo "❌ ${step} failed after ${max_attempts} attempts"
+                return 1
+              }
+
+              wait_for_query_readiness
 
               # Add all coordinators
               {{- range .Values.coordinators }}
-              echo 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.coordinatorPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace}}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.coordinatorPort }}"};'
               {{- end }}
 
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
-              echo 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.replicationPort }}"};' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index $.Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.replicationPort }}"};'
               {{- end }}
 
               # Set first data instance as MAIN
-              echo 'SET INSTANCE instance_1 TO MAIN;' | mgconsole {{ $useSSL }} --host memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ $.Release.Namespace }}.svc.cluster.local --port {{ $.Values.ports.boltPort }}
+              run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
