@@ -187,6 +187,9 @@ spec:
                     values:
                       - {{ .Values.affinity.nodeValue }}
       {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
   volumeClaimTemplates:
   {{- if .Values.persistentVolumeClaim.createStorageClaim }}
     - apiVersion: v1
