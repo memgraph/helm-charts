@@ -141,11 +141,7 @@ spec:
         {{- end }}
         args:
         {{- range $arg := $coordinator.args }}
-        {{- if hasPrefix "--coordinator-hostname=" $arg }}
-        - "--coordinator-hostname=memgraph-coordinator-{{ $coordinator.id }}.{{ $.Release.Namespace }}.svc.cluster.local"
-        {{- else }}
         - "{{ $arg }}"
-        {{- end }}
         {{- end }}
         {{- if $.Values.vectorRemote.enabled }}
         - "--monitoring-port={{ $.Values.vectorRemote.websocketPort }}"

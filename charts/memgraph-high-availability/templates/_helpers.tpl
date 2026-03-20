@@ -190,6 +190,9 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
   command: ["/bin/sh", "-ec"]
   args:
     - |
+      # Wait for Memgraph to open the log websocket so Vector does not exit with connection errors.
+      echo "Waiting for Memgraph monitoring port {{ $v.websocketPort }}..."
+      sleep 25
       cat > /tmp/vector.yaml << VECEOF
       data_dir: /tmp/vector-data
 
