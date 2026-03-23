@@ -13,7 +13,26 @@ imagePullSecrets:
 
 replicaCount: 1
 
+# Configures the `spec.affinity.nodeAffinity` field of the Memgraph Pod
 nodeAffinity: {}
+# See https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/ for more information
+# Example config:
+#  requiredDuringSchedulingIgnoredDuringExecution:
+#    nodeSelectorTerms:
+#      - matchExpressions:
+#          - key: topology.kubernetes.io/zone
+#            operator: In
+#            values:
+#              - antarctica-east1
+#              - antarctica-west1
+#    preferredDuringSchedulingIgnoredDuringExecution:
+#      - weight: 1
+#        preference:
+#          matchExpressions:
+#            - key: my-organization/node-performance
+#              operator: In
+#              values:
+#                - best
 
 nodeSelector: {}
 
