@@ -117,7 +117,7 @@ spec:
 
                   attempt=$((attempt+1))
 
-                  # Keep retrying by default, because coordinator/bootstrap timing is noisy in CI.
+                  # Keep retrying by default
                   echo "⏳ ${step} failed (attempt ${attempt}/${max_attempts}); retrying"
                   echo "$output"
                   sleep 5
