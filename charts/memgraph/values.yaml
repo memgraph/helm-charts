@@ -34,6 +34,10 @@ nodeAffinity: {}
 #              values:
 #                - best
 
+# Priority indicates the importance of a Pod relative to other Pods.
+# More Information: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+priorityClassName: null
+
 nodeSelector: {}
 
 tolerations: []
