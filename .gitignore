@@ -10,6 +10,9 @@ docker/
 Thumbs.db
 charts/memgraph-high-availability/charts/
 .vscode/
+# Jetbrains IDEs
+/.idea
+/.ai/mcp/mcp.json
 
 # Terraform
 .terraform/
