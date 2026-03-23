@@ -1,49 +1,49 @@
-{{- if .Values.loadBalancerService.enabled }}
+{{- if .Values.service.loadBalancer.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "memgraph.fullname" . }}-lb
-  {{- with .Values.loadBalancerService.labels }}
+  {{- with .Values.service.loadBalancer.labels }}
   labels:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.loadBalancerService.annotations }}
+  {{- with .Values.service.loadBalancer.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.loadBalancerService.type }}
+  type: {{ .Values.service.loadBalancer.type }}
   ports:
-    {{- if .Values.loadBalancerService.enableBolt }}
-    - port: {{ .Values.loadBalancerService.boltPort }}
-      targetPort: {{ .Values.loadBalancerService.boltPort }}
+    {{- if .Values.service.loadBalancer.enableBolt }}
+    - port: {{ .Values.service.boltPort }}
+      targetPort: {{ .Values.service.boltPort }}
       protocol: TCP
       name: tcp-bolt-port
     {{- end }}
-    {{- if .Values.loadBalancerService.enableWebsocketMonitoring }}
-    - port: {{ .Values.loadBalancerService.websocketPortMonitoring }}
-      targetPort: {{ .Values.loadBalancerService.websocketPortMonitoring }}
+    {{- if .Values.service.loadBalancer.enableWebsocketMonitoring }}
+    - port: {{ .Values.service.websocketPortMonitoring }}
+      targetPort: {{ .Values.service.websocketPortMonitoring }}
       protocol: TCP
       name: tcp-websocket-monitoring-port
     {{- end }}
-    {{- if .Values.loadBalancerService.enableHttpMonitoring }}
-    - port: {{ .Values.loadBalancerService.httpPortMonitoring }}
-      targetPort: {{ .Values.loadBalancerService.httpPortMonitoring }}
+    {{- if .Values.service.loadBalancer.enableHttpMonitoring }}
+    - port: {{ .Values.service.httpPortMonitoring }}
+      targetPort: {{ .Values.service.httpPortMonitoring }}
       protocol: TCP
       name: http-monitoring-port
     {{- end }}
-  {{- if .Values.loadBalancerService.externalTrafficPolicy }}
-  externalTrafficPolicy: {{ .Values.loadBalancerService.externalTrafficPolicy }}
+  {{- if .Values.service.loadBalancer.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.service.loadBalancer.externalTrafficPolicy }}
   {{- end }}
-  {{- if .Values.loadBalancerService.ipFamilyPolicy }}
-  ipFamilyPolicy: {{ .Values.loadBalancerService.ipFamilyPolicy }}
+  {{- if .Values.service.loadBalancer.ipFamilyPolicy }}
+  ipFamilyPolicy: {{ .Values.service.loadBalancer.ipFamilyPolicy }}
   {{- end }}
-  {{- if .Values.loadBalancerService.ipFamilies }}
-  ipFamilies: {{ .Values.loadBalancerService.ipFamilies }}
+  {{- if .Values.service.loadBalancer.ipFamilies }}
+  ipFamilies: {{ .Values.service.loadBalancer.ipFamilies }}
   {{- end }}
-  {{- if .Values.loadBalancerService.loadBalancerSourceRanges }}
+  {{- if .Values.service.loadBalancer.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-  {{- range .Values.loadBalancerService.loadBalancerSourceRanges }}
+  {{- range .Values.service.loadBalancer.loadBalancerSourceRanges }}
     - {{ . }}
   {{- end }}
   {{- end }}

@@ -51,39 +51,36 @@ service:
 
   annotations: {}
   labels: {}
+  # Creates an additional Service for applications outside the Kubernetes cluster that need access to Memgraph.
+  # Uses the same ports as configured for the main Service
+  loadBalancer:
+    enabled: false
 
-# Creates an additional Service for applications outside the Kubernetes cluster that need access to Memgraph
-loadBalancerService:
-  enabled: false
+    type: LoadBalancer
 
-  type: LoadBalancer
+    # Bolt Port
+    enableBolt: true
 
-  # Bolt Port
-  enableBolt: true
-  boltPort: 7687  # NOTE: Make sure to change port in probes if you change this value.
+    # Websocket Monitoring
+    enableWebsocketMonitoring: false
 
-  # Websocket Monitoring
-  enableWebsocketMonitoring: false
-  websocketPortMonitoring: 7444
+    # HTTP Monitoring
+    enableHttpMonitoring: false
 
-  # HTTP Monitoring
-  enableHttpMonitoring: false
-  httpPortMonitoring: 9091
+    annotations: {}
+    labels: {}
 
-  annotations: {}
-  labels: {}
-
-  # Additional configuration
-  externalTrafficPolicy: null
-  ipFamilyPolicy: null
-  ipFamilies: null
-  # If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs.
-  # This field will be ignored if the cloud-provider does not support the feature.
-  # More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
-  loadBalancerSourceRanges: null
-  # Example value:
-  # - 1.2.3.4/32
-  # - 8.8.8.0/28
+    # Additional configuration
+    externalTrafficPolicy: null
+    ipFamilyPolicy: null
+    ipFamilies: null
+    # If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs.
+    # This field will be ignored if the cloud-provider does not support the feature.
+    # More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
+    loadBalancerSourceRanges: null
+    # Example value:
+    # - 1.2.3.4/32
+    # - 8.8.8.0/28
 
 persistentVolumeClaim:
   ## createStoragePVC `true` will create for each statefulset server a Persistant Volume Claim
