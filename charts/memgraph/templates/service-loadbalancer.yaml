@@ -1,0 +1,52 @@
+{{- if .Values.service.loadBalancer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "memgraph.fullname" . }}-lb
+  {{- with .Values.service.loadBalancer.labels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.service.loadBalancer.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.loadBalancer.type }}
+  ports:
+    {{- if .Values.service.loadBalancer.enableBolt }}
+    - port: {{ .Values.service.boltPort }}
+      targetPort: {{ .Values.service.boltPort }}
+      protocol: TCP
+      name: tcp-bolt-port
+    {{- end }}
+    {{- if .Values.service.loadBalancer.enableWebsocketMonitoring }}
+    - port: {{ .Values.service.websocketPortMonitoring }}
+      targetPort: {{ .Values.service.websocketPortMonitoring }}
+      protocol: TCP
+      name: tcp-websocket-monitoring-port
+    {{- end }}
+    {{- if .Values.service.loadBalancer.enableHttpMonitoring }}
+    - port: {{ .Values.service.httpPortMonitoring }}
+      targetPort: {{ .Values.service.httpPortMonitoring }}
+      protocol: TCP
+      name: http-monitoring-port
+    {{- end }}
+  {{- if .Values.service.loadBalancer.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.service.loadBalancer.externalTrafficPolicy }}
+  {{- end }}
+  {{- if .Values.service.loadBalancer.ipFamilyPolicy }}
+  ipFamilyPolicy: {{ .Values.service.loadBalancer.ipFamilyPolicy }}
+  {{- end }}
+  {{- if .Values.service.loadBalancer.ipFamilies }}
+  ipFamilies: {{ .Values.service.loadBalancer.ipFamilies }}
+  {{- end }}
+  {{- if .Values.service.loadBalancer.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range .Values.service.loadBalancer.loadBalancerSourceRanges }}
+    - {{ . }}
+  {{- end }}
+  {{- end }}
+  selector:
+    {{- include "memgraph.selectorLabels" . | nindent 4 }}
+{{- end }}
