@@ -28,7 +28,7 @@ spec:
       protocol: HTTP
       allowedRoutes:
         namespaces:
-          from: Same
+          from: All
     # Memgraph Lab HTTPS listener (uncomment and configure TLS secret)
     # - name: lab-https
     #   port: 443
@@ -39,7 +39,7 @@ spec:
     #       - name: lab-tls-secret
     #   allowedRoutes:
     #     namespaces:
-    #       from: Same
+    #       from: All
     # HA data instance listeners (one per data instance)
     - name: data-0-bolt
       port: 9000

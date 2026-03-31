@@ -2,6 +2,7 @@
 {{- $fullName := include "memgraph-lab.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 {{- $gatewayName := .Values.gateway.existingGatewayName | default (printf "%s-gateway" $fullName) }}
+{{- $gatewayNamespace := .Values.gateway.existingGatewayNamespace | default .Release.Namespace }}
 {{- if not .Values.gateway.existingGatewayName }}
 {{- if not .Values.gateway.gatewayClassName }}
   {{- fail "gateway.gatewayClassName is required when gateway is enabled and existingGatewayName is not set." }}
@@ -51,11 +52,13 @@ spec:
   {{- if .Values.gateway.httpRoute.sectionNames }}
   {{- range .Values.gateway.httpRoute.sectionNames }}
     - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
       sectionName: {{ . }}
   {{- end }}
   {{- else }}
   {{- range .Values.gateway.listeners }}
     - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
       sectionName: {{ .name }}
   {{- end }}
   {{- end }}
