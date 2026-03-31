@@ -1,7 +1,20 @@
 Thank you for installing Memgraph Lab! 🎉
 
 1. Get the application URL by running these commands:
-{{- if .Values.ingress.enabled }}
+{{- if .Values.gateway.enabled }}
+Gateway API external access is enabled.
+Gateway: {{ include "memgraph-lab.fullname" . }}-gateway (GatewayClass: {{ .Values.gateway.gatewayClassName }})
+Listeners:
+{{- range .Values.gateway.listeners }}
+  - {{ .name }}: port {{ .port }} ({{ .protocol }})
+{{- end }}
+{{- with .Values.gateway.httpRoute.hostnames }}
+Hostnames:
+{{- range . }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+{{- else if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
