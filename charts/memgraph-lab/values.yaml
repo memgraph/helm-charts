@@ -80,11 +80,12 @@ ingress:
 
 gateway:
   enabled: false
-  gatewayClassName: "" # Required when enabled. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+  gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+  existingGatewayName: "" # If set, skip Gateway creation and attach routes to this existing Gateway
   annotations: {}
   labels: {}
   listeners:
-    - name: http
+    - name: lab-http
       port: 80
       protocol: HTTP
     # - name: https
@@ -94,6 +95,8 @@ gateway:
     #     certificateRefs:
     #       - name: lab-tls-secret
   httpRoute:
+    sectionNames: [] # Listener names to attach to on the Gateway. If empty, derived from listeners[].name
+    # - lab-http
     hostnames: []
     # - lab.example.com
     matches:

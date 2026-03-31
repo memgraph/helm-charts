@@ -4,7 +4,11 @@ You can find information about installing this chart on Memgraph docs https://me
 {{- if .Values.externalAccessConfig.gateway.enabled }}
 
 Gateway API external access is enabled.
+{{- if .Values.externalAccessConfig.gateway.existingGatewayName }}
+Using existing Gateway: {{ .Values.externalAccessConfig.gateway.existingGatewayName }}
+{{- else }}
 Gateway: {{ include "memgraph.fullname" . }}-gateway (GatewayClass: {{ .Values.externalAccessConfig.gateway.gatewayClassName }})
+{{- end }}
 
 Data instance ports:
 {{- range $index, $data := .Values.data }}

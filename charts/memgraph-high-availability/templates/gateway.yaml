@@ -1,11 +1,13 @@
 {{- if .Values.externalAccessConfig.gateway.enabled }}
+{{- $gatewayName := .Values.externalAccessConfig.gateway.existingGatewayName | default (printf "%s-gateway" (include "memgraph.fullname" .)) }}
+{{- if not .Values.externalAccessConfig.gateway.existingGatewayName }}
 {{- if not .Values.externalAccessConfig.gateway.gatewayClassName }}
-  {{- fail "externalAccessConfig.gateway.gatewayClassName is required when gateway is enabled." }}
+  {{- fail "externalAccessConfig.gateway.gatewayClassName is required when gateway is enabled and existingGatewayName is not set." }}
 {{- end }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ include "memgraph.fullname" . }}-gateway
+  name: {{ $gatewayName }}
   {{- with .Values.externalAccessConfig.gateway.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -36,6 +38,7 @@ spec:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
   {{- end }}
+{{- end }}
 {{- range $index, $data := .Values.data }}
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -47,7 +50,7 @@ metadata:
     app: memgraph-data-{{ $data.id }}
 spec:
   parentRefs:
-    - name: {{ include "memgraph.fullname" $ }}-gateway
+    - name: {{ $gatewayName }}
       sectionName: data-{{ $data.id }}-bolt
   rules:
     - backendRefs:
@@ -65,7 +68,7 @@ metadata:
     app: memgraph-coordinator-{{ .id }}
 spec:
   parentRefs:
-    - name: {{ include "memgraph.fullname" $ }}-gateway
+    - name: {{ $gatewayName }}
       sectionName: coordinator-{{ .id }}-bolt
   rules:
     - backendRefs:

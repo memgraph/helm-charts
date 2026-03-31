@@ -3,7 +3,11 @@ Thank you for installing Memgraph Lab! 🎉
 1. Get the application URL by running these commands:
 {{- if .Values.gateway.enabled }}
 Gateway API external access is enabled.
+{{- if .Values.gateway.existingGatewayName }}
+Using existing Gateway: {{ .Values.gateway.existingGatewayName }}
+{{- else }}
 Gateway: {{ include "memgraph-lab.fullname" . }}-gateway (GatewayClass: {{ .Values.gateway.gatewayClassName }})
+{{- end }}
 Listeners:
 {{- range .Values.gateway.listeners }}
   - {{ .name }}: port {{ .port }} ({{ .protocol }})

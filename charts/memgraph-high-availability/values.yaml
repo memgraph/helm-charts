@@ -94,7 +94,8 @@ externalAccessConfig:
     annotations: {} # Set of annotations applied to all coordinators' services
   gateway:
     enabled: false
-    gatewayClassName: "" # Required when enabled. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+    gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+    existingGatewayName: "" # If set, skip Gateway creation and attach routes to this existing Gateway
     annotations: {}
     labels: {}
     dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)

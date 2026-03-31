@@ -1,0 +1,79 @@
+# Standalone Gateway for use with Memgraph Helm charts.
+# Deploy this Gateway first, then configure the HA and/or Lab charts
+# to attach to it via existingGatewayName.
+#
+# Usage:
+#   kubectl apply -f gateway.yaml
+#
+# Then install charts with:
+#   helm install ha charts/memgraph-high-availability \
+#     --set externalAccessConfig.gateway.enabled=true \
+#     --set externalAccessConfig.gateway.existingGatewayName=memgraph-gateway
+#
+#   helm install lab charts/memgraph-lab \
+#     --set gateway.enabled=true \
+#     --set gateway.existingGatewayName=memgraph-gateway
+#
+# Adjust gatewayClassName to match your installed Gateway controller.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: memgraph-gateway
+spec:
+  gatewayClassName: eg
+  listeners:
+    # Memgraph Lab HTTP listener
+    - name: lab-http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
+    # Memgraph Lab HTTPS listener (uncomment and configure TLS secret)
+    # - name: lab-https
+    #   port: 443
+    #   protocol: HTTPS
+    #   tls:
+    #     mode: Terminate
+    #     certificateRefs:
+    #       - name: lab-tls-secret
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Same
+    # HA data instance listeners (one per data instance)
+    - name: data-0-bolt
+      port: 9000
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+    - name: data-1-bolt
+      port: 9001
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+    # HA coordinator listeners (one per coordinator)
+    - name: coordinator-1-bolt
+      port: 9011
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+    - name: coordinator-2-bolt
+      port: 9012
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+    - name: coordinator-3-bolt
+      port: 9013
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
