@@ -1,0 +1,75 @@
+{{- if .Values.externalAccessConfig.gateway.enabled }}
+{{- if not .Values.externalAccessConfig.gateway.gatewayClassName }}
+  {{- fail "externalAccessConfig.gateway.gatewayClassName is required when gateway is enabled." }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "memgraph.fullname" . }}-gateway
+  {{- with .Values.externalAccessConfig.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "memgraph.labels" . | nindent 4 }}
+    {{- with .Values.externalAccessConfig.gateway.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  gatewayClassName: {{ .Values.externalAccessConfig.gateway.gatewayClassName }}
+  listeners:
+  {{- range $index, $data := .Values.data }}
+    - name: data-{{ $data.id }}-bolt
+      protocol: TCP
+      port: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+  {{- end }}
+  {{- range .Values.coordinators }}
+    - name: coordinator-{{ .id }}-bolt
+      protocol: TCP
+      port: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+  {{- end }}
+{{- range $index, $data := .Values.data }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ include "memgraph.fullname" $ }}-data-{{ $data.id }}-bolt
+  labels:
+    {{- include "memgraph.labels" $ | nindent 4 }}
+    app: memgraph-data-{{ $data.id }}
+spec:
+  parentRefs:
+    - name: {{ include "memgraph.fullname" $ }}-gateway
+      sectionName: data-{{ $data.id }}-bolt
+  rules:
+    - backendRefs:
+        - name: memgraph-data-{{ $data.id }}
+          port: {{ $.Values.ports.boltPort }}
+{{- end }}
+{{- range .Values.coordinators }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ include "memgraph.fullname" $ }}-coordinator-{{ .id }}-bolt
+  labels:
+    {{- include "memgraph.labels" $ | nindent 4 }}
+    app: memgraph-coordinator-{{ .id }}
+spec:
+  parentRefs:
+    - name: {{ include "memgraph.fullname" $ }}-gateway
+      sectionName: coordinator-{{ .id }}-bolt
+  rules:
+    - backendRefs:
+        - name: memgraph-coordinator-{{ .id }}
+          port: {{ $.Values.ports.boltPort }}
+{{- end }}
+{{- end }}

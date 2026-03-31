@@ -92,6 +92,13 @@ externalAccessConfig:
     # Empty = no external access service will be created
     serviceType: ""
     annotations: {} # Set of annotations applied to all coordinators' services
+  gateway:
+    enabled: false
+    gatewayClassName: "" # Required when enabled. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+    annotations: {}
+    labels: {}
+    dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
+    coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
 
 headlessService:
   enabled: false # If set to true, each data and coordinator instance will use headless service
