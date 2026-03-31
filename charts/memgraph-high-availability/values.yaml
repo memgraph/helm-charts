@@ -84,11 +84,14 @@ externalAccessConfig:
   dataInstance:
     # Empty = no external access service will be created
     serviceType: ""
-    annotations: {}
+    annotations: {} # Set of annotations applied to all data instances' services
+    # Example:
+    # annotations:
+      # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
   coordinator:
     # Empty = no external access service will be created
     serviceType: ""
-    annotations: {}
+    annotations: {} # Set of annotations applied to all coordinators' services
 
 headlessService:
   enabled: false # If set to true, each data and coordinator instance will use headless service
@@ -244,6 +247,10 @@ data:
   - id: "0"
     restoreDataFromSnapshot: false
     volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
+    externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.dataInstance.annotations, per-instance takes precedence)
+    # Example
+    # externalAccessAnnotations:
+      # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
@@ -256,6 +263,7 @@ data:
   - id: "1"
     restoreDataFromSnapshot: false
     volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
+    externalAccessAnnotations: {}
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
@@ -269,6 +277,7 @@ coordinators:
   - id: "1"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
+    externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
     args:
       - "--coordinator-id=1"
       - "--coordinator-port=12000"
@@ -284,6 +293,7 @@ coordinators:
   - id: "2"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
+    externalAccessAnnotations: {}
     args:
       - "--coordinator-id=2"
       - "--coordinator-port=12000"
@@ -299,6 +309,7 @@ coordinators:
   - id: "3"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
+    externalAccessAnnotations: {}
     args:
       - "--coordinator-id=3"
       - "--coordinator-port=12000"
