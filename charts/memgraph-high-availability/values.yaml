@@ -257,7 +257,7 @@ data:
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag
+      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
       - "--storage-snapshot-on-exit=false"
 
   - id: "1"
@@ -270,7 +270,7 @@ data:
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag
+      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
       - "--storage-snapshot-on-exit=false"
 
 coordinators:
@@ -287,7 +287,7 @@ coordinators:
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag
+      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
       - "--storage-snapshot-on-exit=false"
 
   - id: "2"
@@ -303,7 +303,7 @@ coordinators:
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag
+      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
       - "--storage-snapshot-on-exit=false"
 
   - id: "3"
@@ -319,7 +319,7 @@ coordinators:
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
       - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag
+      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
       - "--storage-snapshot-on-exit=false"
 
 userContainers:
