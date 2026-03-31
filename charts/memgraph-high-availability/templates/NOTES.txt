@@ -1,3 +1,22 @@
 Thank you for installing the Memgraph High-availability cluster (Enterprise)! 🎉
 
 You can find information about installing this chart on Memgraph docs https://memgraph.com/docs/getting-started/install-memgraph/kubernetes.
+{{- if .Values.externalAccessConfig.gateway.enabled }}
+
+Gateway API external access is enabled.
+{{- if .Values.externalAccessConfig.gateway.existingGatewayName }}
+Using existing Gateway: {{ .Values.externalAccessConfig.gateway.existingGatewayName }}
+{{- else }}
+Gateway: {{ include "memgraph.fullname" . }}-gateway (GatewayClass: {{ .Values.externalAccessConfig.gateway.gatewayClassName }})
+{{- end }}
+
+Data instance ports:
+{{- range $index, $data := .Values.data }}
+  memgraph-data-{{ $data.id }}: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+{{- end }}
+
+Coordinator instance ports:
+{{- range .Values.coordinators }}
+  memgraph-coordinator-{{ .id }}: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
+{{- end }}
+{{- end }}
