@@ -144,9 +144,17 @@ spec:
         - containerPort: {{ $.Values.ports.boltPort }}
         - containerPort: {{ $.Values.ports.managementPort }}
         - containerPort: {{ $.Values.ports.replicationPort }}
+        {{- if $.Values.vectorRemote.enabled }}
+        - containerPort: {{ $.Values.vectorRemote.websocketPort }}
+          name: monitoring
+        {{- end }}
         args:
         {{- range $arg := $data.args }}
         - "{{ $arg }}"
+        {{- end }}
+        {{- if $.Values.vectorRemote.enabled }}
+        - "--monitoring-port={{ $.Values.vectorRemote.websocketPort }}"
+        - "--monitoring-address=0.0.0.0"
         {{- end }}
         env:
           {{- if $.Values.secrets.enabled }}
@@ -199,8 +207,11 @@ spec:
       {{- if and $.Values.coreDumpUploader.enabled $.Values.storage.data.createCoreDumpsClaim }}
       {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "memgraph-data-%s-core-dumps-storage" $data.id) "mountPath" $.Values.storage.data.coreDumpsMountPath "values" $.Values.coreDumpUploader) | nindent 6 }}
       {{- end }}
+      {{- if and $.Values.vectorRemote.enabled $.Values.vectorRemote.data }}
+      {{- include "memgraph.vectorSidecar" (dict "ctx" $ "role" "data") | nindent 6 }}
+      {{- end }}
       {{- with $.Values.userContainers.data }}
-      {{- toYaml . | nindent 6 }}
+      {{- tpl (toYaml .) (dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "Template" $.Template "data" $data) | nindent 6 }}
       {{- end }}
 
       {{- if $.Values.storage.data.extraVolumes }}
