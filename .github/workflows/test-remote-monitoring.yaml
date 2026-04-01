@@ -1,0 +1,584 @@
+name: Test Remote Monitoring
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_ha:
+        description: "Test HA remote monitoring"
+        required: true
+        type: boolean
+        default: true
+      test_standalone:
+        description: "Test standalone remote monitoring"
+        required: true
+        default: true
+        type: boolean
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/memgraph/**"
+      - "charts/memgraph-high-availability/**"
+      - ".github/workflows/test-remote-monitoring.yaml"
+
+jobs:
+  test-ha-remote-monitoring:
+    name: HA remote monitoring
+    runs-on: self-hosted
+    if: ${{ inputs.test_ha == true || github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Reset Minikube profile
+        run: |
+          minikube delete -p minikube || true
+
+      - name: Create Minikube cluster (5 nodes)
+        run: |
+          minikube start --nodes=5 --driver=docker
+          minikube addons disable storage-provisioner
+          minikube addons disable default-storageclass
+          minikube addons enable volumesnapshots
+          minikube addons enable csi-hostpath-driver
+          kubectl get nodes -o wide
+
+      - name: Set Memgraph Enterprise env vars
+        run: |
+          echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> "$GITHUB_ENV"
+          echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> "$GITHUB_ENV"
+
+      - name: Provision remote monitoring stack (VictoriaMetrics + VictoriaLogs + auth gateway)
+        run: |
+          kubectl create namespace remote-monitoring --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic monitoring-basic-auth -n monitoring \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic monitoring-basic-auth -n default \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          printf "ci-monitor:$(openssl passwd -apr1 ci-monitor-pass)\n" > /tmp/monitoring.htpasswd
+          kubectl create secret generic monitoring-basic-auth-htpasswd -n remote-monitoring \
+            --from-file=.htpasswd=/tmp/monitoring.htpasswd \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: monitoring-gateway-nginx
+            namespace: remote-monitoring
+          data:
+            default.conf: |
+              server {
+                listen 8080;
+                auth_basic "Monitoring gateway";
+                auth_basic_user_file /etc/nginx/.htpasswd;
+
+                location /api/v1/ {
+                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                }
+
+                location /loki/api/v1/push {
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                }
+
+                location /select/ {
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                }
+              }
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: vmsingle
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: vmsingle
+            template:
+              metadata:
+                labels:
+                  app: vmsingle
+              spec:
+                containers:
+                  - name: vmsingle
+                    image: victoriametrics/victoria-metrics:latest
+                    args:
+                      - -retentionPeriod=1
+                    ports:
+                      - containerPort: 8428
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: vmsingle
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: vmsingle
+            ports:
+              - name: http
+                port: 8428
+                targetPort: 8428
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: victoria-logs
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: victoria-logs
+            template:
+              metadata:
+                labels:
+                  app: victoria-logs
+              spec:
+                containers:
+                  - name: victoria-logs
+                    image: victoriametrics/victoria-logs:latest
+                    ports:
+                      - containerPort: 9428
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: victoria-logs
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: victoria-logs
+            ports:
+              - name: http
+                port: 9428
+                targetPort: 9428
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: monitoring-gateway
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: monitoring-gateway
+            template:
+              metadata:
+                labels:
+                  app: monitoring-gateway
+              spec:
+                containers:
+                  - name: nginx
+                    image: nginx:1.27-alpine
+                    ports:
+                      - containerPort: 8080
+                    volumeMounts:
+                      - name: nginx-conf
+                        mountPath: /etc/nginx/conf.d
+                      - name: auth
+                        mountPath: /etc/nginx/.htpasswd
+                        subPath: .htpasswd
+                        readOnly: true
+                volumes:
+                  - name: nginx-conf
+                    configMap:
+                      name: monitoring-gateway-nginx
+                  - name: auth
+                    secret:
+                      secretName: monitoring-basic-auth-htpasswd
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: monitoring-gateway
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: monitoring-gateway
+            ports:
+              - name: http
+                port: 80
+                targetPort: 8080
+          EOF
+
+          kubectl rollout status deployment/vmsingle -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/victoria-logs -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/monitoring-gateway -n remote-monitoring --timeout=180s
+
+      - name: Install HA chart with remote monitoring enabled
+        run: |
+          kubectl apply -f ./charts/memgraph-high-availability/storage-class.yaml
+          helm install memgraph-db ./charts/memgraph-high-availability \
+            --set env.MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
+            --set env.MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
+            --set storage.data.libStorageClassName=csi-hostpath-delayed \
+            --set storage.data.logStorageClassName=csi-hostpath-delayed \
+            --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \
+            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed \
+            --set prometheus.enabled=true \
+            --set prometheus.namespace=monitoring \
+            --set prometheus.serviceMonitor.enabled=false \
+            --set vmagentRemote.enabled=true \
+            --set vmagentRemote.namespace=monitoring \
+            --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
+            --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
+            --set vmagentRemote.externalLabels.cluster_id=ci-ha \
+            --set vmagentRemote.externalLabels.service_name=memgraph-ha \
+            --set vmagentRemote.externalLabels.cluster_env=ci \
+            --set vectorRemote.enabled=true \
+            --set vectorRemote.data=true \
+            --set vectorRemote.coordinators=true \
+            --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
+            --set vectorRemote.auth.secretName=monitoring-basic-auth \
+            --set vectorRemote.extraLabels.cluster_id=ci-ha \
+            --set vectorRemote.extraLabels.service_name=memgraph-ha \
+            --set vectorRemote.extraLabels.cluster_env=ci \
+            --timeout 12m --wait
+
+      - name: Wait for monitoring side components
+        run: |
+          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          kubectl rollout status deployment/memgraph-db-memgraph-high-availability-vmagent -n monitoring --timeout=300s
+
+      - name: Verify metrics and logs reach monitoring cluster
+        run: |
+          set -euo pipefail
+
+          kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
+          PF_GATEWAY_PID=$!
+          kubectl port-forward -n remote-monitoring svc/victoria-logs 19428:9428 >/tmp/pf-vlogs.log 2>&1 &
+          PF_VLOGS_PID=$!
+          trap 'kill $PF_GATEWAY_PID $PF_VLOGS_PID >/dev/null 2>&1 || true' EXIT
+          sleep 5
+
+          echo "Checking remote_write metrics ingestion..."
+          for i in $(seq 1 40); do
+            resp="$(curl -s -u ci-monitor:ci-monitor-pass 'http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22memgraph-ha%22%7D)')"
+            val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
+            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"
+            then
+              echo "Metrics are ingested."
+              break
+            fi
+            if [[ "$i" -eq 40 ]]; then
+              echo "Timed out waiting for remote metrics ingestion."
+              exit 1
+            fi
+            sleep 10
+          done
+
+          echo "Checking Loki push traffic on VictoriaLogs..."
+          for i in $(seq 1 40); do
+            if curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { if ($NF+0 > 0) found=1 } END { exit(found?0:1) }'; then
+              echo "Logs are ingested."
+              break
+            fi
+            if [[ "$i" -eq 40 ]]; then
+              echo "Timed out waiting for log ingestion."
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get svc -A || true
+          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-memgraph-high-availability-vmagent --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
+
+      - name: Cleanup cluster
+        if: always()
+        run: |
+          kubectl delete namespace monitoring remote-monitoring --ignore-not-found=true --wait=true --timeout=300s || true
+          minikube delete -p minikube || true
+
+  test-standalone-remote-monitoring:
+    name: Standalone remote monitoring
+    runs-on: self-hosted
+    if: ${{ inputs.test_standalone == true || github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Reset Minikube profile
+        run: |
+          minikube delete -p minikube || true
+
+      - name: Create Minikube cluster
+        run: |
+          minikube start --driver=docker
+          kubectl get nodes -o wide
+
+      - name: Provision remote monitoring stack (VictoriaMetrics + VictoriaLogs + auth gateway)
+        run: |
+          kubectl create namespace remote-monitoring --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic monitoring-basic-auth -n monitoring \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic monitoring-basic-auth -n default \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          printf "ci-monitor:$(openssl passwd -apr1 ci-monitor-pass)\n" > /tmp/monitoring.htpasswd
+          kubectl create secret generic monitoring-basic-auth-htpasswd -n remote-monitoring \
+            --from-file=.htpasswd=/tmp/monitoring.htpasswd \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: monitoring-gateway-nginx
+            namespace: remote-monitoring
+          data:
+            default.conf: |
+              server {
+                listen 8080;
+                auth_basic "Monitoring gateway";
+                auth_basic_user_file /etc/nginx/.htpasswd;
+
+                location /api/v1/ {
+                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                }
+
+                location /loki/api/v1/push {
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                }
+
+                location /select/ {
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                }
+              }
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: vmsingle
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: vmsingle
+            template:
+              metadata:
+                labels:
+                  app: vmsingle
+              spec:
+                containers:
+                  - name: vmsingle
+                    image: victoriametrics/victoria-metrics:latest
+                    args:
+                      - -retentionPeriod=1
+                    ports:
+                      - containerPort: 8428
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: vmsingle
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: vmsingle
+            ports:
+              - name: http
+                port: 8428
+                targetPort: 8428
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: victoria-logs
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: victoria-logs
+            template:
+              metadata:
+                labels:
+                  app: victoria-logs
+              spec:
+                containers:
+                  - name: victoria-logs
+                    image: victoriametrics/victoria-logs:latest
+                    ports:
+                      - containerPort: 9428
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: victoria-logs
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: victoria-logs
+            ports:
+              - name: http
+                port: 9428
+                targetPort: 9428
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: monitoring-gateway
+            namespace: remote-monitoring
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: monitoring-gateway
+            template:
+              metadata:
+                labels:
+                  app: monitoring-gateway
+              spec:
+                containers:
+                  - name: nginx
+                    image: nginx:1.27-alpine
+                    ports:
+                      - containerPort: 8080
+                    volumeMounts:
+                      - name: nginx-conf
+                        mountPath: /etc/nginx/conf.d
+                      - name: auth
+                        mountPath: /etc/nginx/.htpasswd
+                        subPath: .htpasswd
+                        readOnly: true
+                volumes:
+                  - name: nginx-conf
+                    configMap:
+                      name: monitoring-gateway-nginx
+                  - name: auth
+                    secret:
+                      secretName: monitoring-basic-auth-htpasswd
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: monitoring-gateway
+            namespace: remote-monitoring
+          spec:
+            selector:
+              app: monitoring-gateway
+            ports:
+              - name: http
+                port: 80
+                targetPort: 8080
+          EOF
+
+          kubectl rollout status deployment/vmsingle -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/victoria-logs -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/monitoring-gateway -n remote-monitoring --timeout=180s
+
+      - name: Install standalone chart with remote monitoring enabled
+        run: |
+          helm install memgraph-db ./charts/memgraph \
+            --set service.enableHttpMonitoring=true \
+            --set service.enableWebsocketMonitoring=true \
+            --set-json 'memgraphConfig=["--data-directory=/var/lib/memgraph/mg_data","--also-log-to-stderr=true","--log-level=TRACE"]' \
+            --set prometheus.enabled=true \
+            --set prometheus.namespace=monitoring \
+            --set prometheus.serviceMonitor.enabled=false \
+            --set vmagentRemote.enabled=true \
+            --set vmagentRemote.namespace=monitoring \
+            --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
+            --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
+            --set vmagentRemote.externalLabels.cluster_id=ci-standalone \
+            --set vmagentRemote.externalLabels.service_name=memgraph-standalone \
+            --set vmagentRemote.externalLabels.cluster_env=ci \
+            --set vectorRemote.enabled=true \
+            --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
+            --set vectorRemote.auth.secretName=monitoring-basic-auth \
+            --set vectorRemote.extraLabels.cluster_id=ci-standalone \
+            --set vectorRemote.extraLabels.service_name=memgraph-standalone \
+            --set vectorRemote.extraLabels.cluster_env=ci \
+            --set vectorRemote.extraLabels.role=standalone \
+            --timeout 10m --wait
+
+      - name: Wait for monitoring side components
+        run: |
+          kubectl rollout status statefulset/memgraph-db -n default --timeout=300s
+          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          kubectl rollout status deployment/memgraph-db-vmagent -n monitoring --timeout=300s
+
+      - name: Verify metrics and logs reach monitoring cluster
+        run: |
+          set -euo pipefail
+
+          kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
+          PF_GATEWAY_PID=$!
+          kubectl port-forward -n remote-monitoring svc/victoria-logs 19428:9428 >/tmp/pf-vlogs.log 2>&1 &
+          PF_VLOGS_PID=$!
+          trap 'kill $PF_GATEWAY_PID $PF_VLOGS_PID >/dev/null 2>&1 || true' EXIT
+          sleep 5
+
+          echo "Checking remote_write metrics ingestion..."
+          for i in $(seq 1 40); do
+            resp="$(curl -s -u ci-monitor:ci-monitor-pass 'http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22memgraph-standalone%22%7D)')"
+            val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
+            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"
+            then
+              echo "Metrics are ingested."
+              break
+            fi
+            if [[ "$i" -eq 40 ]]; then
+              echo "Timed out waiting for remote metrics ingestion."
+              exit 1
+            fi
+            sleep 10
+          done
+
+          echo "Checking Loki push traffic on VictoriaLogs..."
+          for i in $(seq 1 40); do
+            if curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { if ($NF+0 > 0) found=1 } END { exit(found?0:1) }'; then
+              echo "Logs are ingested."
+              break
+            fi
+            if [[ "$i" -eq 40 ]]; then
+              echo "Timed out waiting for log ingestion."
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get svc -A || true
+          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-vmagent --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
+
+      - name: Cleanup cluster
+        if: always()
+        run: |
+          kubectl delete namespace monitoring remote-monitoring --ignore-not-found=true --wait=true --timeout=300s || true
+          minikube delete -p minikube || true
