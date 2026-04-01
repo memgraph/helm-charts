@@ -36,13 +36,9 @@ jobs:
         run: |
           minikube delete -p minikube || true
 
-      - name: Create Minikube cluster (5 nodes)
+      - name: Create Minikube cluster
         run: |
-          minikube start --nodes=5 --driver=docker
-          minikube addons disable storage-provisioner
-          minikube addons disable default-storageclass
-          minikube addons enable volumesnapshots
-          minikube addons enable csi-hostpath-driver
+          minikube start --driver=docker
           kubectl get nodes -o wide
 
       - name: Set Memgraph Enterprise env vars
@@ -81,17 +77,21 @@ jobs:
                 listen 8080;
                 auth_basic "Monitoring gateway";
                 auth_basic_user_file /etc/nginx/.htpasswd;
+                resolver kube-dns.kube-system.svc.cluster.local valid=10s ipv6=off;
 
                 location /api/v1/ {
-                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                  set $vm_upstream http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                  proxy_pass $vm_upstream;
                 }
 
                 location /loki/api/v1/push {
-                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                  set $vlogs_push http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                  proxy_pass $vlogs_push;
                 }
 
                 location /select/ {
-                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                  set $vlogs_select http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                  proxy_pass $vlogs_select;
                 }
               }
           ---
@@ -220,14 +220,9 @@ jobs:
 
       - name: Install HA chart with remote monitoring enabled
         run: |
-          kubectl apply -f ./charts/memgraph-high-availability/storage-class.yaml
           helm install memgraph-db ./charts/memgraph-high-availability \
             --set env.MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
             --set env.MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
-            --set storage.data.libStorageClassName=csi-hostpath-delayed \
-            --set storage.data.logStorageClassName=csi-hostpath-delayed \
-            --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \
-            --set storage.coordinators.logStorageClassName=csi-hostpath-delayed \
             --set prometheus.enabled=true \
             --set prometheus.namespace=monitoring \
             --set prometheus.serviceMonitor.enabled=false \
@@ -359,17 +354,21 @@ jobs:
                 listen 8080;
                 auth_basic "Monitoring gateway";
                 auth_basic_user_file /etc/nginx/.htpasswd;
+                resolver kube-dns.kube-system.svc.cluster.local valid=10s ipv6=off;
 
                 location /api/v1/ {
-                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                  set $vm_upstream http://vmsingle.remote-monitoring.svc.cluster.local:8428;
+                  proxy_pass $vm_upstream;
                 }
 
                 location /loki/api/v1/push {
-                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                  set $vlogs_push http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
+                  proxy_pass $vlogs_push;
                 }
 
                 location /select/ {
-                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                  set $vlogs_select http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
+                  proxy_pass $vlogs_select;
                 }
               }
           ---
