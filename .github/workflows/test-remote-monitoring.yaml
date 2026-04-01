@@ -77,21 +77,17 @@ jobs:
                 listen 8080;
                 auth_basic "Monitoring gateway";
                 auth_basic_user_file /etc/nginx/.htpasswd;
-                resolver kube-dns.kube-system.svc.cluster.local valid=10s ipv6=off;
 
                 location /api/v1/ {
-                  set $vm_upstream http://vmsingle.remote-monitoring.svc.cluster.local:8428;
-                  proxy_pass $vm_upstream;
+                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
                 }
 
                 location /loki/api/v1/push {
-                  set $vlogs_push http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
-                  proxy_pass $vlogs_push;
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
                 }
 
                 location /select/ {
-                  set $vlogs_select http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
-                  proxy_pass $vlogs_select;
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
                 }
               }
           ---
@@ -183,6 +179,15 @@ jobs:
                 containers:
                   - name: nginx
                     image: nginx:1.27-alpine
+                    command: ["/bin/sh", "-ec"]
+                    args:
+                      - |
+                        until getent hosts vmsingle.remote-monitoring.svc.cluster.local >/dev/null 2>&1 && \
+                              getent hosts victoria-logs.remote-monitoring.svc.cluster.local >/dev/null 2>&1; do
+                          echo "Waiting for remote-monitoring service DNS records..."
+                          sleep 2
+                        done
+                        exec nginx -g 'daemon off;'
                     ports:
                       - containerPort: 8080
                     volumeMounts:
@@ -251,6 +256,7 @@ jobs:
       - name: Verify metrics and logs reach monitoring cluster
         run: |
           set -euo pipefail
+          kubectl wait -n remote-monitoring --for=condition=available deployment/monitoring-gateway --timeout=180s
 
           kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
           PF_GATEWAY_PID=$!
@@ -354,21 +360,17 @@ jobs:
                 listen 8080;
                 auth_basic "Monitoring gateway";
                 auth_basic_user_file /etc/nginx/.htpasswd;
-                resolver kube-dns.kube-system.svc.cluster.local valid=10s ipv6=off;
 
                 location /api/v1/ {
-                  set $vm_upstream http://vmsingle.remote-monitoring.svc.cluster.local:8428;
-                  proxy_pass $vm_upstream;
+                  proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
                 }
 
                 location /loki/api/v1/push {
-                  set $vlogs_push http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
-                  proxy_pass $vlogs_push;
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
                 }
 
                 location /select/ {
-                  set $vlogs_select http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
-                  proxy_pass $vlogs_select;
+                  proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
                 }
               }
           ---
@@ -460,6 +462,15 @@ jobs:
                 containers:
                   - name: nginx
                     image: nginx:1.27-alpine
+                    command: ["/bin/sh", "-ec"]
+                    args:
+                      - |
+                        until getent hosts vmsingle.remote-monitoring.svc.cluster.local >/dev/null 2>&1 && \
+                              getent hosts victoria-logs.remote-monitoring.svc.cluster.local >/dev/null 2>&1; do
+                          echo "Waiting for remote-monitoring service DNS records..."
+                          sleep 2
+                        done
+                        exec nginx -g 'daemon off;'
                     ports:
                       - containerPort: 8080
                     volumeMounts:
@@ -529,6 +540,7 @@ jobs:
       - name: Verify metrics and logs reach monitoring cluster
         run: |
           set -euo pipefail
+          kubectl wait -n remote-monitoring --for=condition=available deployment/monitoring-gateway --timeout=180s
 
           kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
           PF_GATEWAY_PID=$!
