@@ -34,7 +34,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: memgraph-coordinator-{{ .id }}-external
-  {{- with $.Values.externalAccessConfig.coordinator.annotations }}
+  {{- $merged := merge (default dict .externalAccessAnnotations) (default dict $.Values.externalAccessConfig.coordinator.annotations) }}
+  {{- with $merged }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

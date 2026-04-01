@@ -1,0 +1,75 @@
+{{- if .Values.gateway.enabled }}
+{{- $fullName := include "memgraph-lab.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $gatewayName := .Values.gateway.existingGatewayName | default (printf "%s-gateway" $fullName) }}
+{{- $gatewayNamespace := .Values.gateway.existingGatewayNamespace | default .Release.Namespace }}
+{{- if not .Values.gateway.existingGatewayName }}
+{{- if not .Values.gateway.gatewayClassName }}
+  {{- fail "gateway.gatewayClassName is required when gateway is enabled and existingGatewayName is not set." }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $gatewayName }}
+  {{- with .Values.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "memgraph-lab.labels" . | nindent 4 }}
+    {{- with .Values.gateway.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  gatewayClassName: {{ .Values.gateway.gatewayClassName }}
+  listeners:
+  {{- range .Values.gateway.listeners }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol }}
+      {{- if .tls }}
+      tls:
+        mode: Terminate
+        {{- with .tls.certificateRefs }}
+        certificateRefs:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      allowedRoutes:
+        namespaces:
+          from: Same
+  {{- end }}
+{{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $fullName }}-http-route
+  labels:
+    {{- include "memgraph-lab.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+  {{- if .Values.gateway.httpRoute.sectionNames }}
+  {{- range .Values.gateway.httpRoute.sectionNames }}
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: {{ . }}
+  {{- end }}
+  {{- else }}
+  {{- range .Values.gateway.listeners }}
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: {{ .name }}
+  {{- end }}
+  {{- end }}
+  {{- with .Values.gateway.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - matches:
+        {{- toYaml .Values.gateway.httpRoute.matches | nindent 8 }}
+      backendRefs:
+        - name: {{ $fullName }}
+          port: {{ $svcPort }}
+{{- end }}
