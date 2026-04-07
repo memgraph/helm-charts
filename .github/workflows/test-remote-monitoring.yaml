@@ -293,6 +293,10 @@ jobs:
             log_push_total="$(curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { sum += ($NF+0) } END { print sum+0 }')"
             if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$log_push_total"; then
               echo -e "${GREEN}Logs are ingested (Loki push metric sum: ${log_push_total}).${NC}"
+              echo -e "${BLUE}Sample gateway access logs (Loki push path):${NC}"
+              kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=50 | grep '/loki/api/v1/push' || true
+              echo -e "${BLUE}Sample Memgraph vector sidecar logs:${NC}"
+              kubectl logs -n default memgraph-data-0-0 -c memgraph-vector --tail=20 || true
               break
             fi
             if [[ "$i" -eq 40 ]]; then
@@ -586,6 +590,10 @@ jobs:
             log_push_total="$(curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { sum += ($NF+0) } END { print sum+0 }')"
             if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$log_push_total"; then
               echo -e "${GREEN}Logs are ingested (Loki push metric sum: ${log_push_total}).${NC}"
+              echo -e "${BLUE}Sample gateway access logs (Loki push path):${NC}"
+              kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=50 | grep '/loki/api/v1/push' || true
+              echo -e "${BLUE}Sample Memgraph vector sidecar logs:${NC}"
+              kubectl logs -n default memgraph-db-0 -c memgraph-vector --tail=20 || true
               break
             fi
             if [[ "$i" -eq 40 ]]; then
