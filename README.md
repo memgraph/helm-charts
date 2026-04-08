@@ -152,9 +152,9 @@ vmagentRemote:
       usernameKey: username
       passwordKey: password
   externalLabels:
-    cluster_id: "memgraph-ha"
-    service_name: "memgraph-ha"
-    cluster_env: "dev"
+    cluster_id: "memgraph-testing-cluster-53"
+    service_name: "Memgraph HA"
+    cluster_env: "self-hosted-large-01"
 
 vectorRemote:
   enabled: true
@@ -166,9 +166,9 @@ vectorRemote:
     usernameKey: username
     passwordKey: password
   extraLabels:
-    cluster_id: "memgraph-ha"
-    service_name: "memgraph-ha"
-    cluster_env: "dev"
+    cluster_id: "memgraph-testing-cluster-53"
+    service_name: "Memgraph HA"
+    cluster_env: "self-hosted-large-01"
 ```
 
 ### Create auth secrets
