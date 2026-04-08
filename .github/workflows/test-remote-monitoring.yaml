@@ -90,7 +90,7 @@ jobs:
             --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
             --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
             --set vmagentRemote.externalLabels.cluster_id=${{ env.CLUSTER_ID }} \
-            --set vmagentRemote.externalLabels.service_name=${{ env.SERVICE_NAME }} \
+            --set-string vmagentRemote.externalLabels.service_name="${{ env.SERVICE_NAME }}" \
             --set vmagentRemote.externalLabels.cluster_env=${{ env.CLUSTER_ENV }} \
             --set vectorRemote.enabled=true \
             --set vectorRemote.data=true \
@@ -98,7 +98,7 @@ jobs:
             --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
             --set vectorRemote.auth.secretName=monitoring-basic-auth \
             --set vectorRemote.extraLabels.cluster_id=${{ env.CLUSTER_ID }} \
-            --set vectorRemote.extraLabels.service_name=${{ env.SERVICE_NAME }} \
+            --set-string vectorRemote.extraLabels.service_name="${{ env.SERVICE_NAME }}" \
             --set vectorRemote.extraLabels.cluster_env=${{ env.CLUSTER_ENV }} \
             --timeout 12m --wait
 
@@ -110,7 +110,7 @@ jobs:
       - name: Verify metrics and logs reach monitoring cluster
         run: |
           scripts/verify-remote-monitoring.sh \
-            --service-name ${{ env.SERVICE_NAME }} \
+            --service-name "${{ env.SERVICE_NAME }}" \
             --sample-pod memgraph-data-0-0
 
       - name: Collect diagnostics on failure
@@ -191,13 +191,13 @@ jobs:
             --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
             --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
             --set vmagentRemote.externalLabels.cluster_id=${{ env.CLUSTER_ID }} \
-            --set vmagentRemote.externalLabels.service_name=${{ env.SERVICE_NAME }} \
+            --set-string vmagentRemote.externalLabels.service_name="${{ env.SERVICE_NAME }}" \
             --set vmagentRemote.externalLabels.cluster_env=${{ env.CLUSTER_ENV }} \
             --set vectorRemote.enabled=true \
             --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
             --set vectorRemote.auth.secretName=monitoring-basic-auth \
             --set vectorRemote.extraLabels.cluster_id=${{ env.CLUSTER_ID }} \
-            --set vectorRemote.extraLabels.service_name=${{ env.SERVICE_NAME }} \
+            --set-string vectorRemote.extraLabels.service_name="${{ env.SERVICE_NAME }}" \
             --set vectorRemote.extraLabels.cluster_env=${{ env.CLUSTER_ENV }} \
             --set vectorRemote.extraLabels.role=standalone \
             --timeout 10m --wait
@@ -211,7 +211,7 @@ jobs:
       - name: Verify metrics and logs reach monitoring cluster
         run: |
           scripts/verify-remote-monitoring.sh \
-            --service-name ${{ env.SERVICE_NAME }} \
+            --service-name "${{ env.SERVICE_NAME }}" \
             --sample-pod memgraph-db-0
 
       - name: Collect diagnostics on failure
