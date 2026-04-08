@@ -303,7 +303,7 @@ initContainers: []
 
 prometheus:
   enabled: false
-  namespace: monitoring  # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed
+  namespace: monitoring  # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, can be left empty to use release namespace.
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
