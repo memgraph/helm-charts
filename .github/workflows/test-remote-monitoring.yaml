@@ -20,6 +20,7 @@ on:
       - "charts/memgraph/**"
       - "charts/memgraph-high-availability/**"
       - "scripts/remote-monitoring-stack.yaml"
+      - "scripts/verify-remote-monitoring.sh"
       - ".github/workflows/test-remote-monitoring.yaml"
 
 jobs:
@@ -104,57 +105,9 @@ jobs:
 
       - name: Verify metrics and logs reach monitoring cluster
         run: |
-          set -euo pipefail
-          kubectl wait -n remote-monitoring --for=condition=available deployment/monitoring-gateway --timeout=180s
-
-          kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
-          PF_GATEWAY_PID=$!
-          kubectl port-forward -n remote-monitoring svc/victoria-logs 19428:9428 >/tmp/pf-vlogs.log 2>&1 &
-          PF_VLOGS_PID=$!
-          trap 'kill $PF_GATEWAY_PID $PF_VLOGS_PID >/dev/null 2>&1 || true' EXIT
-          sleep 5
-
-          GREEN='\033[0;32m'
-          YELLOW='\033[1;33m'
-          RED='\033[0;31m'
-          BLUE='\033[0;34m'
-          NC='\033[0m'
-
-          echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
-          for i in $(seq 1 40); do
-            resp="$(curl -s -u ci-monitor:ci-monitor-pass 'http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22memgraph-ha%22%7D)')"
-            val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
-            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"
-            then
-              echo -e "${GREEN}Metrics are ingested (matching series: ${val}).${NC}"
-              break
-            fi
-            if [[ "$i" -eq 40 ]]; then
-              echo -e "${RED}Timed out waiting for remote metrics ingestion.${NC}"
-              exit 1
-            fi
-            echo -e "${YELLOW}Metrics not ingested yet (attempt ${i}/40, value=${val}).${NC}"
-            sleep 10
-          done
-
-          echo -e "${BLUE}Checking Loki push traffic on VictoriaLogs...${NC}"
-          for i in $(seq 1 40); do
-            log_push_total="$(curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { sum += ($NF+0) } END { print sum+0 }')"
-            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$log_push_total"; then
-              echo -e "${GREEN}Logs are ingested (Loki push metric sum: ${log_push_total}).${NC}"
-              echo -e "${BLUE}Sample gateway access logs (Loki push path):${NC}"
-              kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=50 | grep '/loki/api/v1/push' || true
-              echo -e "${BLUE}Sample Memgraph vector sidecar logs:${NC}"
-              kubectl logs -n default memgraph-data-0-0 -c memgraph-vector --tail=20 || true
-              break
-            fi
-            if [[ "$i" -eq 40 ]]; then
-              echo -e "${RED}Timed out waiting for log ingestion.${NC}"
-              exit 1
-            fi
-            echo -e "${YELLOW}Logs not ingested yet (attempt ${i}/40, push sum=${log_push_total}).${NC}"
-            sleep 10
-          done
+          scripts/verify-remote-monitoring.sh \
+            --service-name memgraph-ha \
+            --sample-pod memgraph-data-0-0
 
       - name: Collect diagnostics on failure
         if: failure()
@@ -249,57 +202,9 @@ jobs:
 
       - name: Verify metrics and logs reach monitoring cluster
         run: |
-          set -euo pipefail
-          kubectl wait -n remote-monitoring --for=condition=available deployment/monitoring-gateway --timeout=180s
-
-          kubectl port-forward -n remote-monitoring svc/monitoring-gateway 18080:80 >/tmp/pf-gateway.log 2>&1 &
-          PF_GATEWAY_PID=$!
-          kubectl port-forward -n remote-monitoring svc/victoria-logs 19428:9428 >/tmp/pf-vlogs.log 2>&1 &
-          PF_VLOGS_PID=$!
-          trap 'kill $PF_GATEWAY_PID $PF_VLOGS_PID >/dev/null 2>&1 || true' EXIT
-          sleep 5
-
-          GREEN='\033[0;32m'
-          YELLOW='\033[1;33m'
-          RED='\033[0;31m'
-          BLUE='\033[0;34m'
-          NC='\033[0m'
-
-          echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
-          for i in $(seq 1 40); do
-            resp="$(curl -s -u ci-monitor:ci-monitor-pass 'http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22memgraph-standalone%22%7D)')"
-            val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
-            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"
-            then
-              echo -e "${GREEN}Metrics are ingested (matching series: ${val}).${NC}"
-              break
-            fi
-            if [[ "$i" -eq 40 ]]; then
-              echo -e "${RED}Timed out waiting for remote metrics ingestion.${NC}"
-              exit 1
-            fi
-            echo -e "${YELLOW}Metrics not ingested yet (attempt ${i}/40, value=${val}).${NC}"
-            sleep 10
-          done
-
-          echo -e "${BLUE}Checking Loki push traffic on VictoriaLogs...${NC}"
-          for i in $(seq 1 40); do
-            log_push_total="$(curl -s http://127.0.0.1:19428/metrics | awk '/\/insert\/loki\/api\/v1\/push/ { sum += ($NF+0) } END { print sum+0 }')"
-            if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$log_push_total"; then
-              echo -e "${GREEN}Logs are ingested (Loki push metric sum: ${log_push_total}).${NC}"
-              echo -e "${BLUE}Sample gateway access logs (Loki push path):${NC}"
-              kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=50 | grep '/loki/api/v1/push' || true
-              echo -e "${BLUE}Sample Memgraph vector sidecar logs:${NC}"
-              kubectl logs -n default memgraph-db-0 -c memgraph-vector --tail=20 || true
-              break
-            fi
-            if [[ "$i" -eq 40 ]]; then
-              echo -e "${RED}Timed out waiting for log ingestion.${NC}"
-              exit 1
-            fi
-            echo -e "${YELLOW}Logs not ingested yet (attempt ${i}/40, push sum=${log_push_total}).${NC}"
-            sleep 10
-          done
+          scripts/verify-remote-monitoring.sh \
+            --service-name memgraph-standalone \
+            --sample-pod memgraph-db-0
 
       - name: Collect diagnostics on failure
         if: failure()
