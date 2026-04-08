@@ -211,7 +211,7 @@ spec:
       {{- include "memgraph.vectorSidecar" (dict "ctx" $ "role" "data") | nindent 6 }}
       {{- end }}
       {{- with $.Values.userContainers.data }}
-      {{- tpl (toYaml .) (dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "Template" $.Template "data" $data) | nindent 6 }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
 
       {{- if $.Values.storage.data.extraVolumes }}
