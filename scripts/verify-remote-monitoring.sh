@@ -52,6 +52,9 @@ if [[ -z "$SERVICE_NAME" || -z "$SAMPLE_POD" ]]; then
   exit 1
 fi
 
+# Escape label value for use inside URL query parameters.
+SERVICE_NAME_ESCAPED="$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$SERVICE_NAME")"
+
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -69,7 +72,7 @@ sleep 5
 
 echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
 for i in $(seq 1 40); do
-  resp="$(curl -s -u ci-monitor:ci-monitor-pass "http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22${SERVICE_NAME}%22%7D)")"
+  resp="$(curl -s -u ci-monitor:ci-monitor-pass "http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)")"
   val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
   if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"; then
     echo -e "${GREEN}Metrics are ingested (matching series: ${val}).${NC}"
