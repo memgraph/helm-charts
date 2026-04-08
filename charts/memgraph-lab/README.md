@@ -52,5 +52,7 @@ env:
     value: "7687"
   - name: BASE_PATH
     value: /
+  - name: KEEP_ALIVE_TIMEOUT_MS
+    value: "0"
 ```
 Refer to the [Memgraph Lab documentation](https://memgraph.com/docs/data-visualization) for details on how to connect to and interact with Memgraph.
