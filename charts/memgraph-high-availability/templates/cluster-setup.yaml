@@ -109,9 +109,6 @@ spec:
                       local instance_name="${current_step##* }"
                       [[ "$show_instances_output" == *"\"${instance_name}\""* ]]
                       ;;
-                    "SET INSTANCE instance_1 TO MAIN")
-                      [[ "$show_instances_output" == *"\"instance_1\""* ]] && [[ "$show_instances_output" == *"\"main\""* ]]
-                      ;;
                     *)
                       return 1
                       ;;
@@ -143,7 +140,10 @@ spec:
                      [[ "$output_lc" == *"already a main"* ]] || \
                      [[ "$output_lc" == *"is already main"* ]] || \
                      [[ "$output_lc" == *"request forwarded to the leader but leader failed with request processing"* ]]; then
-                    if ddl_already_applied "$step"; then
+                    if [[ "$output_lc" == *"already a main"* ]] || [[ "$output_lc" == *"is already main"* ]]; then
+                      echo "ℹ️ ${step} already applied; continuing"
+                      return 0
+                    elif ddl_already_applied "$step"; then
                       echo "ℹ️ ${step} already applied; continuing"
                       return 0
                     fi
