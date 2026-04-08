@@ -1,6 +1,12 @@
 {{- if .Values.vmagentRemote.enabled }}
 {{- $namespace := .Values.vmagentRemote.namespace | default .Values.prometheus.namespace }}
 {{- $exporterNamespace := .Values.prometheus.namespace }}
+{{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
+{{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
+{{- end }}
+{{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.passwordKey) }}
+{{- fail "vmagentRemote.remoteWrite.basicAuth.passwordKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -44,7 +50,7 @@ spec:
           imagePullPolicy: {{ .Values.vmagentRemote.image.pullPolicy }}
           args:
             - -promscrape.config=/etc/vmagent/scrape.yml
-            - -remoteWrite.url={{ .Values.vmagentRemote.remoteWrite.url }}
+            - -remoteWrite.url={{ required "vmagentRemote.remoteWrite.url must be set when vmagentRemote.enabled=true" .Values.vmagentRemote.remoteWrite.url }}
             {{- if .Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
             - -remoteWrite.basicAuth.username=$(MONITORING_USERNAME)
             - -remoteWrite.basicAuth.password=$(MONITORING_PASSWORD)
