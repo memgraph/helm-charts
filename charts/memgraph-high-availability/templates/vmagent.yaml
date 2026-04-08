@@ -1,4 +1,7 @@
 {{- if $.Values.vmagentRemote.enabled }}
+{{- if not $.Values.prometheus.enabled }}
+{{- fail "vmagentRemote.enabled requires prometheus.enabled=true because vmagentRemote scrapes mg-exporter" }}
+{{- end }}
 {{- $namespace := $.Values.vmagentRemote.namespace | default $.Values.prometheus.namespace }}
 {{- $exporterNamespace := $.Values.prometheus.namespace }}
 {{- if and $.Values.vmagentRemote.remoteWrite.basicAuth.secretName (not $.Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
