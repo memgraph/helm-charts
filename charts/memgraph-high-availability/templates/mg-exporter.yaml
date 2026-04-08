@@ -80,7 +80,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: mg-exporter
-  namespace: {{ $.Values.prometheus.namespace }}
+  namespace: {{ $.Values.prometheus.namespace | default $.Release.Namespace }}
   labels:
     release: {{ $.Values.prometheus.serviceMonitor.kubePrometheusStackReleaseName }}
 spec:
@@ -92,6 +92,6 @@ spec:
       interval: {{ $.Values.prometheus.serviceMonitor.interval }}
   namespaceSelector:
     matchNames:
-      - {{ $.Values.prometheus.namespace }} # This refers to where our service exposing the exporter is located
+      - {{ $.Values.prometheus.namespace | default $.Release.Namespace }} # This refers to where our service exposing the exporter is located
 {{- end }}
 {{- end }}
