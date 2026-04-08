@@ -111,7 +111,7 @@ spec:
       - name: init-sysctl
         image: "{{ $.Values.sysctlInitContainer.image.repository }}:{{ $.Values.sysctlInitContainer.image.tag }}"
         imagePullPolicy: {{ $.Values.sysctlInitContainer.image.pullPolicy }}
-        command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ $.Values.sysctlInitContainer.maxMapCount }}']
+        command: ['sh', '-c', 'sysctl -w vm.max_map_count={{ int64 $.Values.sysctlInitContainer.maxMapCount }}']
         securityContext:
           privileged: true
           runAsUser: 0
