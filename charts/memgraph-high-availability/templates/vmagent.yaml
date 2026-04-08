@@ -1,5 +1,6 @@
 {{- if $.Values.vmagentRemote.enabled }}
 {{- $namespace := $.Values.vmagentRemote.namespace | default $.Values.prometheus.namespace }}
+{{- $exporterNamespace := $.Values.prometheus.namespace }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -18,7 +19,7 @@ data:
       - job_name: memgraph-exporter
         static_configs:
           - targets:
-              - mg-exporter.{{ $namespace }}.svc.cluster.local:{{ $.Values.prometheus.memgraphExporter.port }}
+              - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ $.Values.prometheus.memgraphExporter.port }}
 ---
 apiVersion: apps/v1
 kind: Deployment
