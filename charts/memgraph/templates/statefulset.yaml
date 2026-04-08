@@ -192,6 +192,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            {{- if .Values.vectorRemote.auth.secretName }}
             - name: MONITORING_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -202,6 +203,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.vectorRemote.auth.secretName }}
                   key: {{ .Values.vectorRemote.auth.passwordKey }}
+            {{- end }}
             - name: ROLE
               value: {{ .Values.vectorRemote.extraLabels.role | default "standalone" | quote }}
             - name: CLUSTER_ID

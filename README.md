@@ -89,7 +89,7 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
 
 ### Prerequisites
 - Enable chart-level Prometheus exporter (`prometheus.enabled=true`).
-- Use a secret containing credentials for your remote endpoints.
+- Use a secret containing credentials for your remote endpoints (required for `vmagentRemote`; optional for `vectorRemote`).
 - For standalone chart, enable Memgraph monitoring ports:
   - `service.enableHttpMonitoring=true`
   - `service.enableWebsocketMonitoring=true`
@@ -123,6 +123,7 @@ vmagentRemote:
 vectorRemote:
   enabled: true
   logsEndpoint: "https://<loki-endpoint>"
+  # Optional: only set auth when endpoint requires basic auth.
   auth:
     secretName: monitoring-basic-auth
     usernameKey: username
@@ -161,6 +162,7 @@ vectorRemote:
   data: true
   coordinators: true
   logsEndpoint: "https://<loki-endpoint>"
+  # Optional: only set auth when endpoint requires basic auth.
   auth:
     secretName: monitoring-basic-auth
     usernameKey: username
@@ -171,7 +173,7 @@ vectorRemote:
     cluster_env: "self-hosted-large-01"
 ```
 
-### Create auth secrets
+### Optional auth secrets for remote endpoints
 Create the same secret in all namespaces where the components run:
 
 ```bash

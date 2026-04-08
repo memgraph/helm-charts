@@ -255,10 +255,12 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
           endpoint: "{{ $v.logsEndpoint }}"
           healthcheck:
             enabled: false
+          {{- if $v.auth.secretName }}
           auth:
             strategy: basic
             user: "{{ "$" }}{{ "{MONITORING_USERNAME}" }}"
             password: "{{ "$" }}{{ "{MONITORING_PASSWORD}" }}"
+          {{- end }}
           encoding:
             codec: text
           labels:
@@ -288,6 +290,7 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
       valueFrom:
         fieldRef:
           fieldPath: status.podIP
+    {{- if $v.auth.secretName }}
     - name: MONITORING_USERNAME
       valueFrom:
         secretKeyRef:
@@ -298,6 +301,7 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
         secretKeyRef:
           name: {{ $v.auth.secretName }}
           key: {{ $v.auth.passwordKey }}
+    {{- end }}
     - name: ROLE
       value: {{ .role | quote }}
     - name: CLUSTER_ID

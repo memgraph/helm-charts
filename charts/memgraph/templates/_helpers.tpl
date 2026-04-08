@@ -182,10 +182,12 @@ sinks:
     endpoint: "{{ .Values.vectorRemote.logsEndpoint }}"
     healthcheck:
       enabled: false
+{{- if .Values.vectorRemote.auth.secretName }}
     auth:
       strategy: basic
       user: "{{ "$" }}{{ "{MONITORING_USERNAME}" }}"
       password: "{{ "$" }}{{ "{MONITORING_PASSWORD}" }}"
+{{- end }}
     encoding:
       codec: text
     labels:
