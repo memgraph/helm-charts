@@ -321,7 +321,7 @@ vmagentRemote:
   namespace: ""  # Defaults to prometheus.namespace when empty
   image:
     repository: victoriametrics/vmagent
-    tag: latest
+    tag: v1.102.1
     pullPolicy: IfNotPresent
   remoteWrite:
     url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
@@ -335,7 +335,9 @@ vmagentRemote:
   httpPort: 8429
 
 ## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
-## Requires service.enableWebsocketMonitoring so Memgraph exposes logs on port 7444.
+## Requires Memgraph monitoring websocket/logs on the configured port; when vectorRemote.enabled=true,
+## the chart configures Memgraph monitoring args automatically. Exposing that port via
+## service.enableWebsocketMonitoring is optional because Vector connects directly to the pod IP.
 vectorRemote:
   enabled: false
   image:
