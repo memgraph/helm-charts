@@ -43,7 +43,7 @@ items:
         spec:
           containers:
             - name: vmsingle
-              image: victoriametrics/victoria-metrics:latest
+              image: victoriametrics/victoria-metrics:v1.139.0
               args:
                 - -retentionPeriod=1
               ports:
@@ -77,7 +77,7 @@ items:
         spec:
           containers:
             - name: victoria-logs
-              image: victoriametrics/victoria-logs:latest
+              image: victoriametrics/victoria-logs:v1.49.0
               ports:
                 - containerPort: 9428
   - apiVersion: v1
