@@ -252,7 +252,7 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
         logs:
           type: loki
           inputs: [enrich]
-          endpoint: "{{ $v.logsEndpoint }}"
+          endpoint: "{{ required "vectorRemote.logsEndpoint is required when vectorRemote is enabled" $v.logsEndpoint }}"
           healthcheck:
             enabled: false
           {{- if $v.auth.secretName }}

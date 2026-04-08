@@ -179,7 +179,7 @@ sinks:
   logs:
     type: loki
     inputs: [enrich]
-    endpoint: "{{ .Values.vectorRemote.logsEndpoint }}"
+    endpoint: "{{ required "vectorRemote.logsEndpoint is required when vectorRemote is enabled" .Values.vectorRemote.logsEndpoint }}"
     healthcheck:
       enabled: false
 {{- if .Values.vectorRemote.auth.secretName }}
