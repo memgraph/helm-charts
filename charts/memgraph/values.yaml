@@ -151,6 +151,8 @@ memgraphConfig:
 # the pod. For further information, check the `resources` section in this file about setting pod memory and cpu limits.
 - "--data-directory=/var/lib/memgraph/mg_data"
 - "--also-log-to-stderr=true"
+- "--monitoring-port=7444"
+- "--monitoring-address=0.0.0.0"
 
 # This is fine because under both
 # Memgraph and Mage images we actually hard-code the user and group id.
@@ -335,9 +337,10 @@ vmagentRemote:
   httpPort: 8429
 
 ## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
-## Requires Memgraph monitoring websocket/logs on the configured port; when vectorRemote.enabled=true,
-## the chart configures Memgraph monitoring args automatically. Exposing that port via
-## service.enableWebsocketMonitoring is optional because Vector connects directly to the pod IP.
+## Requires Memgraph monitoring websocket/logs on the configured port.
+## Defaults include --monitoring-port=7444 and --monitoring-address=0.0.0.0 in memgraphConfig.
+## If you override memgraphConfig or service.websocketPortMonitoring, keep those values aligned.
+## Exposing that port via service.enableWebsocketMonitoring is optional because Vector connects directly to the pod IP.
 vectorRemote:
   enabled: false
   image:
