@@ -143,10 +143,6 @@ spec:
         {{- range $arg := $coordinator.args }}
         - "{{ $arg }}"
         {{- end }}
-        {{- if $.Values.vectorRemote.enabled }}
-        - "--monitoring-port={{ $.Values.vectorRemote.websocketPort }}"
-        - "--monitoring-address=0.0.0.0"
-        {{- end }}
         env:
           {{- if $.Values.secrets.enabled }}
           - name: MEMGRAPH_USER

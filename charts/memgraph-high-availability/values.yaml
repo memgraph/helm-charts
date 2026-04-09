@@ -241,9 +241,8 @@ vmagentRemote:
   httpPort: 8429
 
 ## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
-## Add to data and/or coordinator pods. When enabled, the chart configures Memgraph monitoring
-## args automatically based on vectorRemote.websocketPort. If you override instance args elsewhere,
-## ensure they still expose the monitoring websocket on the same port/address expected by Vector.
+## Add to data and/or coordinator pods. Ensure Memgraph instance args include monitoring flags:
+## --monitoring-port=<vectorRemote.websocketPort> and --monitoring-address=0.0.0.0.
 vectorRemote:
   enabled: false
   # Add Vector sidecar to data instance pods
@@ -306,6 +305,8 @@ data:
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
@@ -319,6 +320,8 @@ data:
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
@@ -335,6 +338,8 @@ coordinators:
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
@@ -351,6 +356,8 @@ coordinators:
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
@@ -367,6 +374,8 @@ coordinators:
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
