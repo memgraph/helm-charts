@@ -60,7 +60,7 @@ spec:
 
             {{- range .Values.env }}
             - name: {{ .name }}
-              value: "{{ .value }}"
+              value: {{ tpl (.value | toString) $ | quote }}
             {{- end }}
 
 
