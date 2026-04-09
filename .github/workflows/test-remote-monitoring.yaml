@@ -66,11 +66,6 @@ jobs:
             --from-literal=password=ci-monitor-pass \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          printf "ci-monitor:$(openssl passwd -apr1 ci-monitor-pass)\n" > /tmp/monitoring.htpasswd
-          kubectl create secret generic monitoring-basic-auth-htpasswd -n remote-monitoring \
-            --from-file=.htpasswd=/tmp/monitoring.htpasswd \
-            --dry-run=client -o yaml | kubectl apply -f -
-
           kubectl apply -f scripts/remote-monitoring-stack.yaml
 
           kubectl rollout status deployment/vmsingle -n remote-monitoring --timeout=180s
@@ -164,11 +159,6 @@ jobs:
           kubectl create secret generic monitoring-basic-auth -n default \
             --from-literal=username=ci-monitor \
             --from-literal=password=ci-monitor-pass \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-          printf "ci-monitor:$(openssl passwd -apr1 ci-monitor-pass)\n" > /tmp/monitoring.htpasswd
-          kubectl create secret generic monitoring-basic-auth-htpasswd -n remote-monitoring \
-            --from-file=.htpasswd=/tmp/monitoring.htpasswd \
             --dry-run=client -o yaml | kubectl apply -f -
 
           kubectl apply -f scripts/remote-monitoring-stack.yaml

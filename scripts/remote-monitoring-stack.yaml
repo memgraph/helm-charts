@@ -5,27 +5,26 @@ items:
   - apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: monitoring-gateway-nginx
+      name: monitoring-gateway-vmauth
       namespace: remote-monitoring
     data:
-      default.conf: |
-        server {
-          listen 8080;
-          auth_basic "Monitoring gateway";
-          auth_basic_user_file /etc/nginx/.htpasswd;
-
-          location /api/v1/ {
-            proxy_pass http://vmsingle.remote-monitoring.svc.cluster.local:8428;
-          }
-
-          location /loki/api/v1/push {
-            proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert/loki/api/v1/push;
-          }
-
-          location /select/ {
-            proxy_pass http://victoria-logs.remote-monitoring.svc.cluster.local:9428/select/;
-          }
-        }
+      auth.yml: |
+        users:
+          - username: ci-monitor
+            password: ci-monitor-pass
+            url_map:
+              - src_paths:
+                  - "/api/v1/.*"
+                url_prefix:
+                  - "http://vmsingle.remote-monitoring.svc.cluster.local:8428"
+              - src_paths:
+                  - "/loki/api/v1/push"
+                url_prefix:
+                  - "http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert"
+              - src_paths:
+                  - "/select/.*"
+                url_prefix:
+                  - "http://victoria-logs.remote-monitoring.svc.cluster.local:9428"
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -108,8 +107,8 @@ items:
             app: monitoring-gateway
         spec:
           containers:
-            - name: nginx
-              image: nginx:1.27-alpine
+            - name: vmauth
+              image: victoriametrics/vmauth:v1.139.0
               command: ["/bin/sh", "-ec"]
               args:
                 - |
@@ -118,23 +117,17 @@ items:
                     echo "Waiting for remote-monitoring service DNS records..."
                     sleep 2
                   done
-                  exec nginx -g 'daemon off;'
+                  exec /vmauth-prod -auth.config=/etc/vmauth/auth.yml -httpListenAddr=:8427
               ports:
-                - containerPort: 8080
+                - containerPort: 8427
               volumeMounts:
-                - name: nginx-conf
-                  mountPath: /etc/nginx/conf.d
-                - name: auth
-                  mountPath: /etc/nginx/.htpasswd
-                  subPath: .htpasswd
+                - name: vmauth-config
+                  mountPath: /etc/vmauth
                   readOnly: true
           volumes:
-            - name: nginx-conf
+            - name: vmauth-config
               configMap:
-                name: monitoring-gateway-nginx
-            - name: auth
-              secret:
-                secretName: monitoring-basic-auth-htpasswd
+                name: monitoring-gateway-vmauth
   - apiVersion: v1
     kind: Service
     metadata:
@@ -146,4 +139,4 @@ items:
       ports:
         - name: http
           port: 80
-          targetPort: 8080
+          targetPort: 8427
