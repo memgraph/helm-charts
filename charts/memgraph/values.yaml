@@ -318,6 +318,8 @@ prometheus:
 
 ## Optional: vmagent for remote monitoring cluster – scrapes the Prometheus exporter and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
 ## Requires prometheus.enabled so that mg-exporter is deployed. Enable service.enableHttpMonitoring on Memgraph for exporter to read metrics.
+## If vmagentRemote.enabled=true and you only need remote_write, set prometheus.serviceMonitor.enabled=false
+## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
 vmagentRemote:
   enabled: false
   namespace: ""  # Defaults to prometheus.namespace when empty

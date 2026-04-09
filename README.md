@@ -93,6 +93,7 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
 - For standalone chart, enable Memgraph monitoring ports:
   - `service.enableHttpMonitoring=true`
   - `service.enableWebsocketMonitoring=true`
+- If `vmagentRemote.enabled=true` and you only need remote_write, set `prometheus.serviceMonitor.enabled=false` to avoid duplicate scraping of `mg-exporter` by both vmagent and kube-prometheus.
 
 ### Standalone chart example
 ```yaml
