@@ -199,7 +199,7 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
       sources:
         memgraph_logs:
           type: websocket
-          uri: "ws://{{ "$" }}{{ "{POD_IP}" }}:{{ $v.websocketPort }}"
+          uri: "ws://127.0.0.1:{{ $v.websocketPort }}"
 
       transforms:
         enrich:
@@ -286,10 +286,6 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
       valueFrom:
         fieldRef:
           fieldPath: metadata.namespace
-    - name: POD_IP
-      valueFrom:
-        fieldRef:
-          fieldPath: status.podIP
     {{- if $v.auth.secretName }}
     - name: MONITORING_USERNAME
       valueFrom:

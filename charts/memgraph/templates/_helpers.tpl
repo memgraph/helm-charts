@@ -126,7 +126,7 @@ data_dir: /tmp/vector-data
 sources:
   memgraph_logs:
     type: websocket
-    uri: "ws://{{ "$" }}{{ "{POD_IP}" }}:{{ .Values.service.websocketPortMonitoring }}"
+    uri: "ws://127.0.0.1:{{ .Values.service.websocketPortMonitoring }}"
 
 transforms:
   enrich:
