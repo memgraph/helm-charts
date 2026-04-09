@@ -192,7 +192,16 @@ Expects dict with: ctx (root context), role ("data" or "coordinator").
     - |
       # Wait for Memgraph to open the log websocket so Vector does not exit with connection errors.
       echo "Waiting for Memgraph monitoring port {{ $v.websocketPort }}..."
-      sleep 25
+      max_wait_seconds=120
+      elapsed=0
+      until bash -c "exec 3<>/dev/tcp/127.0.0.1/{{ $v.websocketPort }}" >/dev/null 2>&1; do
+        if [ "$elapsed" -ge "$max_wait_seconds" ]; then
+          echo "Timed out waiting for Memgraph monitoring port {{ $v.websocketPort }} after ${max_wait_seconds}s" >&2
+          exit 1
+        fi
+        sleep 2
+        elapsed=$((elapsed + 2))
+      done
       cat > /tmp/vector.yaml << VECEOF
       data_dir: /tmp/vector-data
 

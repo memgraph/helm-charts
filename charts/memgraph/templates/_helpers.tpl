@@ -118,8 +118,17 @@ startupProbe:
 {{- end }}
 
 {{- define "memgraph.vector.script" -}}
-# Give Memgraph time to open the log websocket (avoids "Connection refused" on startup)
-sleep 15
+# Wait for Memgraph to open the log websocket (avoids "Connection refused" on startup)
+max_wait_seconds=120
+elapsed=0
+until bash -c "exec 3<>/dev/tcp/127.0.0.1/{{ .Values.service.websocketPortMonitoring }}" >/dev/null 2>&1; do
+  if [ "$elapsed" -ge "$max_wait_seconds" ]; then
+    echo "Timed out waiting for Memgraph monitoring port {{ .Values.service.websocketPortMonitoring }} after ${max_wait_seconds}s" >&2
+    exit 1
+  fi
+  sleep 2
+  elapsed=$((elapsed + 2))
+done
 cat > /tmp/vector.yaml << VECEOF
 data_dir: /tmp/vector-data
 
