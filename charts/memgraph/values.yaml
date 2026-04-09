@@ -334,7 +334,7 @@ vmagentRemote:
   scrapeInterval: 15s
   externalLabels: {}  # e.g. cluster_id: "my-cluster", service_name: "memgraph", cluster_env: "prod"
   resources: {}
-  httpPort: 8429
+  httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
 
 ## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
 ## Requires Memgraph monitoring websocket/logs on the configured port.
