@@ -44,6 +44,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # Supported env variables: https://memgraph.com/docs/data-visualization/install-and-connect#environment-variables
+# value fields support Helm template expressions, e.g. value: '{{ include "memgraph-lab.fullname" . }}'
 env:
 - name: QUICK_CONNECT_MG_HOST
   value: memgraph-db

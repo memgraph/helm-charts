@@ -67,7 +67,7 @@ Get the base path env value
 {{- define "getBasePath" -}}
 {{- range .Values.env }}
   {{- if eq .name "BASE_PATH" }}
-    {{- .value }}
+    {{- tpl (.value | toString) $ }}
   {{- end }}
 {{- end }}
 {{- end }}
