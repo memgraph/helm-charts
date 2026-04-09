@@ -93,6 +93,9 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
 - For standalone chart, enable Memgraph monitoring ports:
   - `service.enableHttpMonitoring=true`
   - `service.enableWebsocketMonitoring=true`
+- If `vectorRemote.enabled=true`, add Memgraph monitoring flags:
+  - standalone chart: add `--monitoring-port=<service.websocketPortMonitoring>` and `--monitoring-address=0.0.0.0` to `memgraphConfig`
+  - HA chart: add `--monitoring-port=<vectorRemote.websocketPort>` and `--monitoring-address=0.0.0.0` to each instance's `args`
 - If `vmagentRemote.enabled=true` and you only need remote_write, set `prometheus.serviceMonitor.enabled=false` to avoid duplicate scraping of `mg-exporter` by both vmagent and kube-prometheus.
 
 ### Standalone chart example
@@ -106,6 +109,12 @@ prometheus:
 service:
   enableHttpMonitoring: true
   enableWebsocketMonitoring: true
+
+memgraphConfig:
+  - "--data-directory=/var/lib/memgraph/mg_data"
+  - "--also-log-to-stderr=true"
+  - "--monitoring-port=7444"
+  - "--monitoring-address=0.0.0.0"
 
 vmagentRemote:
   enabled: true
@@ -162,6 +171,7 @@ vectorRemote:
   enabled: true
   data: true
   coordinators: true
+  websocketPort: 7444
   logsEndpoint: "https://<loki-endpoint>"
   # Optional: only set auth when endpoint requires basic auth.
   auth:
@@ -172,6 +182,46 @@ vectorRemote:
     cluster_id: "memgraph-testing-cluster-53"
     service_name: "Memgraph HA"
     cluster_env: "self-hosted-large-01"
+
+data:
+  - id: "0"
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "1"
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+
+coordinators:
+  - id: "1"
+    args:
+      - "--coordinator-id=1"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "2"
+    args:
+      - "--coordinator-id=2"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "3"
+    args:
+      - "--coordinator-id=3"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
 ```
 
 ### Optional auth secrets for remote endpoints

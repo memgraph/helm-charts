@@ -304,11 +304,12 @@ data:
     # Example
     # externalAccessAnnotations:
       # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
+    # If vectorRemote.enabled=true, add the following args for each data instance:
+    #   - "--monitoring-port=<vectorRemote.websocketPort>"
+    #   - "--monitoring-address=0.0.0.0"
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
-      - "--monitoring-port=7444"
-      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
@@ -322,8 +323,6 @@ data:
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
-      - "--monitoring-port=7444"
-      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--log-file=/var/log/memgraph/memgraph.log"
@@ -335,13 +334,14 @@ coordinators:
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
+    # If vectorRemote.enabled=true, add the following args for each coordinator:
+    #   - "--monitoring-port=<vectorRemote.websocketPort>"
+    #   - "--monitoring-address=0.0.0.0"
     args:
       - "--coordinator-id=1"
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
-      - "--monitoring-port=7444"
-      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
@@ -358,8 +358,6 @@ coordinators:
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
-      - "--monitoring-port=7444"
-      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
@@ -376,8 +374,6 @@ coordinators:
       - "--coordinator-port=12000"
       - "--management-port=10000"
       - "--bolt-port=7687"
-      - "--monitoring-port=7444"
-      - "--monitoring-address=0.0.0.0"
       - "--also-log-to-stderr"
       - "--log-level=TRACE"
       - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
