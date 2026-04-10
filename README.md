@@ -79,6 +79,168 @@ Once Memgraph cluster is up and running, you can access it using the provided se
 
 To upgrade or uninstall a deployed Memgraph release, you can use the `helm upgrade` or `helm uninstall` commands, respectively. Refer to the [Helm documentation](https://helm.sh/docs/) for more details on these commands.
 
+## Remote Metrics and Logging
+Both Memgraph charts support optional remote observability:
+
+- **Remote metrics** via `vmagentRemote` using Prometheus `remote_write`.
+- **Remote logs** via `vectorRemote` using Loki-compatible push API.
+
+This works with VictoriaMetrics/VictoriaLogs, and with other backends that expose compatible Prometheus remote-write and Loki endpoints.
+
+### Prerequisites
+- Enable chart-level Prometheus exporter (`prometheus.enabled=true`).
+- Use a secret containing credentials for your remote endpoints (required for `vmagentRemote`; optional for `vectorRemote`).
+- For standalone chart, enable Memgraph monitoring ports:
+  - `service.enableHttpMonitoring=true`
+  - `service.enableWebsocketMonitoring=true`
+- If `vectorRemote.enabled=true`, add Memgraph monitoring flags:
+  - standalone chart: add `--monitoring-port=<service.websocketPortMonitoring>` and `--monitoring-address=0.0.0.0` to `memgraphConfig`
+  - HA chart: add `--monitoring-port=<vectorRemote.websocketPort>` and `--monitoring-address=0.0.0.0` to each instance's `args`
+- If `vmagentRemote.enabled=true` and you only need remote_write, set `prometheus.serviceMonitor.enabled=false` to avoid duplicate scraping of `mg-exporter` by both vmagent and kube-prometheus.
+
+### Standalone chart example
+```yaml
+prometheus:
+  enabled: true
+  namespace: monitoring
+  serviceMonitor:
+    enabled: false
+
+service:
+  enableHttpMonitoring: true
+  enableWebsocketMonitoring: true
+
+memgraphConfig:
+  - "--data-directory=/var/lib/memgraph/mg_data"
+  - "--also-log-to-stderr=true"
+  - "--monitoring-port=7444"
+  - "--monitoring-address=0.0.0.0"
+
+vmagentRemote:
+  enabled: true
+  namespace: monitoring
+  remoteWrite:
+    url: "https://<prom-remote-write>/api/v1/write"
+    basicAuth:
+      secretName: monitoring-basic-auth
+      usernameKey: username
+      passwordKey: password
+  externalLabels:
+    cluster_id: "memgraph-standalone"
+    service_name: "memgraph"
+    cluster_env: "dev"
+
+vectorRemote:
+  enabled: true
+  logsEndpoint: "https://<loki-endpoint>"
+  # Optional: only set auth when endpoint requires basic auth.
+  auth:
+    secretName: monitoring-basic-auth
+    usernameKey: username
+    passwordKey: password
+  extraLabels:
+    cluster_id: "memgraph-standalone"
+    service_name: "memgraph"
+    cluster_env: "dev"
+    role: "standalone"
+```
+
+### High availability chart example
+```yaml
+prometheus:
+  enabled: true
+  namespace: monitoring
+  serviceMonitor:
+    enabled: false
+
+vmagentRemote:
+  enabled: true
+  namespace: monitoring
+  remoteWrite:
+    url: "https://<prom-remote-write>/api/v1/write"
+    basicAuth:
+      secretName: monitoring-basic-auth
+      usernameKey: username
+      passwordKey: password
+  externalLabels:
+    cluster_id: "memgraph-testing-cluster-53"
+    service_name: "Memgraph HA"
+    cluster_env: "self-hosted-large-01"
+
+vectorRemote:
+  enabled: true
+  data: true
+  coordinators: true
+  websocketPort: 7444
+  logsEndpoint: "https://<loki-endpoint>"
+  # Optional: only set auth when endpoint requires basic auth.
+  auth:
+    secretName: monitoring-basic-auth
+    usernameKey: username
+    passwordKey: password
+  extraLabels:
+    cluster_id: "memgraph-testing-cluster-53"
+    service_name: "Memgraph HA"
+    cluster_env: "self-hosted-large-01"
+
+data:
+  - id: "0"
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "1"
+    args:
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+
+coordinators:
+  - id: "1"
+    args:
+      - "--coordinator-id=1"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "2"
+    args:
+      - "--coordinator-id=2"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+  - id: "3"
+    args:
+      - "--coordinator-id=3"
+      - "--coordinator-port=12000"
+      - "--management-port=10000"
+      - "--bolt-port=7687"
+      - "--monitoring-port=7444"
+      - "--monitoring-address=0.0.0.0"
+```
+
+### Optional auth secrets for remote endpoints
+Create the same secret in all namespaces where the components run:
+
+```bash
+kubectl create secret generic monitoring-basic-auth -n monitoring \
+  --from-literal=username='<username>' \
+  --from-literal=password='<password>'
+```
+
+For HA and standalone vector sidecars, also create the same secret in the Memgraph release namespace (for example `default` or `memgraph`):
+
+```bash
+kubectl create secret generic monitoring-basic-auth -n <memgraph-namespace> \
+  --from-literal=username='<username>' \
+  --from-literal=password='<password>'
+```
+
 ## Docker Compose
 
 Creates HA Memgraph cluster with one command. The only thing you need to do is add your license details. Used bridged docker network for

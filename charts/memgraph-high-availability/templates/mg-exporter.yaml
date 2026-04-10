@@ -37,6 +37,10 @@ spec:
       app: mg-exporter
   template:
     metadata:
+      # Force Deployment rollout when HA exporter inputs change. The exporter
+      # reads a ConfigMap via subPath, which doesn't refresh in-place.
+      annotations:
+        checksum/ha-config: {{ printf "%s-%s-%s" (toJson $.Values.coordinators) (toJson $.Values.data) (toJson $.Values.prometheus.memgraphExporter) | sha256sum }}
       labels:
         app: mg-exporter
     spec:

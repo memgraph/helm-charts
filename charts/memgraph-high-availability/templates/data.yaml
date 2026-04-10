@@ -144,6 +144,10 @@ spec:
         - containerPort: {{ $.Values.ports.boltPort }}
         - containerPort: {{ $.Values.ports.managementPort }}
         - containerPort: {{ $.Values.ports.replicationPort }}
+        {{- if $.Values.vectorRemote.enabled }}
+        - containerPort: {{ $.Values.vectorRemote.websocketPort }}
+          name: monitoring
+        {{- end }}
         args:
         {{- range $arg := $data.args }}
         - "{{ $arg }}"
@@ -198,6 +202,9 @@ spec:
         {{- end }}
       {{- if and $.Values.coreDumpUploader.enabled $.Values.storage.data.createCoreDumpsClaim }}
       {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "memgraph-data-%s-core-dumps-storage" $data.id) "mountPath" $.Values.storage.data.coreDumpsMountPath "values" $.Values.coreDumpUploader) | nindent 6 }}
+      {{- end }}
+      {{- if and $.Values.vectorRemote.enabled $.Values.vectorRemote.data }}
+      {{- include "memgraph.vectorSidecar" (dict "ctx" $ "role" "data") | nindent 6 }}
       {{- end }}
       {{- with $.Values.userContainers.data }}
       {{- toYaml . | nindent 6 }}

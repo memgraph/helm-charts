@@ -149,6 +149,9 @@ memgraphConfig:
 # If setting the --memory-limit flag, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod. For further information, check the `resources` section in this file about setting pod memory and cpu limits.
+# If vectorRemote.enabled=true, add the following flags to memgraphConfig:
+# - "--monitoring-port=<service.websocketPortMonitoring>"
+# - "--monitoring-address=0.0.0.0"
 - "--data-directory=/var/lib/memgraph/mg_data"
 - "--also-log-to-stderr=true"
 
@@ -313,3 +316,44 @@ prometheus:
     enabled: true
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
+
+## Optional: vmagent for remote monitoring cluster – scrapes the Prometheus exporter and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
+## Requires prometheus.enabled so that mg-exporter is deployed. Enable service.enableHttpMonitoring on Memgraph for exporter to read metrics.
+## If vmagentRemote.enabled=true and you only need remote_write, set prometheus.serviceMonitor.enabled=false
+## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
+vmagentRemote:
+  enabled: false
+  namespace: ""  # Defaults to prometheus.namespace when empty
+  image:
+    repository: victoriametrics/vmagent
+    tag: v1.139.0
+    pullPolicy: IfNotPresent
+  remoteWrite:
+    url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
+    basicAuth:
+      secretName: ""  # Secret with username and password keys
+      usernameKey: username
+      passwordKey: password
+  scrapeInterval: 15s
+  externalLabels: {}  # e.g. cluster_id: "my-cluster", service_name: "memgraph", cluster_env: "prod"
+  resources: {}
+  httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
+
+## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
+## Requires Memgraph monitoring websocket/logs on the configured port.
+## Add --monitoring-port=<service.websocketPortMonitoring> and --monitoring-address=0.0.0.0 to memgraphConfig when vectorRemote.enabled=true.
+## If you override memgraphConfig or service.websocketPortMonitoring, keep those values aligned.
+## Exposing that port via service.enableWebsocketMonitoring is optional because Vector connects directly to the pod IP.
+vectorRemote:
+  enabled: false
+  image:
+    repository: timberio/vector
+    tag: 0.49.0-debian
+    pullPolicy: IfNotPresent
+  logsEndpoint: ""  # e.g. http://victoria-logs.monitoring.svc.cluster.local:9428/insert
+  auth:
+    secretName: ""  # Secret with username and password for logs endpoint basic auth
+    usernameKey: username
+    passwordKey: password
+  extraLabels: {}  # e.g. cluster_id: "my-cluster", service_name: "memgraph", cluster_env: "prod", role: "standalone"
+  resources: {}

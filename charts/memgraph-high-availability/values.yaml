@@ -220,6 +220,50 @@ prometheus:
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
 
+## Optional: vmagent for remote monitoring cluster – scrapes the Prometheus exporter and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
+## Requires prometheus.enabled so that mg-exporter is deployed.
+## If vmagentRemote.enabled=true and you only need remote_write, set prometheus.serviceMonitor.enabled=false
+## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
+vmagentRemote:
+  enabled: false
+  namespace: ""  # Defaults to prometheus.namespace when empty
+  image:
+    repository: victoriametrics/vmagent
+    tag: v1.139.0
+    pullPolicy: IfNotPresent
+  remoteWrite:
+    url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
+    basicAuth:
+      secretName: ""
+      usernameKey: username
+      passwordKey: password
+  scrapeInterval: 15s
+  externalLabels: {}
+  resources: {}
+  httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
+
+## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
+## Add to data and/or coordinator pods. Ensure Memgraph instance args include monitoring flags:
+## --monitoring-port=<vectorRemote.websocketPort> and --monitoring-address=0.0.0.0.
+vectorRemote:
+  enabled: false
+  # Add Vector sidecar to data instance pods
+  data: true
+  # Add Vector sidecar to coordinator pods
+  coordinators: true
+  websocketPort: 7444  # Memgraph monitoring websocket port used by both chart args and Vector sidecars
+  image:
+    repository: timberio/vector
+    tag: 0.49.0-debian
+    pullPolicy: IfNotPresent
+  logsEndpoint: ""
+  auth:
+    secretName: ""
+    usernameKey: username
+    passwordKey: password
+  extraLabels: {}  # e.g. cluster_id, service_name, cluster_env; role is set per pod type (data/coordinator)
+  resources: {}
+
 extraEnv:
   data: []
   # Example
@@ -260,6 +304,9 @@ data:
     # Example
     # externalAccessAnnotations:
       # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
+    # If vectorRemote.enabled=true, add the following args for each data instance:
+    #   - "--monitoring-port=<vectorRemote.websocketPort>"
+    #   - "--monitoring-address=0.0.0.0"
     args:
       - "--management-port=10000"
       - "--bolt-port=7687"
@@ -287,6 +334,9 @@ coordinators:
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
+    # If vectorRemote.enabled=true, add the following args for each coordinator:
+    #   - "--monitoring-port=<vectorRemote.websocketPort>"
+    #   - "--monitoring-address=0.0.0.0"
     args:
       - "--coordinator-id=1"
       - "--coordinator-port=12000"

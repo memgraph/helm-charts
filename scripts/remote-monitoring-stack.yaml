@@ -1,0 +1,142 @@
+# Used by CI workflow tests for remote monitoring.
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: monitoring-gateway-vmauth
+      namespace: remote-monitoring
+    data:
+      auth.yml: |
+        users:
+          - username: ci-monitor
+            password: ci-monitor-pass
+            url_map:
+              - src_paths:
+                  - "/api/v1/.*"
+                url_prefix:
+                  - "http://vmsingle.remote-monitoring.svc.cluster.local:8428"
+              - src_paths:
+                  - "/loki/api/v1/push"
+                url_prefix:
+                  - "http://victoria-logs.remote-monitoring.svc.cluster.local:9428/insert"
+              - src_paths:
+                  - "/select/.*"
+                url_prefix:
+                  - "http://victoria-logs.remote-monitoring.svc.cluster.local:9428"
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: vmsingle
+      namespace: remote-monitoring
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: vmsingle
+      template:
+        metadata:
+          labels:
+            app: vmsingle
+        spec:
+          containers:
+            - name: vmsingle
+              image: victoriametrics/victoria-metrics:v1.139.0
+              args:
+                - -retentionPeriod=1
+              ports:
+                - containerPort: 8428
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: vmsingle
+      namespace: remote-monitoring
+    spec:
+      selector:
+        app: vmsingle
+      ports:
+        - name: http
+          port: 8428
+          targetPort: 8428
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: victoria-logs
+      namespace: remote-monitoring
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: victoria-logs
+      template:
+        metadata:
+          labels:
+            app: victoria-logs
+        spec:
+          containers:
+            - name: victoria-logs
+              image: victoriametrics/victoria-logs:v1.49.0
+              ports:
+                - containerPort: 9428
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: victoria-logs
+      namespace: remote-monitoring
+    spec:
+      selector:
+        app: victoria-logs
+      ports:
+        - name: http
+          port: 9428
+          targetPort: 9428
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: monitoring-gateway
+      namespace: remote-monitoring
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: monitoring-gateway
+      template:
+        metadata:
+          labels:
+            app: monitoring-gateway
+        spec:
+          containers:
+            - name: vmauth
+              image: victoriametrics/vmauth:v1.139.0
+              command: ["/bin/sh", "-ec"]
+              args:
+                - |
+                  until getent hosts vmsingle.remote-monitoring.svc.cluster.local >/dev/null 2>&1 && \
+                        getent hosts victoria-logs.remote-monitoring.svc.cluster.local >/dev/null 2>&1; do
+                    echo "Waiting for remote-monitoring service DNS records..."
+                    sleep 2
+                  done
+                  exec /vmauth-prod -auth.config=/etc/vmauth/auth.yml -httpListenAddr=:8427
+              ports:
+                - containerPort: 8427
+              volumeMounts:
+                - name: vmauth-config
+                  mountPath: /etc/vmauth
+                  readOnly: true
+          volumes:
+            - name: vmauth-config
+              configMap:
+                name: monitoring-gateway-vmauth
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: monitoring-gateway
+      namespace: remote-monitoring
+    spec:
+      selector:
+        app: monitoring-gateway
+      ports:
+        - name: http
+          port: 80
+          targetPort: 8427

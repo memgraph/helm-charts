@@ -167,6 +167,48 @@ spec:
           {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12}}
           {{- end }}
+      {{- if .Values.vectorRemote.enabled }}
+        - name: memgraph-vector
+          image: "{{ .Values.vectorRemote.image.repository }}:{{ .Values.vectorRemote.image.tag }}"
+          imagePullPolicy: {{ .Values.vectorRemote.image.pullPolicy }}
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+{{ include "memgraph.vector.script" . | indent 14 }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if .Values.vectorRemote.auth.secretName }}
+            - name: MONITORING_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.vectorRemote.auth.secretName }}
+                  key: {{ .Values.vectorRemote.auth.usernameKey }}
+            - name: MONITORING_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.vectorRemote.auth.secretName }}
+                  key: {{ .Values.vectorRemote.auth.passwordKey }}
+            {{- end }}
+            - name: ROLE
+              value: {{ .Values.vectorRemote.extraLabels.role | default "standalone" | quote }}
+            - name: CLUSTER_ID
+              value: {{ .Values.vectorRemote.extraLabels.cluster_id | default "" | quote }}
+            - name: SERVICE_NAME
+              value: {{ .Values.vectorRemote.extraLabels.service_name | default "" | quote }}
+            - name: CLUSTER_ENV
+              value: {{ .Values.vectorRemote.extraLabels.cluster_env | default "" | quote }}
+          {{- with .Values.vectorRemote.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

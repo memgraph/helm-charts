@@ -1,0 +1,221 @@
+name: Test Remote Monitoring
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_ha:
+        description: "Test HA remote monitoring"
+        required: true
+        type: boolean
+        default: true
+      test_standalone:
+        description: "Test standalone remote monitoring"
+        required: true
+        default: true
+        type: boolean
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "charts/memgraph/**"
+      - "charts/memgraph-high-availability/**"
+      - "scripts/remote-monitoring-stack.yaml"
+      - "scripts/verify-remote-monitoring.sh"
+      - ".github/workflows/test-remote-monitoring.yaml"
+
+jobs:
+  test-ha-remote-monitoring:
+    name: HA remote monitoring
+    runs-on: self-hosted
+    if: ${{ inputs.test_ha == true || github.event_name == 'pull_request' }}
+    env:
+      CLUSTER_ID: memgraph-ha-remote-CI
+      SERVICE_NAME: Memgraph HA
+      CLUSTER_ENV: minikube
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Reset Minikube profile
+        run: |
+          minikube delete -p minikube || true
+
+      - name: Create Minikube cluster
+        run: |
+          minikube start --driver=docker
+          kubectl get nodes -o wide
+
+      - name: Set Memgraph Enterprise env vars
+        run: |
+          echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> "$GITHUB_ENV"
+          echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> "$GITHUB_ENV"
+
+      - name: Provision remote monitoring stack (VictoriaMetrics + VictoriaLogs + auth gateway)
+        run: |
+          kubectl create namespace remote-monitoring --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic monitoring-basic-auth -n monitoring \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic monitoring-basic-auth -n default \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl apply -f scripts/remote-monitoring-stack.yaml
+
+          kubectl rollout status deployment/vmsingle -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/victoria-logs -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/monitoring-gateway -n remote-monitoring --timeout=180s
+
+      - name: Install HA chart with remote monitoring enabled
+        run: |
+          helm install memgraph-db ./charts/memgraph-high-availability \
+            --set env.MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
+            --set env.MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
+            --set prometheus.enabled=true \
+            --set prometheus.namespace=monitoring \
+            --set prometheus.serviceMonitor.enabled=false \
+            --set vmagentRemote.enabled=true \
+            --set vmagentRemote.namespace=monitoring \
+            --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
+            --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
+            --set vmagentRemote.externalLabels.cluster_id=${{ env.CLUSTER_ID }} \
+            --set-string vmagentRemote.externalLabels.service_name="${{ env.SERVICE_NAME }}" \
+            --set vmagentRemote.externalLabels.cluster_env=${{ env.CLUSTER_ENV }} \
+            --set vectorRemote.enabled=true \
+            --set vectorRemote.data=true \
+            --set vectorRemote.coordinators=true \
+            --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
+            --set vectorRemote.auth.secretName=monitoring-basic-auth \
+            --set vectorRemote.extraLabels.cluster_id=${{ env.CLUSTER_ID }} \
+            --set-string vectorRemote.extraLabels.service_name="${{ env.SERVICE_NAME }}" \
+            --set vectorRemote.extraLabels.cluster_env=${{ env.CLUSTER_ENV }} \
+            --timeout 12m --wait
+
+      - name: Wait for monitoring side components
+        run: |
+          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          kubectl rollout status deployment/memgraph-db-memgraph-high-availability-vmagent -n monitoring --timeout=300s
+
+      - name: Verify metrics and logs reach monitoring cluster
+        run: |
+          scripts/verify-remote-monitoring.sh \
+            --service-name "${{ env.SERVICE_NAME }}" \
+            --sample-pod memgraph-data-0-0
+
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get svc -A || true
+          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-memgraph-high-availability-vmagent --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
+
+      - name: Cleanup cluster
+        if: always()
+        run: |
+          kubectl delete namespace monitoring remote-monitoring --ignore-not-found=true --wait=true --timeout=300s || true
+          minikube delete -p minikube || true
+
+  test-standalone-remote-monitoring:
+    name: Standalone remote monitoring
+    runs-on: self-hosted
+    if: ${{ inputs.test_standalone == true || github.event_name == 'pull_request' }}
+    env:
+      CLUSTER_ID: memgraph-standalone-remote-CI
+      SERVICE_NAME: Memgraph Standalone
+      CLUSTER_ENV: minikube
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Reset Minikube profile
+        run: |
+          minikube delete -p minikube || true
+
+      - name: Create Minikube cluster
+        run: |
+          minikube start --driver=docker
+          kubectl get nodes -o wide
+
+      - name: Provision remote monitoring stack (VictoriaMetrics + VictoriaLogs + auth gateway)
+        run: |
+          kubectl create namespace remote-monitoring --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic monitoring-basic-auth -n monitoring \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic monitoring-basic-auth -n default \
+            --from-literal=username=ci-monitor \
+            --from-literal=password=ci-monitor-pass \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl apply -f scripts/remote-monitoring-stack.yaml
+
+          kubectl rollout status deployment/vmsingle -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/victoria-logs -n remote-monitoring --timeout=180s
+          kubectl rollout status deployment/monitoring-gateway -n remote-monitoring --timeout=180s
+
+      - name: Install standalone chart with remote monitoring enabled
+        run: |
+          helm install memgraph-db ./charts/memgraph \
+            --set service.enableHttpMonitoring=true \
+            --set service.enableWebsocketMonitoring=true \
+            --set-json 'memgraphConfig=["--data-directory=/var/lib/memgraph/mg_data","--also-log-to-stderr=true","--log-level=TRACE"]' \
+            --set prometheus.enabled=true \
+            --set prometheus.namespace=monitoring \
+            --set prometheus.serviceMonitor.enabled=false \
+            --set vmagentRemote.enabled=true \
+            --set vmagentRemote.namespace=monitoring \
+            --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
+            --set vmagentRemote.remoteWrite.basicAuth.secretName=monitoring-basic-auth \
+            --set vmagentRemote.externalLabels.cluster_id=${{ env.CLUSTER_ID }} \
+            --set-string vmagentRemote.externalLabels.service_name="${{ env.SERVICE_NAME }}" \
+            --set vmagentRemote.externalLabels.cluster_env=${{ env.CLUSTER_ENV }} \
+            --set vectorRemote.enabled=true \
+            --set vectorRemote.logsEndpoint=http://monitoring-gateway.remote-monitoring.svc.cluster.local \
+            --set vectorRemote.auth.secretName=monitoring-basic-auth \
+            --set vectorRemote.extraLabels.cluster_id=${{ env.CLUSTER_ID }} \
+            --set-string vectorRemote.extraLabels.service_name="${{ env.SERVICE_NAME }}" \
+            --set vectorRemote.extraLabels.cluster_env=${{ env.CLUSTER_ENV }} \
+            --set vectorRemote.extraLabels.role=standalone \
+            --timeout 10m --wait
+
+      - name: Wait for monitoring side components
+        run: |
+          kubectl rollout status statefulset/memgraph-db -n default --timeout=300s
+          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          kubectl rollout status deployment/memgraph-db-vmagent -n monitoring --timeout=300s
+
+      - name: Verify metrics and logs reach monitoring cluster
+        run: |
+          scripts/verify-remote-monitoring.sh \
+            --service-name "${{ env.SERVICE_NAME }}" \
+            --sample-pod memgraph-db-0
+
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get svc -A || true
+          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-vmagent --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
+          kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
+
+      - name: Cleanup cluster
+        if: always()
+        run: |
+          kubectl delete namespace monitoring remote-monitoring --ignore-not-found=true --wait=true --timeout=300s || true
+          minikube delete -p minikube || true
