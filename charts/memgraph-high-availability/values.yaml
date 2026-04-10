@@ -159,7 +159,8 @@ labels:
 
 container:
   data:
-    terminationGracePeriodSeconds: 1800
+    terminationGracePeriodSeconds: 30 # Make sure to increase this value if --storage-snapshot-on-exit=true so that snapshot can be successfully created on exit. The concrete value depends
+    # on the amount of data in your database
     readinessProbe:
       tcpSocket:
         port: 7687 # If you change bolt port, change this also
@@ -180,7 +181,8 @@ container:
       timeoutSeconds: 10
       periodSeconds: 5
   coordinators:
-    terminationGracePeriodSeconds: 1800
+    terminationGracePeriodSeconds: 30 # Make sure to increase this value if --storage-snapshot-on-exit=true so that snapshot can be successfully created on exit. The concrete value depends
+    # on the amount of data in your databas
     readinessProbe:
       tcpSocket:
         port: 12000 # If you change coordinator port, change this also
