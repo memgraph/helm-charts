@@ -212,7 +212,7 @@ spec:
 
       {{- if $.Values.storage.data.extraVolumes }}
       volumes:
-      {{- toYaml $.Values.storage.data.extraVolumes | nindent 6 }}
+      {{- tpl (toYaml $.Values.storage.data.extraVolumes) $ | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
