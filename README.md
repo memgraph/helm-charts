@@ -241,6 +241,78 @@ kubectl create secret generic monitoring-basic-auth -n <memgraph-namespace> \
   --from-literal=password='<password>'
 ```
 
+### Export Kubernetes infrastructure metrics with `vmagentRemote`
+
+`vmagentRemote` can also scrape Kubernetes infrastructure metrics required by
+`kube-prometheus-stack` Kubernetes/Node dashboards, and remote-write them to
+your centralized monitoring cluster.
+
+Enable Kubernetes scraping in values:
+
+```yaml
+vmagentRemote:
+  enabled: true
+  namespace: monitoring
+  remoteWrite:
+    url: "https://<prom-remote-write>/insert/0/prometheus/api/v1/write"
+    basicAuth:
+      secretName: monitoring-basic-auth
+      usernameKey: username
+      passwordKey: password
+  externalLabels:
+    cluster: "my-k8s-cluster"
+    cluster_id: "my-k8s-cluster"
+    service_name: "memgraph"
+    cluster_env: "dev"
+  kubernetes:
+    enabled: true
+    kubeStateMetrics:
+      enabled: true
+      jobName: kube-state-metrics
+      targets:
+        - kube-prometheus-stack-kube-state-metrics.monitoring.svc.cluster.local:8080
+    nodeExporter:
+      enabled: true
+      jobName: node-exporter
+      targets:
+        - kube-prometheus-stack-prometheus-node-exporter.monitoring.svc.cluster.local:9100
+    kubelet:
+      enabled: true
+      jobName: kubelet
+      metricsPath: /metrics/cadvisor
+      apiServerAddress: kubernetes.default.svc:443
+      insecureSkipVerify: true
+```
+
+Notes:
+
+- This creates RBAC for vmagent to discover/scrape kubelet metrics via the API server node proxy.
+- Keep `jobName` values aligned with dashboard/rule expectations unless you also update dashboard queries.
+- Dashboards that depend on precomputed recording-rule series still require rule evaluation in your monitoring stack.
+
+Ready-to-use example values:
+
+- Standalone: `examples/remote-monitoring/values-standalone-k8s-metrics.yaml`
+- HA: `examples/remote-monitoring/values-ha-k8s-metrics.yaml`
+
+Install examples:
+
+```bash
+# Standalone
+helm upgrade --install memgraph memgraph/memgraph \
+  -n memgraph \
+  --create-namespace \
+  -f ./examples/remote-monitoring/values-standalone-k8s-metrics.yaml
+
+# High availability
+helm upgrade --install memgraph-ha memgraph/memgraph-high-availability \
+  -n memgraph \
+  --create-namespace \
+  -f ./examples/remote-monitoring/values-ha-k8s-metrics.yaml \
+  --set env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license> \
+  --set env.MEMGRAPH_ORGANIZATION_NAME=<your-org>
+```
+
 ## Docker Compose
 
 Creates HA Memgraph cluster with one command. The only thing you need to do is add your license details. Used bridged docker network for

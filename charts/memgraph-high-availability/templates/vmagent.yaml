@@ -4,11 +4,24 @@
 {{- end }}
 {{- $namespace := $.Values.vmagentRemote.namespace | default $.Values.prometheus.namespace }}
 {{- $exporterNamespace := $.Values.prometheus.namespace }}
+{{- $kubernetesMetricsEnabled := $.Values.vmagentRemote.kubernetes.enabled | default false }}
 {{- if and $.Values.vmagentRemote.remoteWrite.basicAuth.secretName (not $.Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
 {{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
 {{- end }}
 {{- if and $.Values.vmagentRemote.remoteWrite.basicAuth.secretName (not $.Values.vmagentRemote.remoteWrite.basicAuth.passwordKey) }}
 {{- fail "vmagentRemote.remoteWrite.basicAuth.passwordKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.kubeStateMetrics.enabled (not $.Values.vmagentRemote.kubernetes.kubeStateMetrics.targets) }}
+{{- fail "vmagentRemote.kubernetes.kubeStateMetrics.targets must contain at least one target when kubeStateMetrics is enabled" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.nodeExporter.enabled (not $.Values.vmagentRemote.kubernetes.nodeExporter.targets) }}
+{{- fail "vmagentRemote.kubernetes.nodeExporter.targets must contain at least one target when nodeExporter is enabled" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.kubelet.enabled (not $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress) }}
+{{- fail "vmagentRemote.kubernetes.kubelet.apiServerAddress must be set when kubelet scraping is enabled" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.kubelet.enabled (not $.Values.vmagentRemote.kubernetes.kubelet.metricsPath) }}
+{{- fail "vmagentRemote.kubernetes.kubelet.metricsPath must be set when kubelet scraping is enabled" }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap
@@ -29,6 +42,78 @@ data:
         static_configs:
           - targets:
               - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ $.Values.prometheus.memgraphExporter.port }}
+      {{- if $kubernetesMetricsEnabled }}
+      {{- if $.Values.vmagentRemote.kubernetes.kubeStateMetrics.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.kubeStateMetrics.jobName }}
+        static_configs:
+          - targets:
+              {{- range $.Values.vmagentRemote.kubernetes.kubeStateMetrics.targets }}
+              - {{ . | quote }}
+              {{- end }}
+      {{- end }}
+      {{- if $.Values.vmagentRemote.kubernetes.nodeExporter.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.jobName }}
+        static_configs:
+          - targets:
+              {{- range $.Values.vmagentRemote.kubernetes.nodeExporter.targets }}
+              - {{ . | quote }}
+              {{- end }}
+      {{- end }}
+      {{- if $.Values.vmagentRemote.kubernetes.kubelet.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.kubelet.jobName }}
+        scheme: https
+        metrics_path: {{ $.Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
+        kubernetes_sd_configs:
+          - role: node
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: {{ $.Values.vmagentRemote.kubernetes.kubelet.insecureSkipVerify }}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_name]
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/$1/proxy{{ $.Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
+          - target_label: __address__
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress }}
+      {{- end }}
+      {{- end }}
+{{- if $kubernetesMetricsEnabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+  namespace: {{ $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - endpoints
+      - pods
+      - services
+    verbs: ["get", "list", "watch"]
+{{- end }}
+{{- if $kubernetesMetricsEnabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "memgraph.fullname" . }}-vmagent
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "memgraph.fullname" . }}-vmagent
+    namespace: {{ $namespace }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,6 +132,9 @@ spec:
       labels:
         app: {{ include "memgraph.fullname" . }}-vmagent
     spec:
+      {{- if $kubernetesMetricsEnabled }}
+      serviceAccountName: {{ include "memgraph.fullname" . }}-vmagent
+      {{- end }}
       containers:
         - name: vmagent
           image: "{{ $.Values.vmagentRemote.image.repository }}:{{ $.Values.vmagentRemote.image.tag }}"
