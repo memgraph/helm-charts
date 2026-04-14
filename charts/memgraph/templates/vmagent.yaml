@@ -96,6 +96,9 @@ data:
             replacement: /api/v1/nodes/$1/proxy{{ .Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
           - target_label: __address__
             replacement: {{ .Values.vmagentRemote.kubernetes.kubelet.apiServerAddress }}
+          # kube-prometheus recording rules expect metrics_path="/metrics/cadvisor".
+          - target_label: metrics_path
+            replacement: {{ .Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
       {{- end }}
       {{- end }}
 {{- if $kubernetesMetricsEnabled }}
