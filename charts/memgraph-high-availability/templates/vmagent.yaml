@@ -134,6 +134,9 @@ data:
             replacement: /api/v1/nodes/$1/proxy{{ $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath }}
           - target_label: __address__
             replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress }}
+          # Keep dashboard queries working for kubelet /metrics by preserving job="kubelet".
+          - target_label: job
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.jobName }}
           - target_label: metrics_path
             replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath }}
         metric_relabel_configs:
