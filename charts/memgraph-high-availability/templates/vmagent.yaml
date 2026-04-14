@@ -14,7 +14,7 @@
 {{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.kubeStateMetrics.enabled (not $.Values.vmagentRemote.kubernetes.kubeStateMetrics.targets) }}
 {{- fail "vmagentRemote.kubernetes.kubeStateMetrics.targets must contain at least one target when kubeStateMetrics is enabled" }}
 {{- end }}
-{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.nodeExporter.enabled (not $.Values.vmagentRemote.kubernetes.nodeExporter.targets) }}
+{{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.nodeExporter.enabled (not $.Values.vmagentRemote.kubernetes.nodeExporter.useKubernetesDiscovery) (not $.Values.vmagentRemote.kubernetes.nodeExporter.targets) }}
 {{- fail "vmagentRemote.kubernetes.nodeExporter.targets must contain at least one target when nodeExporter is enabled" }}
 {{- end }}
 {{- if and $kubernetesMetricsEnabled $.Values.vmagentRemote.kubernetes.kubelet.enabled (not $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress) }}
@@ -53,11 +53,32 @@ data:
       {{- end }}
       {{- if $.Values.vmagentRemote.kubernetes.nodeExporter.enabled }}
       - job_name: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.jobName }}
+        {{- if $.Values.vmagentRemote.kubernetes.nodeExporter.useKubernetesDiscovery }}
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.appNameLabel | quote }}
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.appInstanceLabel | quote }}
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.podMetricsPort | quote }}
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: node
+        {{- else }}
         static_configs:
           - targets:
               {{- range $.Values.vmagentRemote.kubernetes.nodeExporter.targets }}
               - {{ . | quote }}
               {{- end }}
+        {{- end }}
       {{- end }}
       {{- if $.Values.vmagentRemote.kubernetes.kubelet.enabled }}
       - job_name: {{ $.Values.vmagentRemote.kubernetes.kubelet.jobName }}
@@ -142,6 +163,9 @@ spec:
           args:
             - -promscrape.config=/etc/vmagent/scrape.yml
             - -remoteWrite.url={{ required "vmagentRemote.remoteWrite.url must be set when vmagentRemote.enabled=true" $.Values.vmagentRemote.remoteWrite.url }}
+            {{- range $.Values.vmagentRemote.remoteWrite.additionalRemoteWriteUrls }}
+            - -remoteWrite.url={{ . }}
+            {{- end }}
             {{- if $.Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
             - -remoteWrite.basicAuth.username=$(MONITORING_USERNAME)
             - -remoteWrite.basicAuth.password=$(MONITORING_PASSWORD)

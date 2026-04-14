@@ -235,6 +235,7 @@ vmagentRemote:
     pullPolicy: IfNotPresent
   remoteWrite:
     url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
+    additionalRemoteWriteUrls: []  # Optional additional remote_write URLs (for example local vmsingle for vmalert input).
     basicAuth:
       secretName: ""
       usernameKey: username
@@ -253,6 +254,12 @@ vmagentRemote:
       enabled: true
       # Keep the default job label expected by kube-prometheus dashboards.
       jobName: node-exporter
+      # When enabled, scrape node-exporter pods via Kubernetes discovery so
+      # namespace/pod/node labels are present for kube-prometheus recording rules.
+      useKubernetesDiscovery: false
+      podMetricsPort: "9100"
+      appNameLabel: prometheus-node-exporter
+      appInstanceLabel: kube-prometheus-stack-prometheus-node-exporter
       targets:
         - kube-prometheus-stack-prometheus-node-exporter.monitoring.svc.cluster.local:9100
     kubelet:
