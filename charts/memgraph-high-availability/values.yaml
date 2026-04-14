@@ -235,7 +235,6 @@ vmagentRemote:
     pullPolicy: IfNotPresent
   remoteWrite:
     url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
-    additionalRemoteWriteUrls: []  # Optional additional remote_write URLs (for example local vmsingle for vmalert input).
     basicAuth:
       secretName: ""
       usernameKey: username

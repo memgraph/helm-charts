@@ -224,9 +224,6 @@ spec:
           args:
             - -promscrape.config=/etc/vmagent/scrape.yml
             - -remoteWrite.url={{ required "vmagentRemote.remoteWrite.url must be set when vmagentRemote.enabled=true" $.Values.vmagentRemote.remoteWrite.url }}
-            {{- range $.Values.vmagentRemote.remoteWrite.additionalRemoteWriteUrls }}
-            - -remoteWrite.url={{ . }}
-            {{- end }}
             {{- if $.Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
             - -remoteWrite.basicAuth.username=$(MONITORING_USERNAME)
             - -remoteWrite.basicAuth.password=$(MONITORING_PASSWORD)
