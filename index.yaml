@@ -3,6 +3,28 @@ entries:
   memgraph:
   - apiVersion: v2
     appVersion: 3.9.0
+    created: "2026-04-15T15:16:04.573258765Z"
+    description: MemgraphDB Helm Chart
+    digest: 024892d6dc619364789ad21305c09e282fad7221840c9a0004983965190bf3b1
+    home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    keywords:
+    - graph
+    - database
+    - cypher
+    - analytics
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    name: memgraph
+    sources:
+    - https://github.com/memgraph/memgraph
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-0.2.18/memgraph-0.2.18.tgz
+    version: 0.2.18
+  - apiVersion: v2
+    appVersion: 3.9.0
     created: "2026-03-25T12:26:10.657830089Z"
     description: MemgraphDB Helm Chart
     digest: a74bf1ddec2aa0e3c6b83566f01e8a989323b4920da8225518e4292a9fea9549
@@ -618,6 +640,31 @@ entries:
     - https://github.com/memgraph/helm-charts/releases/download/memgraph-0.1.0/memgraph-0.1.0.tgz
     version: 0.1.0
   memgraph-high-availability:
+  - apiVersion: v2
+    appVersion: 3.9.0
+    created: "2026-04-15T15:16:04.744567648Z"
+    description: A Helm chart for Kubernetes with Memgraph High availabiliy capabilites
+    digest: c98c4aa038cae4c19aa65708009e7191f74bf462ff9b5b9e2167310331109859
+    home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    keywords:
+    - memgraph
+    - graph
+    - database
+    - cypher
+    - analytics
+    - high-availability
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    name: memgraph-high-availability
+    sources:
+    - https://github.com/memgraph/memgraph
+    - https://github.com/memgraph/helm-charts
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-high-availability-0.2.18/memgraph-high-availability-0.2.18.tgz
+    version: 0.2.18
   - apiVersion: v2
     appVersion: 3.9.0
     created: "2026-03-25T12:26:10.86133861Z"
@@ -1680,4 +1727,4 @@ entries:
     urls:
     - https://github.com/memgraph/helm-charts/releases/download/memgraph-lab-0.1.0/memgraph-lab-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-25T12:26:11.015022723Z"
+generated: "2026-04-15T15:16:04.984117526Z"
