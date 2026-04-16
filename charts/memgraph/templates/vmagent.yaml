@@ -4,6 +4,7 @@
 {{- end }}
 {{- $namespace := .Values.vmagentRemote.namespace | default .Values.prometheus.namespace }}
 {{- $exporterNamespace := .Values.prometheus.namespace }}
+{{- /* Enables optional cluster-level scrape jobs (kube-state-metrics/node-exporter/kubelet). */}}
 {{- $kubernetesMetricsEnabled := .Values.vmagentRemote.kubernetes.enabled | default false }}
 {{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
 {{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
@@ -42,6 +43,7 @@ data:
         static_configs:
           - targets:
               - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ .Values.prometheus.memgraphExporter.port }}
+      {{- /* Optional Kubernetes scrape jobs appended when vmagentRemote.kubernetes.enabled=true. */}}
       {{- if $kubernetesMetricsEnabled }}
       {{- if .Values.vmagentRemote.kubernetes.kubeStateMetrics.enabled }}
       - job_name: {{ .Values.vmagentRemote.kubernetes.kubeStateMetrics.jobName }}
@@ -159,6 +161,7 @@ data:
       {{- end }}
       {{- end }}
       {{- end }}
+{{- /* Kubernetes discovery and kubelet proxy scraping require API access. */}}
 {{- if $kubernetesMetricsEnabled }}
 ---
 apiVersion: v1
@@ -214,6 +217,7 @@ spec:
       labels:
         app: {{ include "memgraph.fullname" . }}-vmagent
     spec:
+      {{- /* Use dedicated SA only when optional Kubernetes metrics scraping is enabled. */}}
       {{- if $kubernetesMetricsEnabled }}
       serviceAccountName: {{ include "memgraph.fullname" . }}-vmagent
       {{- end }}

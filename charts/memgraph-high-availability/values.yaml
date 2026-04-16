@@ -245,13 +245,11 @@ vmagentRemote:
     enabled: false  # Enable scraping of Kubernetes infrastructure metrics used by kube-prometheus dashboards.
     kubeStateMetrics:
       enabled: true
-      # Keep the default job label expected by kube-prometheus dashboards.
       jobName: kube-state-metrics
       targets:
         - kube-prometheus-stack-kube-state-metrics.monitoring.svc.cluster.local:8080
     nodeExporter:
       enabled: true
-      # Keep the default job label expected by kube-prometheus dashboards.
       jobName: node-exporter
       # When enabled, scrape node-exporter pods via Kubernetes discovery so
       # namespace/pod/node labels are present for kube-prometheus recording rules.
@@ -267,7 +265,7 @@ vmagentRemote:
       jobName: kubelet
       # Scrape kubelet cAdvisor metrics via Kubernetes API server node proxy.
       metricsPath: /metrics/cadvisor
-      # Also scrape kubelet /metrics (for kubelet volume stats and related panels).
+      # Also scrape kubelet /metrics
       additionalMetricsEnabled: true
       additionalJobName: kubelet-metrics
       additionalMetricsPath: /metrics
