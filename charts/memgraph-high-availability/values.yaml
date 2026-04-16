@@ -243,6 +243,37 @@ vmagentRemote:
       passwordKey: password
   scrapeInterval: 15s
   externalLabels: {}
+  kubernetes:
+    enabled: false  # Enable scraping of Kubernetes infrastructure metrics used by kube-prometheus dashboards.
+    kubeStateMetrics:
+      enabled: true
+      jobName: kube-state-metrics
+      targets:
+        - kube-prometheus-stack-kube-state-metrics.monitoring.svc.cluster.local:8080
+    nodeExporter:
+      enabled: true
+      jobName: node-exporter
+      # When enabled, scrape node-exporter pods via Kubernetes discovery so
+      # namespace/pod/node labels are present for kube-prometheus recording rules.
+      useKubernetesDiscovery: false
+      podMetricsPort: "9100"
+      appNameLabel: prometheus-node-exporter
+      appInstanceLabel: kube-prometheus-stack-prometheus-node-exporter
+      targets:
+        - kube-prometheus-stack-prometheus-node-exporter.monitoring.svc.cluster.local:9100
+    kubelet:
+      enabled: true
+      # Keep the default job label expected by kube-prometheus dashboards and recording rules.
+      jobName: kubelet
+      # Scrape kubelet cAdvisor metrics via Kubernetes API server node proxy.
+      metricsPath: /metrics/cadvisor
+      # Also scrape kubelet /metrics
+      additionalMetricsEnabled: true
+      additionalJobName: kubelet-metrics
+      additionalMetricsPath: /metrics
+      apiServerAddress: kubernetes.default.svc:443
+      # Set to true only if your cluster uses an untrusted kube-apiserver serving cert chain.
+      insecureSkipVerify: false
   resources: {}
   httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
 
