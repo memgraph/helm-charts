@@ -364,8 +364,8 @@ vmagentRemote:
       additionalJobName: kubelet-metrics
       additionalMetricsPath: /metrics
       apiServerAddress: kubernetes.default.svc:443
-      # Set to false if your cluster has a trusted kube-apiserver serving cert chain.
-      insecureSkipVerify: true
+      # Set to true only if your cluster uses an untrusted kube-apiserver serving cert chain.
+      insecureSkipVerify: false
   resources: {}
   httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
 

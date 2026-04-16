@@ -6,6 +6,7 @@
 {{- $exporterNamespace := .Values.prometheus.namespace }}
 {{- /* Enables optional cluster-level scrape jobs (kube-state-metrics/node-exporter/kubelet). */}}
 {{- $kubernetesMetricsEnabled := .Values.vmagentRemote.kubernetes.enabled | default false }}
+{{- $kubernetesApiAccessRequired := and $kubernetesMetricsEnabled (or .Values.vmagentRemote.kubernetes.kubelet.enabled (and .Values.vmagentRemote.kubernetes.nodeExporter.enabled .Values.vmagentRemote.kubernetes.nodeExporter.useKubernetesDiscovery)) }}
 {{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
 {{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
 {{- end }}
@@ -23,6 +24,12 @@
 {{- end }}
 {{- if and $kubernetesMetricsEnabled .Values.vmagentRemote.kubernetes.kubelet.enabled (not .Values.vmagentRemote.kubernetes.kubelet.metricsPath) }}
 {{- fail "vmagentRemote.kubernetes.kubelet.metricsPath must be set when kubelet scraping is enabled" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled .Values.vmagentRemote.kubernetes.kubelet.additionalMetricsEnabled (not .Values.vmagentRemote.kubernetes.kubelet.additionalJobName) }}
+{{- fail "vmagentRemote.kubernetes.kubelet.additionalJobName must be set when additional kubelet metrics scraping is enabled" }}
+{{- end }}
+{{- if and $kubernetesMetricsEnabled .Values.vmagentRemote.kubernetes.kubelet.additionalMetricsEnabled (not .Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath) }}
+{{- fail "vmagentRemote.kubernetes.kubelet.additionalMetricsPath must be set when additional kubelet metrics scraping is enabled" }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap
@@ -58,6 +65,9 @@ data:
         {{- if .Values.vmagentRemote.kubernetes.nodeExporter.useKubernetesDiscovery }}
         kubernetes_sd_configs:
           - role: pod
+            namespaces:
+              names:
+                - {{ $exporterNamespace | quote }}
         relabel_configs:
           - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
             action: keep
@@ -161,8 +171,8 @@ data:
       {{- end }}
       {{- end }}
       {{- end }}
-{{- /* Kubernetes discovery and kubelet proxy scraping require API access. */}}
-{{- if $kubernetesMetricsEnabled }}
+{{- /* Create RBAC only when enabled jobs require Kubernetes API access. */}}
+{{- if $kubernetesApiAccessRequired }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -179,12 +189,10 @@ rules:
     resources:
       - nodes
       - nodes/proxy
-      - endpoints
       - pods
-      - services
     verbs: ["get", "list", "watch"]
 {{- end }}
-{{- if $kubernetesMetricsEnabled }}
+{{- if $kubernetesApiAccessRequired }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -218,7 +226,7 @@ spec:
         app: {{ include "memgraph.fullname" . }}-vmagent
     spec:
       {{- /* Use dedicated SA only when optional Kubernetes metrics scraping is enabled. */}}
-      {{- if $kubernetesMetricsEnabled }}
+      {{- if $kubernetesApiAccessRequired }}
       serviceAccountName: {{ include "memgraph.fullname" . }}-vmagent
       {{- end }}
       containers:

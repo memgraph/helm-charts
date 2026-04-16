@@ -42,4 +42,4 @@ vmagentRemote:
       jobName: kubelet
       metricsPath: /metrics/cadvisor
       apiServerAddress: kubernetes.default.svc:443
-      insecureSkipVerify: true
+      insecureSkipVerify: false

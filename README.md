@@ -281,12 +281,12 @@ vmagentRemote:
       jobName: kubelet
       metricsPath: /metrics/cadvisor
       apiServerAddress: kubernetes.default.svc:443
-      insecureSkipVerify: true
+      insecureSkipVerify: false
 ```
 
 Notes:
 
-- This creates RBAC for vmagent to discover/scrape kubelet metrics via the API server node proxy.
+- RBAC/ServiceAccount are created only when enabled jobs require Kubernetes API access (for example, `kubelet.enabled=true` and/or `nodeExporter.useKubernetesDiscovery=true`).
 - Keep `jobName` values aligned with dashboard/rule expectations unless you also update dashboard queries.
 - Dashboards that depend on precomputed recording-rule series still require rule evaluation in your monitoring stack.
 
