@@ -1373,6 +1373,28 @@ entries:
   memgraph-lab:
   - apiVersion: v2
     appVersion: 3.9.0
+    created: "2026-04-16T10:22:15.603893612Z"
+    description: Memgraph Lab Helm Chart
+    digest: 76623898cbac5d5331aa299f710b0ac512aea9f1a96dd5c8ab75f209fff2de71
+    home: https://memgraph.com/
+    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    keywords:
+    - graph
+    - database
+    - cypher
+    - analytics
+    maintainers:
+    - email: tech@memgraph.com
+      name: Memgraph
+    name: memgraph-lab
+    sources:
+    - https://github.com/memgraph/memgraph
+    type: application
+    urls:
+    - https://github.com/memgraph/helm-charts/releases/download/memgraph-lab-0.1.16/memgraph-lab-0.1.16.tgz
+    version: 0.1.16
+  - apiVersion: v2
+    appVersion: 3.9.0
     created: "2026-03-25T12:26:11.014495248Z"
     description: Memgraph Lab Helm Chart
     digest: 37aece2ee10cbf2476006c340b022703bbd37b4dd0de11590db2b9d79203a5a1
@@ -1727,4 +1749,4 @@ entries:
     urls:
     - https://github.com/memgraph/helm-charts/releases/download/memgraph-lab-0.1.0/memgraph-lab-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-15T15:16:04.984117526Z"
+generated: "2026-04-16T10:22:15.604168684Z"
