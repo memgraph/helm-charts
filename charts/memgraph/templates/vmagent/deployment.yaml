@@ -1,0 +1,70 @@
+{{- if .Values.vmagentRemote.enabled }}
+{{- $namespace := include "memgraph.vmagent.namespace" . }}
+{{- $kubernetesApiAccessRequired := include "memgraph.vmagent.kubernetesApiAccessRequired" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ include "memgraph.fullname" . }}-vmagent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "memgraph.fullname" . }}-vmagent
+  template:
+    metadata:
+      labels:
+        app: {{ include "memgraph.fullname" . }}-vmagent
+    spec:
+      {{- /* Use dedicated SA only when optional Kubernetes metrics scraping is enabled. */}}
+      {{- if $kubernetesApiAccessRequired }}
+      serviceAccountName: {{ include "memgraph.fullname" . }}-vmagent
+      {{- end }}
+      containers:
+        - name: vmagent
+          image: "{{ .Values.vmagentRemote.image.repository }}:{{ .Values.vmagentRemote.image.tag }}"
+          imagePullPolicy: {{ .Values.vmagentRemote.image.pullPolicy }}
+          args:
+            - -promscrape.config=/etc/vmagent/scrape.yml
+            - -remoteWrite.url={{ required "vmagentRemote.remoteWrite.url must be set when vmagentRemote.enabled=true" .Values.vmagentRemote.remoteWrite.url }}
+            {{- if .Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
+            - -remoteWrite.basicAuth.username=$(MONITORING_USERNAME)
+            - -remoteWrite.basicAuth.password=$(MONITORING_PASSWORD)
+            {{- end }}
+            - -httpListenAddr=:{{ .Values.vmagentRemote.httpPort }}
+            - -remoteWrite.tmpDataPath=/tmpData
+          {{- if .Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
+          env:
+            - name: MONITORING_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
+                  key: {{ .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey }}
+            - name: MONITORING_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.vmagentRemote.remoteWrite.basicAuth.secretName }}
+                  key: {{ .Values.vmagentRemote.remoteWrite.basicAuth.passwordKey }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.vmagentRemote.httpPort }}
+              name: http
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vmagent
+              readOnly: true
+            - name: data
+              mountPath: /tmpData
+          {{- with .Values.vmagentRemote.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "memgraph.fullname" . }}-vmagent-config
+        - name: data
+          emptyDir: {}
+{{- end }}
