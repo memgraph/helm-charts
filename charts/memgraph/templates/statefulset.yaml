@@ -75,6 +75,15 @@ spec:
         {{- toYaml .Values.imagePullSecrets | nindent 4 }}
       {{- end }}
       volumes:
+      {{- if not .Values.persistentVolumeClaim.createStorageClaim }}
+        - name: {{ include "memgraph.fullname" . }}-lib-storage
+        {{- if .Values.persistentVolumeClaim.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistentVolumeClaim.existingClaim }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- end }}
       {{- range .Values.customQueryModules }}
         - name: {{ .volume | quote }}
           configMap:
