@@ -5,10 +5,6 @@ image:
   tag: 3.9.0
   pullPolicy: IfNotPresent
 
-env:
-  MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
-  MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
-
 storage:
   data:
     libPVCSize: "1Gi"
@@ -152,10 +148,9 @@ memgraphUserId: 101
 memgraphGroupId: 103
 
 secrets:
-  enabled: false
   name: memgraph-secrets
-  userKey: USER
-  passwordKey: PASSWORD
+  licenseKey: MEMGRAPH_ENTERPRISE_LICENSE
+  organizationKey: MEMGRAPH_ORGANIZATION_NAME
 
 labels:
   coordinators:

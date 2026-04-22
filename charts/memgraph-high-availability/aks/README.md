@@ -151,7 +151,19 @@ kubectl label nodes aks-nodepool1-65392319-vmss000003 role=data-node
 kubectl label nodes aks-nodepool1-65392319-vmss000004 role=data-node
 ```
 
-In the following chapters, we will go over several most common deployment types:
+In the following chapters, we will go over several most common deployment types.
+Each of them assumes the Memgraph Enterprise license and organization name have
+already been provisioned as a Kubernetes secret (the HA chart reads them via
+`secretKeyRef`):
+
+```
+kubectl create secret generic memgraph-secrets \
+  --from-literal=MEMGRAPH_ENTERPRISE_LICENSE=<licence> \
+  --from-literal=MEMGRAPH_ORGANIZATION_NAME=<organization>
+```
+
+The secret name and keys can be overridden via `secrets.name`,
+`secrets.licenseKey`, and `secrets.organizationKey` in `values.yaml`.
 
 ---
 
@@ -163,8 +175,7 @@ Users can connect to any coordinator or data instance by distinguishing bolt por
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+affinity.nodeSelection=true,\
 externalAccessConfig.dataInstance.serviceType=IngressNginx,externalAccessConfig.coordinator.serviceType=IngressNginx
 ```
 
@@ -187,8 +198,7 @@ are used and so that each data and coordinator instance is exposed through LoadB
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+affinity.nodeSelection=true,\
 externalAccessConfig.dataInstance.serviceType=LoadBalancer,externalAccessConfig.coordinator.serviceType=LoadBalancer
 ```
 

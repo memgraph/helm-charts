@@ -72,11 +72,16 @@ jobs:
           kubectl rollout status deployment/victoria-logs -n remote-monitoring --timeout=180s
           kubectl rollout status deployment/monitoring-gateway -n remote-monitoring --timeout=180s
 
+      - name: Create Kubernetes secret for license
+        run: |
+          kubectl create secret generic memgraph-secrets \
+            --from-literal=MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
+            --from-literal=MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
+            --namespace default
+
       - name: Install HA chart with remote monitoring enabled
         run: |
           helm install memgraph-db ./charts/memgraph-high-availability \
-            --set env.MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
-            --set env.MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
             --set prometheus.enabled=true \
             --set prometheus.namespace=monitoring \
             --set prometheus.serviceMonitor.enabled=false \

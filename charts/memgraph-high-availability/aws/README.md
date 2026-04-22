@@ -80,12 +80,20 @@ kubectl label nodes node-000004 role=data-node
 
 ## Deploy Memgraph cluster
 
+Before installing the chart, create a Kubernetes secret with your Memgraph
+Enterprise license and organization name (the HA chart reads them via
+`secretKeyRef`):
+
+```
+kubectl create secret generic memgraph-secrets \
+  --from-literal=MEMGRAPH_ENTERPRISE_LICENSE=<YOUR_LICENSE> \
+  --from-literal=MEMGRAPH_ORGANIZATION_NAME=<YOUR_ORGANIZATION_NAME>
+```
+
 We can now install Memgraph HA chart using the following command:
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-env.MEMGRAPH_ENTERPRISE_LICENSE=<YOUR_LICENSE>, \
-env.MEMGRAPH_ORGANIZATION_NAME=<YOUR_ORGANIZATION_NAME>, \
 storage.coordinators.libStorageClassName=gp2, \
 storage.data.libStorageClassName=gp2, \
 storage.coordinators.logStorageClassName=gp2, \

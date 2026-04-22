@@ -66,12 +66,20 @@ Deploys high available Memgraph cluster, that includes two data instances and th
 
 For detailed information and usage instructions, please refer to the [chart's individual README file](./charts/memgraph-high-availability/README.md).
 
-To install the chart, run the following command:
+To install the chart, first create a Kubernetes secret holding your Memgraph
+Enterprise license and organization name (the HA chart reads these via
+`secretKeyRef`), then install the chart:
 
 ```
-helm install my-release memgraph/memgraph-high-availability --set env.MEMGRAPH_ENTERPRISE_LICENSE=<your-license>,env.MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>
+kubectl create secret generic memgraph-secrets \
+  --from-literal=MEMGRAPH_ENTERPRISE_LICENSE=<your-license> \
+  --from-literal=MEMGRAPH_ORGANIZATION_NAME=<your-organization-name>
+
+helm install my-release memgraph/memgraph-high-availability
 ```
-Replace `my-release` with a name of your choice for the release.
+Replace `my-release` with a name of your choice for the release. The secret
+name and keys are configurable via `secrets.name`, `secrets.licenseKey`, and
+`secrets.organizationKey`.
 
 There are a few additional steps to make the cluster fully operational. Please take a look under the [Setting up the cluster](https://memgraph.com/docs/getting-started/install-memgraph/kubernetes#setting-up-the-cluster) docs section.
 
