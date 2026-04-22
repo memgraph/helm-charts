@@ -1,35 +1,6 @@
 {{- if .Values.vmagentRemote.enabled }}
-{{- if not .Values.prometheus.enabled }}
-{{- fail "vmagentRemote.enabled requires prometheus.enabled=true because vmagentRemote scrapes mg-exporter" }}
-{{- end }}
-{{- $namespace := .Values.vmagentRemote.namespace | default .Values.prometheus.namespace }}
-{{- $exporterNamespace := .Values.prometheus.namespace }}
-{{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) }}
-{{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
-{{- end }}
-{{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.passwordKey) }}
-{{- fail "vmagentRemote.remoteWrite.basicAuth.passwordKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" }}
-{{- end }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "memgraph.fullname" . }}-vmagent-config
-  namespace: {{ $namespace }}
-data:
-  scrape.yml: |
-    global:
-      scrape_interval: {{ .Values.vmagentRemote.scrapeInterval }}
-      {{- with .Values.vmagentRemote.externalLabels }}
-      external_labels:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-
-    scrape_configs:
-      - job_name: memgraph-exporter
-        static_configs:
-          - targets:
-              - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ .Values.prometheus.memgraphExporter.port }}
----
+{{- $namespace := include "memgraph.vmagent.namespace" . }}
+{{- $kubernetesApiAccessRequired := include "memgraph.vmagent.kubernetesApiAccessRequired" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,6 +18,10 @@ spec:
       labels:
         app: {{ include "memgraph.fullname" . }}-vmagent
     spec:
+      {{- /* Use dedicated SA only when optional Kubernetes metrics scraping is enabled. */}}
+      {{- if $kubernetesApiAccessRequired }}
+      serviceAccountName: {{ include "memgraph.fullname" . }}-vmagent
+      {{- end }}
       containers:
         - name: vmagent
           image: "{{ .Values.vmagentRemote.image.repository }}:{{ .Values.vmagentRemote.image.tag }}"

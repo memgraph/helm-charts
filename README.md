@@ -241,6 +241,18 @@ kubectl create secret generic monitoring-basic-auth -n <memgraph-namespace> \
   --from-literal=password='<password>'
 ```
 
+### Export Kubernetes infrastructure metrics with `vmagentRemote`
+
+`vmagentRemote` can additionally scrape Kubernetes infrastructure metrics (`kube-state-metrics`, `node-exporter`, `kubelet`) and remote-write them alongside the Memgraph metrics. See the Memgraph docs for setup details:
+
+- Standalone: [Remote metrics and logs — Kubernetes infrastructure metrics](https://memgraph.com/docs/getting-started/install-memgraph/kubernetes#kubernetes-infrastructure-metrics)
+- HA: [Remote metrics and logs — Kubernetes infrastructure metrics](https://memgraph.com/docs/clustering/high-availability/setup-ha-cluster-k8s#kubernetes-infrastructure-metrics)
+
+Ready-to-use example values live under [`examples/remote-monitoring/`](./examples/remote-monitoring/):
+
+- Standalone: [`values-standalone-k8s-metrics.yaml`](./examples/remote-monitoring/values-standalone-k8s-metrics.yaml)
+- HA: [`values-ha-k8s-metrics.yaml`](./examples/remote-monitoring/values-ha-k8s-metrics.yaml)
+
 ## Docker Compose
 
 Creates HA Memgraph cluster with one command. The only thing you need to do is add your license details. Used bridged docker network for

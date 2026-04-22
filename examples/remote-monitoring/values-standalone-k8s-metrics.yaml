@@ -1,0 +1,45 @@
+prometheus:
+  enabled: true
+  namespace: monitoring
+  # Keep enabled when you have a local kube-prometheus-stack that should also scrape mg-exporter.
+  # Set to false when vmagentRemote is your only scraper for mg-exporter.
+  serviceMonitor:
+    enabled: true
+
+service:
+  enableHttpMonitoring: true
+
+vmagentRemote:
+  enabled: true
+  namespace: monitoring
+  remoteWrite:
+    # Monitoring cluster vminsert endpoint.
+    url: "https://monitoring.example.com/insert/0/prometheus/api/v1/write"
+    basicAuth:
+      secretName: monitoring-basic-auth
+      usernameKey: username
+      passwordKey: password
+  scrapeInterval: 15s
+  externalLabels:
+    cluster: "memgraph-dev-01"
+    cluster_id: "memgraph-dev-01"
+    service_name: "memgraph"
+    cluster_env: "dev"
+  kubernetes:
+    enabled: true
+    kubeStateMetrics:
+      enabled: true
+      jobName: kube-state-metrics
+      targets:
+        - kube-prometheus-stack-kube-state-metrics.monitoring.svc.cluster.local:8080
+    nodeExporter:
+      enabled: true
+      jobName: node-exporter
+      targets:
+        - kube-prometheus-stack-prometheus-node-exporter.monitoring.svc.cluster.local:9100
+    kubelet:
+      enabled: true
+      jobName: kubelet
+      metricsPath: /metrics/cadvisor
+      apiServerAddress: kubernetes.default.svc:443
+      insecureSkipVerify: false

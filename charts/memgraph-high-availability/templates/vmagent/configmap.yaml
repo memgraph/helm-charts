@@ -1,0 +1,146 @@
+{{- if $.Values.vmagentRemote.enabled }}
+{{- include "memgraph.vmagent.validations" . }}
+{{- $namespace := include "memgraph.vmagent.namespace" . }}
+{{- $exporterNamespace := include "memgraph.vmagent.exporterNamespace" . }}
+{{- $kubernetesMetricsEnabled := include "memgraph.vmagent.kubernetesMetricsEnabled" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent-config
+  namespace: {{ $namespace }}
+data:
+  scrape.yml: |
+    global:
+      scrape_interval: {{ $.Values.vmagentRemote.scrapeInterval }}
+      {{- with $.Values.vmagentRemote.externalLabels }}
+      external_labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+    scrape_configs:
+      - job_name: memgraph-exporter
+        static_configs:
+          - targets:
+              - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ $.Values.prometheus.memgraphExporter.port }}
+      {{- /* Optional Kubernetes scrape jobs appended when vmagentRemote.kubernetes.enabled=true. */}}
+      {{- if $kubernetesMetricsEnabled }}
+      {{- if $.Values.vmagentRemote.kubernetes.kubeStateMetrics.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.kubeStateMetrics.jobName }}
+        static_configs:
+          - targets:
+              {{- range $.Values.vmagentRemote.kubernetes.kubeStateMetrics.targets }}
+              - {{ . | quote }}
+              {{- end }}
+      {{- end }}
+      {{- if $.Values.vmagentRemote.kubernetes.nodeExporter.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.jobName }}
+        {{- if $.Values.vmagentRemote.kubernetes.nodeExporter.useKubernetesDiscovery }}
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - {{ $exporterNamespace | quote }}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.appNameLabel | quote }}
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.appInstanceLabel | quote }}
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: {{ $.Values.vmagentRemote.kubernetes.nodeExporter.podMetricsPort | quote }}
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: node
+        {{- else }}
+        static_configs:
+          - targets:
+              {{- range $.Values.vmagentRemote.kubernetes.nodeExporter.targets }}
+              - {{ . | quote }}
+              {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if $.Values.vmagentRemote.kubernetes.kubelet.enabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.kubelet.jobName }}
+        scheme: https
+        metrics_path: {{ $.Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
+        kubernetes_sd_configs:
+          - role: node
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: {{ $.Values.vmagentRemote.kubernetes.kubelet.insecureSkipVerify }}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_name]
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/$1/proxy{{ $.Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
+          - target_label: __address__
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress }}
+          # kube-prometheus recording rules expect metrics_path="/metrics/cadvisor".
+          - target_label: metrics_path
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.metricsPath }}
+        metric_relabel_configs:
+          # Some kubelet/cAdvisor versions expose pod_name/container_name/namespace_name
+          # instead of pod/container/namespace.
+          - source_labels: [pod_name]
+            regex: (.+)
+            target_label: pod
+            replacement: $1
+          - source_labels: [container_name]
+            regex: (.+)
+            target_label: container
+            replacement: $1
+          - source_labels: [namespace_name]
+            regex: (.+)
+            target_label: namespace
+            replacement: $1
+          - source_labels: [pod_namespace]
+            regex: (.+)
+            target_label: namespace
+            replacement: $1
+      {{- if $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsEnabled }}
+      - job_name: {{ $.Values.vmagentRemote.kubernetes.kubelet.additionalJobName }}
+        scheme: https
+        metrics_path: {{ $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath }}
+        kubernetes_sd_configs:
+          - role: node
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: {{ $.Values.vmagentRemote.kubernetes.kubelet.insecureSkipVerify }}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_name]
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/$1/proxy{{ $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath }}
+          - target_label: __address__
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.apiServerAddress }}
+          # Keep dashboard queries working for kubelet /metrics by preserving job="kubelet".
+          - target_label: job
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.jobName }}
+          - target_label: metrics_path
+            replacement: {{ $.Values.vmagentRemote.kubernetes.kubelet.additionalMetricsPath }}
+        metric_relabel_configs:
+          - source_labels: [pod_name]
+            regex: (.+)
+            target_label: pod
+            replacement: $1
+          - source_labels: [container_name]
+            regex: (.+)
+            target_label: container
+            replacement: $1
+          - source_labels: [namespace_name]
+            regex: (.+)
+            target_label: namespace
+            replacement: $1
+          - source_labels: [pod_namespace]
+            regex: (.+)
+            target_label: namespace
+            replacement: $1
+      {{- end }}
+      {{- end }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,33 @@
+{{- if and $.Values.vmagentRemote.enabled (include "memgraph.vmagent.kubernetesApiAccessRequired" .) }}
+{{- $namespace := include "memgraph.vmagent.namespace" . }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+  namespace: {{ $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - pods
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "memgraph.fullname" . }}-vmagent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "memgraph.fullname" . }}-vmagent
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "memgraph.fullname" . }}-vmagent
+    namespace: {{ $namespace }}
+{{- end }}
