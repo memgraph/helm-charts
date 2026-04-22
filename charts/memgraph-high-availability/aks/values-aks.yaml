@@ -221,7 +221,7 @@ prometheus:
       - name: config-volume-setting
         configMap:
           name: exporter-custom-configs
-    
+
     extraVolumeMounts:
       - name: config-volume-setting
         mountPath: /etc/memgraph-exporter
