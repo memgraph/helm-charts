@@ -215,6 +215,17 @@ prometheus:
     pullFrequencySeconds: 5
     repository: docker.io/memgraph/prometheus-exporter
     tag: 0.2.1
+    # extraVolumes: []
+    # extraVolumeMounts: []
+    extraVolumes:
+      - name: config-volume-setting
+        configMap:
+          name: exporter-custom-configs
+    
+    extraVolumeMounts:
+      - name: config-volume-setting
+        mountPath: /etc/memgraph-exporter
+        readOnly: true
   serviceMonitor:
     enabled: true
     kubePrometheusStackReleaseName: kube-prometheus-stack
