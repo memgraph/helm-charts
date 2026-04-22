@@ -111,7 +111,8 @@ spec:
 
       {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
       - name: init-core-dumps
-        image: docker.io/library/busybox:latest
+        image: "{{ $.Values.storage.coordinators.coreDumpsImage.repository }}:{{ $.Values.storage.coordinators.coreDumpsImage.tag }}"
+        imagePullPolicy: {{ $.Values.storage.coordinators.coreDumpsImage.pullPolicy }}
         command: ['/bin/sh', '-c']
         args:
           - >

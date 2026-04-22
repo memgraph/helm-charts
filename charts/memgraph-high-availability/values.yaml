@@ -24,6 +24,10 @@ storage:
     coreDumpsStorageClassName:
     coreDumpsStorageSize: 10Gi
     coreDumpsMountPath: /var/core/memgraph
+    coreDumpsImage:
+      repository: docker.io/library/busybox
+      tag: latest
+      pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
     # extraVolumes:
@@ -56,6 +60,10 @@ storage:
     coreDumpsStorageClassName:
     coreDumpsStorageSize: 10Gi
     coreDumpsMountPath: /var/core/memgraph
+    coreDumpsImage:
+      repository: docker.io/library/busybox
+      tag: latest
+      pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
     # Example:
