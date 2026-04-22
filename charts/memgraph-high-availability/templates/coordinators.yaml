@@ -160,6 +160,10 @@ spec:
             value: {{ $.Values.env.MEMGRAPH_ENTERPRISE_LICENSE }}
           - name: MEMGRAPH_ORGANIZATION_NAME
             value: {{ $.Values.env.MEMGRAPH_ORGANIZATION_NAME }}
+          - name: DGL_DOWNLOAD_DIR # DGL by default writes to /home/memgraph which we set to be read-only
+            value: /tmp/.dgl
+          - name: DGLDEFAULTDIR # DGL by default writes to /home/memgraph which we set to be read-only
+            value: /tmp/.dgl
           {{- with $.Values.extraEnv.coordinators }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
@@ -168,6 +172,8 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
             mountPath: /var/log/memgraph
+          - name: memgraph-coordinator-{{ $coordinator.id }}-tmp # Some Python libs require writing to tmp folder. Root filesystem set to read-only.
+            mountPath: /tmp
           {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
           - name: memgraph-coordinator-{{ $coordinator.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.coordinators.coreDumpsMountPath }}
@@ -180,7 +186,7 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop: [ "ALL" ]
-          readOnlyRootFilesystem: false # Some python libs like scipy are writing to tmp folder
+          readOnlyRootFilesystem: true # Some python libs like scipy are writing to tmp folder
           runAsNonRoot: true
           seccompProfile:
             type: RuntimeDefault
@@ -202,8 +208,10 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
 
-      {{- if $.Values.storage.coordinators.extraVolumes }}
       volumes:
+      - name: memgraph-coordinator-{{ $coordinator.id }}-tmp
+        emptyDir: {}
+      {{- if $.Values.storage.coordinators.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.coordinators.extraVolumes) $ | nindent 6 }}
       {{- end }}
 
