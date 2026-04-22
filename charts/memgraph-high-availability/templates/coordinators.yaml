@@ -159,6 +159,8 @@ spec:
             value: /tmp/.dgl
           - name: DGLDEFAULTDIR # DGL by default writes to /home/memgraph which we set to be read-only
             value: /tmp/.dgl
+          - name: MGCONSOLE_HISTORY_PATH # mgconsole by default writes to /home/memgraph/.memgraph which we set to be read-only
+            value: /tmp/.memgraph
           {{- with $.Values.extraEnv.coordinators }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
