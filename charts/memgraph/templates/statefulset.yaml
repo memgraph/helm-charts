@@ -176,6 +176,9 @@ spec:
           {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12}}
           {{- end }}
+        {{- if and .Values.coreDumpUploader.enabled .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "%s-core-dumps-storage" (include "memgraph.fullname" .)) "mountPath" .Values.persistentVolumeClaim.coreDumpsMountPath "values" .Values.coreDumpUploader) | nindent 8 }}
+        {{- end }}
       {{- if .Values.vectorRemote.enabled }}
         - name: memgraph-vector
           image: "{{ .Values.vectorRemote.image.repository }}:{{ .Values.vectorRemote.image.tag }}"

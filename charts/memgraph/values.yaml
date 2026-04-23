@@ -132,6 +132,25 @@ persistentVolumeClaim:
   coreDumpsStorageSize: 10Gi
   coreDumpsMountPath: /var/core/memgraph
 
+## Sidecar that uploads core dumps from the core-dumps PVC to S3.
+## Requires persistentVolumeClaim.createCoreDumpsClaim=true and a pre-created
+## K8s Secret (secretName) holding AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+coreDumpUploader:
+  enabled: false
+  image:
+    repository: amazon/aws-cli
+    tag: 2.33.28
+    pullPolicy: IfNotPresent
+  s3BucketName: "memgraph-core-dumps"
+  s3Prefix: "core-dumps"
+  awsRegion: "eu-west-1"
+  pollIntervalSeconds: 30
+  # Name of the K8s Secret containing AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+  secretName: "aws-s3-credentials"
+  accessKeySecretKey: "AWS_ACCESS_KEY_ID"
+  secretAccessKeySecretKey: "AWS_SECRET_ACCESS_KEY"
+  resources: {}
+
 # Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
 # Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)
