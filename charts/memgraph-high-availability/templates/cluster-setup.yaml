@@ -92,34 +92,8 @@ spec:
                 local query="$2"
                 local max_attempts=20
                 local attempt=0
-                local show_instances_output
-
-                ddl_already_applied() {
-                  local current_step="$1"
-                  show_instances_output="$(run_mgconsole 'SHOW INSTANCES;' 2>/dev/null || true)"
-                  [[ -z "$show_instances_output" ]] && return 1
-
-                  case "$current_step" in
-                    "ADD COORDINATOR "*)
-                      local coordinator_id="${current_step##* }"
-                      [[ "$show_instances_output" == *"\"coordinator_${coordinator_id}\""* ]]
-                      ;;
-                    "REGISTER INSTANCE "*)
-                      local instance_name="${current_step##* }"
-                      [[ "$show_instances_output" == *"\"${instance_name}\""* ]]
-                      ;;
-                    *)
-                      return 1
-                      ;;
-                  esac
-                }
 
                 while [ $attempt -lt $max_attempts ]; do
-                  if ddl_already_applied "$step"; then
-                    echo "ℹ️ ${step} already present in cluster state; continuing"
-                    return 0
-                  fi
-
                   set +e
                   local output
                   output="$(run_mgconsole "$query")"
@@ -139,13 +113,7 @@ spec:
                      [[ "$output_lc" == *"already a main"* ]] || \
                      [[ "$output_lc" == *"is already main"* ]] || \
                      [[ "$output_lc" == *"request forwarded to the leader but leader failed with request processing"* ]]; then
-                    if [[ "$output_lc" == *"already a main"* ]] || [[ "$output_lc" == *"is already main"* ]]; then
-                      echo "ℹ️ ${step} already applied; continuing"
-                      return 0
-                    elif ddl_already_applied "$step"; then
-                      echo "ℹ️ ${step} already applied; continuing"
-                      return 0
-                    fi
+                    return 0
                   fi
 
                   attempt=$((attempt+1))
