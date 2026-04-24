@@ -26,6 +26,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.11'
+
       - name: Download dependencies
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
@@ -35,8 +40,33 @@ jobs:
         run: |
           helm dependency update charts/memgraph-high-availability
 
+      - name: Snapshot existing releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release list --limit 500 --json tagName --jq '.[].tagName' | sort > /tmp/releases-before.txt
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: true
+
+      - name: Compute newly-created releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list --limit 500 --json tagName --jq '.[].tagName' | sort > /tmp/releases-after.txt
+          comm -13 /tmp/releases-before.txt /tmp/releases-after.txt > /tmp/new-releases.txt
+          echo "New releases:"
+          cat /tmp/new-releases.txt
+
+      - name: Update release notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -s /tmp/new-releases.txt ]; then
+            python .github/scripts/update_release_notes.py < /tmp/new-releases.txt
+          else
+            echo "No new releases; nothing to update."
+          fi
