@@ -343,12 +343,17 @@ initContainers:
   data: []
   coordinators: []
 
-# Applied to both data instances and coordinators.
 commonArgs:
-  logging:
-    log_level: "TRACE" # Must not be empty.
-    also_log_to_stderr: true # Can only be bool
-    log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+  data: # Common args for data instances
+    logging:
+      log_level: "TRACE" # Must not be empty.
+      also_log_to_stderr: true # Can only be bool
+      log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+  coordinators: # Common args for coordinator instances
+    logging:
+      log_level: "TRACE" # Must not be empty.
+      also_log_to_stderr: true # Can only be bool
+      log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
 
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
