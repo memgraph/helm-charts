@@ -94,6 +94,18 @@ livenessProbe:
 {{- end }}
 
 
+{{- define "memgraph.commonLoggingArgs" -}}
+{{- $logging := .Values.commonArgs.logging -}}
+{{- if not $logging.log_level -}}{{- fail "commonArgs.logging.log_level must not be empty" -}}{{- end -}}
+{{- if not (kindIs "bool" $logging.also_log_to_stderr) -}}{{- fail "commonArgs.logging.also_log_to_stderr must be a boolean (true or false)" -}}{{- end -}}
+- "--log-level={{ $logging.log_level }}"
+{{- if $logging.also_log_to_stderr }}
+- "--also-log-to-stderr"
+{{- end }}
+- "--log-file={{ $logging.log_file }}"
+{{- end }}
+
+
 {{- define "container.coordinators.startupProbe" -}}
 startupProbe:
   tcpSocket:

@@ -343,6 +343,13 @@ initContainers:
   data: []
   coordinators: []
 
+# Applied to both data instances and coordinators.
+commonArgs:
+  logging:
+    log_level: "TRACE" # Must not be empty.
+    also_log_to_stderr: true # Can only be bool
+    log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.
@@ -357,26 +364,14 @@ data:
     # If vectorRemote.enabled=true, add the following args for each data instance:
     #   - "--monitoring-port=<vectorRemote.websocketPort>"
     #   - "--monitoring-address=0.0.0.0"
-    args:
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
+    args: # Args specific to this instance
       - "--storage-snapshot-on-exit=false"
 
   - id: "1"
     restoreDataFromSnapshot: false
     volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
+    args: # Args specific to this instance
       - "--storage-snapshot-on-exit=false"
 
 coordinators:
@@ -384,52 +379,19 @@ coordinators:
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
-    # If vectorRemote.enabled=true, add the following args for each coordinator:
-    #   - "--monitoring-port=<vectorRemote.websocketPort>"
-    #   - "--monitoring-address=0.0.0.0"
-    args:
-      - "--coordinator-id=1"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
   - id: "2"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--coordinator-id=2"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
   - id: "3"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--coordinator-id=3"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
 userContainers:
   data: []

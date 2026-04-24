@@ -142,8 +142,44 @@ spec:
         {{- end }}
         args:
         {{- range $arg := $coordinator.args }}
+          {{- if hasPrefix "--bolt-port" $arg }}
+            {{- fail (printf "Do not set --bolt-port in coordinators[id=%s].args; configure ports.boltPort instead (auto-appended to args)." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--management-port" $arg }}
+            {{- fail (printf "Do not set --management-port in coordinators[id=%s].args; configure ports.managementPort instead (auto-appended to args)." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--coordinator-port" $arg }}
+            {{- fail (printf "Do not set --coordinator-port in coordinators[id=%s].args; configure ports.coordinatorPort instead (auto-appended to args)." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--coordinator-id" $arg }}
+            {{- fail (printf "Do not set --coordinator-id in coordinators[id=%s].args; the instance's id field is auto-appended as --coordinator-id." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--coordinator-hostname" $arg }}
+            {{- fail (printf "Do not set --coordinator-hostname in coordinators[id=%s].args; it is auto-appended from the StatefulSet/Service name and release namespace." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--data-directory" $arg }}
+            {{- fail (printf "Do not set --data-directory in coordinators[id=%s].args; it is auto-appended (/var/lib/memgraph/mg_data)." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-level" $arg }}
+            {{- fail (printf "Do not set --log-level in coordinators[id=%s].args; configure commonArgs.logging.log_level instead." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--also-log-to-stderr" $arg }}
+            {{- fail (printf "Do not set --also-log-to-stderr in coordinators[id=%s].args; configure commonArgs.logging.also_log_to_stderr instead." $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-file" $arg }}
+            {{- fail (printf "Do not set --log-file in coordinators[id=%s].args; configure commonArgs.logging.log_file instead." $coordinator.id) }}
+          {{- end }}
+        {{- end }}
+        {{- range $arg := $coordinator.args }}
         - "{{ $arg }}"
         {{- end }}
+        - "--bolt-port={{ $.Values.ports.boltPort }}"
+        - "--management-port={{ $.Values.ports.managementPort }}"
+        - "--coordinator-port={{ $.Values.ports.coordinatorPort }}"
+        - "--coordinator-id={{ $coordinator.id }}"
+        - "--coordinator-hostname=memgraph-coordinator-{{ $coordinator.id }}.{{ $.Release.Namespace }}.svc.cluster.local"
+        - "--data-directory=/var/lib/memgraph/mg_data"
+        {{- include "memgraph.commonLoggingArgs" $ | nindent 8 }}
         env:
           - name: MEMGRAPH_ENTERPRISE_LICENSE
             valueFrom:

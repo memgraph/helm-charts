@@ -151,8 +151,32 @@ spec:
         {{- end }}
         args:
         {{- range $arg := $data.args }}
+          {{- if hasPrefix "--bolt-port" $arg }}
+            {{- fail (printf "Do not set --bolt-port in data[id=%s].args; configure ports.boltPort instead (auto-appended to args)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--management-port" $arg }}
+            {{- fail (printf "Do not set --management-port in data[id=%s].args; configure ports.managementPort instead (auto-appended to args)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--data-directory" $arg }}
+            {{- fail (printf "Do not set --data-directory in data[id=%s].args; it is auto-appended (/var/lib/memgraph/mg_data)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-level" $arg }}
+            {{- fail (printf "Do not set --log-level in data[id=%s].args; configure commonArgs.logging.log_level instead." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--also-log-to-stderr" $arg }}
+            {{- fail (printf "Do not set --also-log-to-stderr in data[id=%s].args; configure commonArgs.logging.also_log_to_stderr instead." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-file" $arg }}
+            {{- fail (printf "Do not set --log-file in data[id=%s].args; configure commonArgs.logging.log_file instead." $data.id) }}
+          {{- end }}
+        {{- end }}
+        {{- range $arg := $data.args }}
         - "{{ $arg }}"
         {{- end }}
+        - "--bolt-port={{ $.Values.ports.boltPort }}"
+        - "--management-port={{ $.Values.ports.managementPort }}"
+        - "--data-directory=/var/lib/memgraph/mg_data"
+        {{- include "memgraph.commonLoggingArgs" $ | nindent 8 }}
         env:
           - name: MEMGRAPH_ENTERPRISE_LICENSE
             valueFrom:
