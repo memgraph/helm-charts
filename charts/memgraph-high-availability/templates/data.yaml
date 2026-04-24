@@ -49,7 +49,7 @@ spec:
               - key: {{ $.Values.affinity.roleLabelKey }}
                 operator: In
                 values:
-                - {{ $.Values.affinity.dataNodeLabelValue }}
+                - {{ $.Values.affinity.dataNodeLabelValue | quote }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
