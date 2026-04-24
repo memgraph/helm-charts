@@ -2,7 +2,7 @@ name: Pre-merge checks
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled, unlabeled]
+    types: [opened, reopened, synchronize, labeled, unlabeled, milestoned, demilestoned]
 
 jobs:
   check-labels:
