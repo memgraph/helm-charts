@@ -17,3 +17,8 @@ jobs:
 
       - name: Check PR labels
         run: python .github/scripts/check_labels.py
+
+      - name: Check PR release note
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/check_changelog.py
