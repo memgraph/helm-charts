@@ -12,6 +12,7 @@ storage:
     # By default the name of the storage class isn't set which means that the default storage class will be used.
     # If you set any name, such storage class must exist.
     libStorageClassName:
+    createLogStorageClaim: true
     logPVCSize: "1Gi"
     logStorageAccessMode: "ReadWriteOnce"
     logStorageClassName:
@@ -48,6 +49,7 @@ storage:
     # By default the name of the storage class isn't set which means that the default storage class will be used.
     # If you set any name, such storage class must exist.
     libStorageClassName:
+    createLogStorageClaim: true
     logPVCSize: "1Gi"
     logStorageAccessMode: "ReadWriteOnce"
     logStorageClassName:
