@@ -72,15 +72,22 @@ jobs:
           echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
 
       - name: Install csi-hostpath-delayed storage class
+        if: steps.list-changed.outputs.changed == 'true'
         run: |
           kubectl apply -f ./charts/memgraph-high-availability/storage-class.yaml
+
+      - name: Create Kubernetes secret for license
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl create secret generic memgraph-secrets \
+            --from-literal=MEMGRAPH_ENTERPRISE_LICENSE="$MEMGRAPH_ENTERPRISE_LICENSE" \
+            --from-literal=MEMGRAPH_ORGANIZATION_NAME="$MEMGRAPH_ORGANIZATION_NAME" \
+            --namespace default
 
       - name: Install memgraph-high-availability
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           helm install memgraph-db ./charts/memgraph-high-availability \
-            --set env.MEMGRAPH_ENTERPRISE_LICENSE=$MEMGRAPH_ENTERPRISE_LICENSE \
-            --set env.MEMGRAPH_ORGANIZATION_NAME=$MEMGRAPH_ORGANIZATION_NAME \
             --set storage.data.libStorageClassName=csi-hostpath-delayed \
             --set storage.data.logStorageClassName=csi-hostpath-delayed \
             --set storage.coordinators.libStorageClassName=csi-hostpath-delayed \

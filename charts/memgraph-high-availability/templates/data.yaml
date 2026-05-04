@@ -49,7 +49,7 @@ spec:
               - key: {{ $.Values.affinity.roleLabelKey }}
                 operator: In
                 values:
-                - {{ $.Values.affinity.dataNodeLabelValue }}
+                - {{ $.Values.affinity.dataNodeLabelValue | quote }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -120,7 +120,8 @@ spec:
 
       {{- if $.Values.storage.data.createCoreDumpsClaim }}
       - name: init-core-dumps
-        image: docker.io/library/busybox:latest
+        image: "{{ $.Values.storage.data.coreDumpsImage.repository }}:{{ $.Values.storage.data.coreDumpsImage.tag }}"
+        imagePullPolicy: {{ $.Values.storage.data.coreDumpsImage.pullPolicy }}
         command: ['/bin/sh', '-c']
         args:
           - >
@@ -150,25 +151,49 @@ spec:
         {{- end }}
         args:
         {{- range $arg := $data.args }}
+          {{- if hasPrefix "--bolt-port" $arg }}
+            {{- fail (printf "Do not set --bolt-port in data[id=%s].args; configure ports.boltPort instead (auto-appended to args)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--management-port" $arg }}
+            {{- fail (printf "Do not set --management-port in data[id=%s].args; configure ports.managementPort instead (auto-appended to args)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--data-directory" $arg }}
+            {{- fail (printf "Do not set --data-directory in data[id=%s].args; it is auto-appended (/var/lib/memgraph/mg_data)." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-level" $arg }}
+            {{- fail (printf "Do not set --log-level in data[id=%s].args; configure commonArgs.data.logging.log_level instead." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--also-log-to-stderr" $arg }}
+            {{- fail (printf "Do not set --also-log-to-stderr in data[id=%s].args; configure commonArgs.data.logging.also_log_to_stderr instead." $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--log-file" $arg }}
+            {{- fail (printf "Do not set --log-file in data[id=%s].args; configure commonArgs.data.logging.log_file instead." $data.id) }}
+          {{- end }}
+        {{- end }}
+        {{- range $arg := $data.args }}
         - "{{ $arg }}"
         {{- end }}
+        - "--bolt-port={{ $.Values.ports.boltPort }}"
+        - "--management-port={{ $.Values.ports.managementPort }}"
+        - "--data-directory=/var/lib/memgraph/mg_data"
+        {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.data.logging "path" "commonArgs.data.logging") | nindent 8 }}
         env:
-          {{- if $.Values.secrets.enabled }}
-          - name: MEMGRAPH_USER
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.secrets.name }}
-                key: {{ $.Values.secrets.userKey }}
-          - name: MEMGRAPH_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.secrets.name }}
-                key: {{ $.Values.secrets.passwordKey }}
-          {{- end }}
           - name: MEMGRAPH_ENTERPRISE_LICENSE
-            value: {{ $.Values.env.MEMGRAPH_ENTERPRISE_LICENSE }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.secrets.name }}
+                key: {{ $.Values.secrets.licenseKey }}
           - name: MEMGRAPH_ORGANIZATION_NAME
-            value: {{ $.Values.env.MEMGRAPH_ORGANIZATION_NAME }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.secrets.name }}
+                key: {{ $.Values.secrets.organizationKey }}
+          - name: DGL_DOWNLOAD_DIR # DGL by default writes to /home/memgraph which we set to be read-only
+            value: /tmp/.dgl
+          - name: DGLDEFAULTDIR # DGL by default writes to /home/memgraph which we set to be read-only
+            value: /tmp/.dgl
+          - name: MGCONSOLE_HISTORY_PATH # mgconsole by default writes to /home/memgraph/.memgraph which we set to be read-only
+            value: /tmp/.memgraph
           {{- with $.Values.extraEnv.data }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
@@ -177,6 +202,8 @@ spec:
             mountPath: /var/lib/memgraph
           - name: memgraph-data-{{ $data.id }}-log-storage
             mountPath: /var/log/memgraph
+          - name: memgraph-data-{{ $data.id }}-tmp # Some Python libs require writing to tmp folder. Root filesystem set to read-only.
+            mountPath: /tmp
           {{- if $.Values.storage.data.createCoreDumpsClaim }}
           - name: memgraph-data-{{ $data.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
@@ -188,7 +215,7 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop: [ "ALL" ]
-          readOnlyRootFilesystem: false # Some python libs like scipy are writing to tmp folder
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           seccompProfile:
             type: RuntimeDefault
@@ -210,8 +237,10 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
 
-      {{- if $.Values.storage.data.extraVolumes }}
       volumes:
+      - name: memgraph-data-{{ $data.id }}-tmp
+        emptyDir: {}
+      {{- if $.Values.storage.data.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.data.extraVolumes) $ | nindent 6 }}
       {{- end }}
 

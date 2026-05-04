@@ -1,0 +1,4 @@
+# Used when deploying Prometheus CRDs
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false

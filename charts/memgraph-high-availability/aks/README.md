@@ -25,10 +25,21 @@ az login
 cd charts/memgraph-high-availability/aks
 
 terraform init
-terraform apply -var="subscription_id=<your-azure-subscription-id>"
+terraform apply \
+  -var="subscription_id=<your-azure-subscription-id>" \
+  -var="memgraph_enterprise_license=<licence>" \
+  -var="memgraph_organization_name=<organization>"
 ```
 
 Terraform will prompt for confirmation. Type `yes` to proceed, or use `-auto-approve` to skip.
+
+To avoid passing the license on the command line, export them as environment variables:
+
+```bash
+export TF_VAR_memgraph_enterprise_license=<licence>
+export TF_VAR_memgraph_organization_name=<organization>
+terraform apply -var="subscription_id=<your-azure-subscription-id>"
+```
 
 ### Configuration
 
@@ -37,12 +48,16 @@ All defaults can be overridden via variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `subscription_id` | (required) | Azure subscription ID |
+| `memgraph_enterprise_license` | (required) | Memgraph enterprise license key (stored in `memgraph-secrets`) |
+| `memgraph_organization_name` | (required) | Memgraph organization name (stored in `memgraph-secrets`) |
 | `resource_group_name` | `MG_RG` | Resource group name |
 | `location` | `westeurope` | Azure region |
 | `cluster_name` | `memgraph-ha` | AKS cluster name |
 | `node_count` | `5` | Number of AKS nodes |
 | `node_vm_size` | `Standard_A2_v2` | VM size for nodes |
 | `values_file` | `values-aks.yaml` | Helm values file (relative to `aks/` directory) |
+| `release_namespace` | `default` | Namespace for the Helm release and license secret |
+| `secret_name` | `memgraph-secrets` | Secret name (must match `secrets.name` in chart values) |
 
 Example with custom values:
 
@@ -59,7 +74,8 @@ terraform apply \
 1. **Resource group** (`MG_RG`) in the specified Azure region
 2. **AKS cluster** (`memgraph-ha`) with 5 nodes using SystemAssigned identity
 3. **Node labels** via `label_nodes.sh` — first 3 nodes labeled `role=coordinator-node`, last 2 labeled `role=data-node`
-4. **Helm release** (`memgraph-db`) installing the HA chart with `values-aks.yaml`
+4. **License secret** (`memgraph-secrets`) in the release namespace, populated from the `memgraph_enterprise_license` and `memgraph_organization_name` variables
+5. **Helm release** (`memgraph-db`) installing the HA chart with `values-aks.yaml`
 
 ### Connecting to the cluster after Terraform apply
 
@@ -151,7 +167,19 @@ kubectl label nodes aks-nodepool1-65392319-vmss000003 role=data-node
 kubectl label nodes aks-nodepool1-65392319-vmss000004 role=data-node
 ```
 
-In the following chapters, we will go over several most common deployment types:
+In the following chapters, we will go over several most common deployment types.
+Each of them assumes the Memgraph Enterprise license and organization name have
+already been provisioned as a Kubernetes secret (the HA chart reads them via
+`secretKeyRef`):
+
+```
+kubectl create secret generic memgraph-secrets \
+  --from-literal=MEMGRAPH_ENTERPRISE_LICENSE=<licence> \
+  --from-literal=MEMGRAPH_ORGANIZATION_NAME=<organization>
+```
+
+The secret name and keys can be overridden via `secrets.name`,
+`secrets.licenseKey`, and `secrets.organizationKey` in `values.yaml`.
 
 ---
 
@@ -163,8 +191,7 @@ Users can connect to any coordinator or data instance by distinguishing bolt por
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+affinity.nodeSelection=true,\
 externalAccessConfig.dataInstance.serviceType=IngressNginx,externalAccessConfig.coordinator.serviceType=IngressNginx
 ```
 
@@ -187,8 +214,7 @@ are used and so that each data and coordinator instance is exposed through LoadB
 
 ```
 helm install mem-ha-test ./charts/memgraph-high-availability --set \
-env.MEMGRAPH_ENTERPRISE_LICENSE=<licence>,\
-env.MEMGRAPH_ORGANIZATION_NAME=<organization>,affinity.nodeSelection=true,\
+affinity.nodeSelection=true,\
 externalAccessConfig.dataInstance.serviceType=LoadBalancer,externalAccessConfig.coordinator.serviceType=LoadBalancer
 ```
 

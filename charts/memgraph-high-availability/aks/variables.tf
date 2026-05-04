@@ -38,3 +38,27 @@ variable "values_file" {
   type        = string
   default     = "values-aks.yaml"
 }
+
+variable "release_namespace" {
+  description = "Kubernetes namespace for the Helm release and license secret"
+  type        = string
+  default     = "default"
+}
+
+variable "secret_name" {
+  description = "Name of the Kubernetes secret holding the Memgraph enterprise license. Must match secrets.name in the chart values."
+  type        = string
+  default     = "memgraph-secrets"
+}
+
+variable "memgraph_enterprise_license" {
+  description = "Memgraph enterprise license key"
+  type        = string
+  sensitive   = true
+}
+
+variable "memgraph_organization_name" {
+  description = "Memgraph organization name associated with the enterprise license"
+  type        = string
+  sensitive   = true
+}

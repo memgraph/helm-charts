@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.17"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.30"
+    }
     null = {
       source  = "hashicorp/null"
       version = "~> 3.2"
@@ -63,6 +67,32 @@ provider "helm" {
   }
 }
 
+provider "kubernetes" {
+  host                   = azurerm_kubernetes_cluster.memgraph_ha.kube_config[0].host
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.memgraph_ha.kube_config[0].client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.memgraph_ha.kube_config[0].client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.memgraph_ha.kube_config[0].cluster_ca_certificate)
+}
+
+# ──────────────────────────────────────────────
+# Memgraph enterprise license secret
+# Consumed by the HA chart via secrets.name / secrets.licenseKey /
+# secrets.organizationKey (see values.yaml).
+# ──────────────────────────────────────────────
+resource "kubernetes_secret" "memgraph_secrets" {
+  metadata {
+    name      = var.secret_name
+    namespace = var.release_namespace
+  }
+
+  data = {
+    MEMGRAPH_ENTERPRISE_LICENSE = var.memgraph_enterprise_license
+    MEMGRAPH_ORGANIZATION_NAME  = var.memgraph_organization_name
+  }
+
+  type = "Opaque"
+}
+
 # ──────────────────────────────────────────────
 # Label nodes: first 3 → coordinator, last 2 → data
 # Uses a single script to avoid for_each on
@@ -80,8 +110,9 @@ resource "null_resource" "label_nodes" {
 # Helm release: Memgraph HA
 # ──────────────────────────────────────────────
 resource "helm_release" "memgraph_ha" {
-  name  = "memgraph-db"
-  chart = "../"
+  name      = "memgraph-db"
+  chart     = "../"
+  namespace = var.release_namespace
 
   values = [
     file("${path.module}/${var.values_file}")
@@ -89,5 +120,8 @@ resource "helm_release" "memgraph_ha" {
 
   timeout = 600
 
-  depends_on = [null_resource.label_nodes]
+  depends_on = [
+    null_resource.label_nodes,
+    kubernetes_secret.memgraph_secrets,
+  ]
 }

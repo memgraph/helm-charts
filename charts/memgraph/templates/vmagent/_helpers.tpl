@@ -6,11 +6,11 @@ not re-derive them.
 */}}
 
 {{- define "memgraph.vmagent.namespace" -}}
-{{- .Values.vmagentRemote.namespace | default .Values.prometheus.namespace -}}
+{{- .Values.vmagentRemote.namespace | default .Values.prometheus.namespace | default .Release.Namespace -}}
 {{- end -}}
 
 {{- define "memgraph.vmagent.exporterNamespace" -}}
-{{- .Values.prometheus.namespace -}}
+{{- .Values.prometheus.namespace | default .Release.Namespace -}}
 {{- end -}}
 
 {{/* "true" when optional Kubernetes scrape jobs are enabled, empty otherwise. */}}

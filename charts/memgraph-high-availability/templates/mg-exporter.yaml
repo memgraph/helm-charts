@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mg-exporter-config
-  namespace: {{ $.Values.prometheus.namespace }}
+  namespace: {{ $.Values.prometheus.namespace | default $.Release.Namespace }}
 data:
   ha_config.yaml: |
     exporter:
@@ -27,7 +27,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mg-exporter
-  namespace: {{ $.Values.prometheus.namespace }}
+  namespace: {{ $.Values.prometheus.namespace | default $.Release.Namespace }}
   labels:
     app: mg-exporter
 spec:
@@ -51,6 +51,9 @@ spec:
             - name: config-volume
               mountPath: /etc/mg-exporter/ha_config.yaml
               subPath: ha_config.yaml
+            {{- with $.Values.prometheus.memgraphExporter.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - containerPort: {{ $.Values.prometheus.memgraphExporter.port }}
           env:
@@ -62,12 +65,15 @@ spec:
         - name: config-volume
           configMap:
             name: mg-exporter-config
+        {{- with $.Values.prometheus.memgraphExporter.extraVolumes }}
+        {{- toYaml $.Values.prometheus.memgraphExporter.extraVolumes | nindent 8 }}
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mg-exporter
-  namespace: {{ $.Values.prometheus.namespace }}
+  namespace: {{ $.Values.prometheus.namespace | default $.Release.Namespace }}
   labels:
     app: mg-exporter
 spec:

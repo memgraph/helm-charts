@@ -5,10 +5,6 @@ image:
   tag: 3.9.0
   pullPolicy: IfNotPresent
 
-env:
-  MEMGRAPH_ENTERPRISE_LICENSE: "<your-license>"
-  MEMGRAPH_ORGANIZATION_NAME: "<your-organization-name>"
-
 storage:
   data:
     libPVCSize: "1Gi"
@@ -24,6 +20,10 @@ storage:
     coreDumpsStorageClassName:
     coreDumpsStorageSize: 10Gi
     coreDumpsMountPath: /var/core/memgraph
+    coreDumpsImage:
+      repository: docker.io/library/busybox
+      tag: latest
+      pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
     # extraVolumes:
@@ -56,6 +56,10 @@ storage:
     coreDumpsStorageClassName:
     coreDumpsStorageSize: 10Gi
     coreDumpsMountPath: /var/core/memgraph
+    coreDumpsImage:
+      repository: docker.io/library/busybox
+      tag: latest
+      pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
     # Example:
@@ -144,10 +148,9 @@ memgraphUserId: 101
 memgraphGroupId: 103
 
 secrets:
-  enabled: false
   name: memgraph-secrets
-  userKey: USER
-  passwordKey: PASSWORD
+  licenseKey: MEMGRAPH_ENTERPRISE_LICENSE
+  organizationKey: MEMGRAPH_ORGANIZATION_NAME
 
 labels:
   coordinators:
@@ -213,12 +216,22 @@ updateStrategy:
 
 prometheus:
   enabled: false
-  namespace: monitoring # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, can be left empty to use release namespace.
+  namespace: "" # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, if empty, uses release namespace.
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
     repository: docker.io/memgraph/prometheus-exporter
     tag: 0.2.1
+    extraVolumes: []
+    extraVolumeMounts: []
+    # extraVolumes:
+    #   - name: config-volume-setting
+    #     configMap:
+    #       name: exporter-custom-configs
+    # extraVolumeMounts:
+    #   - name: config-volume-setting
+    #     mountPath: /etc/memgraph-exporter
+    #     readOnly: true
   serviceMonitor:
     enabled: true
     kubePrometheusStackReleaseName: kube-prometheus-stack
@@ -330,6 +343,18 @@ initContainers:
   data: []
   coordinators: []
 
+commonArgs:
+  data: # Common args for data instances
+    logging:
+      log_level: "TRACE" # Must not be empty.
+      also_log_to_stderr: true # Can only be bool
+      log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+  coordinators: # Common args for coordinator instances
+    logging:
+      log_level: "TRACE" # Must not be empty.
+      also_log_to_stderr: true # Can only be bool
+      log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.
@@ -344,26 +369,14 @@ data:
     # If vectorRemote.enabled=true, add the following args for each data instance:
     #   - "--monitoring-port=<vectorRemote.websocketPort>"
     #   - "--monitoring-address=0.0.0.0"
-    args:
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
+    args: # Args specific to this instance
       - "--storage-snapshot-on-exit=false"
 
   - id: "1"
     restoreDataFromSnapshot: false
     volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
+    args: # Args specific to this instance
       - "--storage-snapshot-on-exit=false"
 
 coordinators:
@@ -371,52 +384,19 @@ coordinators:
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
-    # If vectorRemote.enabled=true, add the following args for each coordinator:
-    #   - "--monitoring-port=<vectorRemote.websocketPort>"
-    #   - "--monitoring-address=0.0.0.0"
-    args:
-      - "--coordinator-id=1"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-1.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
   - id: "2"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--coordinator-id=2"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-2.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
   - id: "3"
     restoreDataFromSnapshot: false
     volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
     externalAccessAnnotations: {}
-    args:
-      - "--coordinator-id=3"
-      - "--coordinator-port=12000"
-      - "--management-port=10000"
-      - "--bolt-port=7687"
-      - "--also-log-to-stderr"
-      - "--log-level=TRACE"
-      - "--coordinator-hostname=memgraph-coordinator-3.default.svc.cluster.local" # Change 'default' to your namespace if you are using some other namespace
-      - "--log-file=/var/log/memgraph/memgraph.log"
-      - "--data-directory=/var/lib/memgraph/mg_data" # Don't remove this flag, instance won't start without it
-      - "--storage-snapshot-on-exit=false"
+    args: [] # Args specific to this instance
 
 userContainers:
   data: []
