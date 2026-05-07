@@ -1,3 +1,6 @@
+{{- if and (not .Values.storage.coordinators.createLogStorageClaim) .Values.commonArgs.coordinators.logging.log_file }}
+{{- fail (printf "storage.coordinators.createLogStorageClaim is false but commonArgs.coordinators.logging.log_file is %q. Set commonArgs.coordinators.logging.log_file to \"\" to disable file logging, or set storage.coordinators.createLogStorageClaim to true." .Values.commonArgs.coordinators.logging.log_file) }}
+{{- end }}
 {{- range $index, $coordinator := .Values.coordinators }}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -203,8 +206,10 @@ spec:
         volumeMounts:
           - name: memgraph-coordinator-{{ $coordinator.id }}-lib-storage
             mountPath: /var/lib/memgraph
+          {{- if $.Values.storage.coordinators.createLogStorageClaim }}
           - name: memgraph-coordinator-{{ $coordinator.id }}-log-storage
             mountPath: /var/log/memgraph
+          {{- end }}
           - name: memgraph-coordinator-{{ $coordinator.id }}-tmp # Some Python libs require writing to tmp folder. Root filesystem set to read-only.
             mountPath: /tmp
           {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
@@ -266,7 +271,7 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.coordinators.libPVCSize }}
-
+    {{- if $.Values.storage.coordinators.createLogStorageClaim }}
     - apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
@@ -278,6 +283,7 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.coordinators.logPVCSize }}
+    {{- end }}
 
     {{- if $.Values.storage.coordinators.createCoreDumpsClaim }}
     - apiVersion: v1

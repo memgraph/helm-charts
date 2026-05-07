@@ -1,3 +1,6 @@
+{{- if and (not .Values.storage.data.createLogStorageClaim) .Values.commonArgs.data.logging.log_file }}
+{{- fail (printf "storage.data.createLogStorageClaim is false but commonArgs.data.logging.log_file is %q. Set commonArgs.data.logging.log_file to \"\" to disable file logging, or set storage.data.createLogStorageClaim to true." .Values.commonArgs.data.logging.log_file) }}
+{{- end }}
 {{- range $index, $data := .Values.data }}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -200,8 +203,10 @@ spec:
         volumeMounts:
           - name: memgraph-data-{{ $data.id }}-lib-storage
             mountPath: /var/lib/memgraph
+          {{- if $.Values.storage.data.createLogStorageClaim }}
           - name: memgraph-data-{{ $data.id }}-log-storage
             mountPath: /var/log/memgraph
+          {{- end }}
           - name: memgraph-data-{{ $data.id }}-tmp # Some Python libs require writing to tmp folder. Root filesystem set to read-only.
             mountPath: /tmp
           {{- if $.Values.storage.data.createCoreDumpsClaim }}
@@ -262,6 +267,7 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.data.libPVCSize }}
+    {{- if $.Values.storage.data.createLogStorageClaim }}
     - apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
@@ -273,7 +279,7 @@ spec:
         resources:
           requests:
             storage: {{ $.Values.storage.data.logPVCSize }}
-
+    {{- end }}
     {{- if $.Values.storage.data.createCoreDumpsClaim }}
     - apiVersion: v1
       kind: PersistentVolumeClaim
