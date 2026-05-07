@@ -364,6 +364,7 @@ data:
   - id: "0"
     restoreDataFromSnapshot: false
     volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
+    internalAccessAnnotations: {} # Per-instance annotations for internal ClusterIP service
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.dataInstance.annotations, per-instance takes precedence)
     # Example
     # externalAccessAnnotations:
@@ -376,29 +377,33 @@ data:
 
   - id: "1"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: data-1-snap # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: data-1-snap
+    internalAccessAnnotations: {}
     externalAccessAnnotations: {}
-    args: # Args specific to this instance
+    args:
       - "--storage-snapshot-on-exit=false"
 
 coordinators:
   - id: "1"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-1-snap # Used only if restoreDataFromSnapshot is set to true
-    externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.coordinator.annotations, per-instance takes precedence)
-    args: [] # Args specific to this instance
+    volumeSnapshotName: coord-1-snap
+    internalAccessAnnotations: {}
+    externalAccessAnnotations: {}
+    args: []
 
   - id: "2"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-2-snap # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: coord-2-snap
+    internalAccessAnnotations: {}
     externalAccessAnnotations: {}
-    args: [] # Args specific to this instance
+    args: []
 
   - id: "3"
     restoreDataFromSnapshot: false
-    volumeSnapshotName: coord-3-snap # Used only if restoreDataFromSnapshot is set to true
+    volumeSnapshotName: coord-3-snap
+    internalAccessAnnotations: {}
     externalAccessAnnotations: {}
-    args: [] # Args specific to this instance
+    args: []
 
 userContainers:
   data: []
