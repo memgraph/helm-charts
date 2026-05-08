@@ -1,0 +1,19 @@
+apiVersion: v2
+name: memgraph-mcp
+home: https://memgraph.com
+type: application
+version: 0.1.0
+appVersion: 0.1.11
+description: Helm Chart for Memgraph's MCP server
+keywords:
+- ai
+- mcp
+- memgraph
+- analytics
+- agents
+icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+sources:
+- https://github.com/memgraph/memgraph
+maintainers:
+- name: Memgraph
+  email: tech@memgraph.com

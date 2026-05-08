@@ -1,0 +1,14 @@
+authSecret:
+  enabled: false
+
+env:
+  - name: MEMGRAPH_URL
+    value: bolt://memgraph-mcp-backend:7687
+  - name: MEMGRAPH_DATABASE
+    value: memgraph
+  - name: MCP_SERVER
+    value: server
+  - name: MCP_TRANSPORT
+    value: streamable-http
+  - name: MCP_READ_ONLY
+    value: "true"

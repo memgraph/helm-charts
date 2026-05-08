@@ -1,9 +1,9 @@
-name: Lint and Test Charts Memgraph Lab
+name: Lint and Test Charts Memgraph MCP
 
 on:
   pull_request:
     paths:
-      - 'charts/memgraph-lab/**'
+      - 'charts/memgraph-mcp/**'
 
 
 jobs:
@@ -38,19 +38,18 @@ jobs:
 
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false --charts charts/memgraph
-
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false --charts charts/memgraph-mcp
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.8.0
 
-      - name: Set up Memgraph environment variables
+      - name: Install Memgraph backend
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          echo "MEMGRAPH_ENTERPRISE_LICENSE=${{ secrets.MEMGRAPH_ENTERPRISE_LICENSE }}" >> $GITHUB_ENV
-          echo "MEMGRAPH_ORGANIZATION_NAME=${{ secrets.MEMGRAPH_ORGANIZATION_NAME }}" >> $GITHUB_ENV
+          helm install memgraph-mcp-backend charts/memgraph \
+            --namespace default --wait --timeout 5m
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }} --excluded-charts memgraph-high-availability, memgraph, memgraph-mcp
+        run: ct install --target-branch ${{ github.event.repository.default_branch }} --excluded-charts memgraph-high-availability,memgraph-lab,memgraph --namespace default

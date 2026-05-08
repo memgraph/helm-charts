@@ -6,7 +6,7 @@ repos:
   - id: end-of-file-fixer
   - id: check-json
   - id: check-yaml
-    exclude: ^charts/(memgraph|memgraph-lab|memgraph-high-availability)/templates/
+    exclude: ^charts/(memgraph|memgraph-lab|memgraph-high-availability|memgraph-mcp)/templates/
   - id: mixed-line-ending
   - id: check-merge-conflict
   - id: detect-private-key

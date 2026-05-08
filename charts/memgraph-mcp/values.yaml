@@ -1,0 +1,128 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/memgraph/mcp-memgraph
+  tag: 0.1.11
+  pullPolicy: IfNotPresent
+
+# -- This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+# -- This is to override the chart name
+nameOverride: ""
+fullnameOverride: ""
+
+# -- For setting K8s annotations to a pod
+podAnnotations: {}
+# -- For setting K8s labels to a pod
+podLabels: {}
+
+# -- Default pod's security context for the pod when one is not provided
+defaultPodSecurityContext:
+  runAsUser: 101
+  runAsGroup: 103
+  fsGroup: 103
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Define the security context for the pod
+podSecurityContext: {}
+
+# -- Default security context for the container when one is not provided
+defaultSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+    - ALL
+  runAsUser: 101
+  runAsGroup: 103
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Define the security context for the container
+securityContext: {}
+
+# -- Init containers to run before the main container starts
+initContainers: []
+  # - name: init-example
+  #   image: busybox:latest
+  #   command: ["sh", "-c", "echo 'Hello'"]
+  #   volumeMounts:
+  #     - name: config-volume
+  #       mountPath: /config
+
+# -- This is for setting up a service
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: http
+  annotations: {}
+
+# -- Resource requests and limits for the container
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- Additional containers to add to the pod (sidecars).
+# -- Each container is defined as a complete container spec.
+extraContainers: []
+# - name: sidecar-example
+#   image: quay.io/prometheus/busybox:latest
+#   command: ["sh", "-c", "while true; do echo 'Sidecar running'; sleep 30; done"]
+#   resources:
+#     requests:
+#       cpu: 10m
+#       memory: 32Mi
+#     limits:
+#       cpu: 50m
+#       memory: 64Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# -- Probes are rendered through `tpl`, so values may include {{ }} expressions
+# referencing other values (any such scalar must be quoted so values.yaml
+# remains valid YAML). The port here uses the container's named port `http`,
+# which already tracks `service.port`, so no templating is needed for it.
+livenessProbe:
+  tcpSocket:
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 20
+  timeoutSeconds: 10
+readinessProbe:
+  tcpSocket:
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 20
+  timeoutSeconds: 10
+
+# -- This is a set of env variables that are used for configuring MCP server
+env:
+  - name: MEMGRAPH_URL
+    value: bolt://memgraph-data-0:7687
+  - name: MEMGRAPH_DATABASE
+    value: memgraph
+  - name: MCP_SERVER
+    value: server # alternative is memgraph-experimental
+  - name: MCP_TRANSPORT
+    value: streamable-http # alternative is stdio
+  - name: MCP_READ_ONLY
+    value: true # If true, enables read-only mode to prevent write operations (CREATE, MERGE, DELETE, SET, DROP)
+
+# -- This is to set MG_USER and MG_PASSWORD for authentication purpose
+authSecret:
+  enabled: true
+  name: mcp-auth-secret
+  userKey: MEMGRAPH_USER
+  passwordKey: MEMGRAPH_PASSWORD
