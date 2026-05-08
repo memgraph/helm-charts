@@ -16,4 +16,4 @@ spec:
         - '--spider'
         - '--tries=10'
         - '--timeout=5'
-        - '{{ include "memgraph-mcp.fullname" . }}:{{ .Values.service.port }}'
+        - '{{ include "memgraph-mcp.fullname" . }}:{{ .Values.service.port }}/mcp'
