@@ -6,10 +6,10 @@ image:
   tag:
   pullPolicy: IfNotPresent
 
-## Override the default imagePullSecrets
-useImagePullSecrets: false
-imagePullSecrets:
-- name: regcred
+imagePullSecrets: []
+# Example:
+# imagePullSecrets:
+#   - name: regcred
 
 replicaCount: 1
 
