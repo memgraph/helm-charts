@@ -11,9 +11,12 @@ spec:
   containers:
     - name: wget
       image: docker.io/library/busybox:latest
-      command: ['wget'] # Tests just if the server is listening, no 200 responses are allowed
+      # MCP streamable-http requires Accept: application/json, text/event-stream
+      # and rejects HEAD on /mcp, so we accept any HTTP status as proof the server is up.
+      command: ['sh', '-c']
       args:
-        - '--spider'
-        - '--tries=10'
-        - '--timeout=5'
-        - '{{ include "memgraph-mcp.fullname" . }}:{{ .Values.service.port }}/mcp'
+        - |
+          wget -S --spider --tries=10 --timeout=5 \
+               --header='Accept: application/json, text/event-stream' \
+               'http://{{ include "memgraph-mcp.fullname" . }}:{{ .Values.service.port }}/mcp' 2>&1 \
+               | tee /dev/stderr | grep -q 'HTTP/'
