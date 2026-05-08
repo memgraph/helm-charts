@@ -72,7 +72,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.container.terminationGracePeriodSeconds }}
       {{- if .Values.useImagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 4 }}
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}
       volumes:
       {{- if not .Values.persistentVolumeClaim.createStorageClaim }}
