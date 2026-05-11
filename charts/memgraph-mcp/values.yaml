@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: docker.io/memgraph/mcp-memgraph
-  tag: 0.1.11
+  tag: 0.1.13
   pullPolicy: IfNotPresent
 
 # -- This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
