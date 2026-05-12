@@ -153,6 +153,41 @@ coreDumpUploader:
   secretAccessKeySecretKey: "AWS_SECRET_ACCESS_KEY"
   resources: {}
 
+## Second sidecar (runs alongside coreDumpUploader, not as a replacement).
+## Uses a custom image that bundles gdb + awscli, runs gdb against a copy of
+## the Memgraph binary to produce a *.trace.txt for every core dump, then
+## uploads both files to S3. Requires persistentVolumeClaim.createCoreDumpsClaim=true.
+remoteCoreDumpUploader:
+  enabled: false
+  image:
+    repository: memgraph/core-dump-uploader
+    tag: "0.1.3"
+    pullPolicy: IfNotPresent
+  # Source image used by the init container that populates the symbols volume.
+  # Defaults to .Values.image (the production memgraph image). Override to a
+  # debug-info variant (e.g. memgraph/memgraph:3.9.0-relwithdebinfo) so gdb
+  # traces include function names instead of just addresses.
+  binarySourceImage:
+    repository: ""   # empty -> .Values.image.repository
+    tag: ""          # empty -> .Values.image.tag (or .Chart.AppVersion)
+  # Path to the memgraph binary inside the source image. Used by the init
+  # container to copy it, and to derive MEMGRAPH_BINARY for gdb.
+  memgraphBinaryPath: /usr/lib/memgraph/memgraph
+  # Also copy /home/memgraph/.local/lib/python3.12 into the symbols volume.
+  # Useful only if crashes commonly involve Python C-extension frames; adds
+  # several hundred MB to the init copy.
+  copyPythonSitePackages: false
+  s3BucketName: "memgraph-core-dumps"
+  s3Prefix: "core-dumps"
+  awsRegion: "eu-west-1"
+  # Optional S3-compatible endpoint (e.g. MinIO, R2, Wasabi). Leave empty for AWS S3.
+  endpointUrl: ""
+  pollIntervalSeconds: 30
+  secretName: "aws-s3-credentials"
+  accessKeySecretKey: "AWS_ACCESS_KEY_ID"
+  secretAccessKeySecretKey: "AWS_SECRET_ACCESS_KEY"
+  resources: {}
+
 # Default Storage Class for data and logs, defaults are for Minikube, make sure to change it for production deployments
 # Examples provisioner: Minikube(k8s.io/minikube-hostpath) AWS (ebs.csi.aws.com), GCP (pd.csi.storage.gke.io), Azure (disk.csi.azure.com)
 # Examples storageType: Minikube(hostPath) AWS (gp2), GCP (pd-standard), Azure (StandardSSD_LRS)

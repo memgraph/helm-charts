@@ -65,6 +65,48 @@ spec:
             runAsNonRoot: false
         {{- end }}
 
+        {{- if and .Values.remoteCoreDumpUploader.enabled .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        {{- $srcRepo := .Values.remoteCoreDumpUploader.binarySourceImage.repository | default .Values.image.repository }}
+        {{- $srcTag := .Values.remoteCoreDumpUploader.binarySourceImage.tag | default (.Values.image.tag | default .Chart.AppVersion) }}
+        - name: init-copy-memgraph-binary
+          image: "{{ $srcRepo }}:{{ $srcTag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              set -eu
+              # Populate a fake sysroot at /symbols so gdb can resolve every
+              # absolute path the core file references via `set sysroot`.
+              mkdir -p /symbols/usr/lib/memgraph
+              mkdir -p /symbols/usr/lib/x86_64-linux-gnu
+              cp -a /usr/lib/memgraph/. /symbols/usr/lib/memgraph/
+              for f in /usr/lib/x86_64-linux-gnu/libpython3.12.so*; do
+                [ -e "$f" ] || continue
+                cp -a "$f" /symbols/usr/lib/x86_64-linux-gnu/
+              done
+              {{- if .Values.remoteCoreDumpUploader.copyPythonSitePackages }}
+              mkdir -p /symbols/home/memgraph/.local/lib
+              if [ -d /home/memgraph/.local/lib/python3.12 ]; then
+                cp -a /home/memgraph/.local/lib/python3.12 /symbols/home/memgraph/.local/lib/
+              fi
+              {{- end }}
+              # cp -a preserves source perms; only scope the readability
+              # widen to files we just created (not the root mountpoint,
+              # which is owned by root and would EPERM).
+              find /symbols -mindepth 1 -exec chmod a+rX {} +
+          volumeMounts:
+            - name: {{ include "memgraph.fullname" . }}-remote-uploader-binary
+              mountPath: /symbols
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+        {{- end }}
+
         {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -91,6 +133,10 @@ spec:
       {{- end }}
       {{- if .Values.extraVolumes }}
       {{- tpl (toYaml .Values.extraVolumes) . | nindent 8 }}
+      {{- end }}
+      {{- if and .Values.remoteCoreDumpUploader.enabled .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        - name: {{ include "memgraph.fullname" . }}-remote-uploader-binary
+          emptyDir: {}
       {{- end }}
 
       containers:
@@ -178,6 +224,9 @@ spec:
           {{- end }}
         {{- if and .Values.coreDumpUploader.enabled .Values.persistentVolumeClaim.createCoreDumpsClaim }}
         {{- include "memgraph.coreDumpUploader" (dict "volumeName" (printf "%s-core-dumps-storage" (include "memgraph.fullname" .)) "mountPath" .Values.persistentVolumeClaim.coreDumpsMountPath "values" .Values.coreDumpUploader) | nindent 8 }}
+        {{- end }}
+        {{- if and .Values.remoteCoreDumpUploader.enabled .Values.persistentVolumeClaim.createCoreDumpsClaim }}
+        {{- include "memgraph.remoteCoreDumpUploader" (dict "volumeName" (printf "%s-core-dumps-storage" (include "memgraph.fullname" .)) "binaryVolumeName" (printf "%s-remote-uploader-binary" (include "memgraph.fullname" .)) "mountPath" .Values.persistentVolumeClaim.coreDumpsMountPath "values" .Values.remoteCoreDumpUploader) | nindent 8 }}
         {{- end }}
       {{- if .Values.vectorRemote.enabled }}
         - name: memgraph-vector

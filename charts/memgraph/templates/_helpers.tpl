@@ -193,6 +193,62 @@ Expects a dict with keys: volumeName, mountPath, values (coreDumpUploader values
   {{- end }}
 {{- end }}
 
+{{/*
+Remote core dump uploader sidecar (gdb + S3).
+Expects dict with: volumeName, binaryVolumeName, mountPath, values (remoteCoreDumpUploader values block).
+*/}}
+{{- define "memgraph.remoteCoreDumpUploader" -}}
+- name: remote-core-dump-uploader
+  image: "{{ .values.image.repository }}:{{ .values.image.tag }}"
+  imagePullPolicy: {{ .values.image.pullPolicy }}
+  env:
+    - name: WATCH_DIR
+      value: {{ .mountPath | quote }}
+    - name: S3_BUCKET
+      value: {{ .values.s3BucketName | quote }}
+    - name: S3_PREFIX
+      value: {{ .values.s3Prefix | quote }}
+    - name: AWS_REGION
+      value: {{ .values.awsRegion | quote }}
+    - name: ENDPOINT_URL
+      value: {{ .values.endpointUrl | default "" | quote }}
+    - name: POLL_INTERVAL
+      value: {{ .values.pollIntervalSeconds | quote }}
+    - name: MEMGRAPH_BINARY
+      value: "/symbols{{ .values.memgraphBinaryPath }}"
+    - name: SYSROOT
+      value: "/symbols"
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: {{ .values.secretName }}
+          key: {{ .values.accessKeySecretKey }}
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .values.secretName }}
+          key: {{ .values.secretAccessKeySecretKey }}
+  volumeMounts:
+    - name: {{ .volumeName }}
+      mountPath: {{ .mountPath }}
+      readOnly: true
+    - name: {{ .binaryVolumeName }}
+      mountPath: /symbols
+      readOnly: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  {{- with .values.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+
 {{- define "memgraph.vector.script" -}}
 # Wait for Memgraph to open the log websocket (avoids "Connection refused" on startup)
 max_wait_seconds=120
