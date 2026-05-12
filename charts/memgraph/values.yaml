@@ -144,6 +144,8 @@ coreDumpUploader:
   s3BucketName: "memgraph-core-dumps"
   s3Prefix: "core-dumps"
   awsRegion: "eu-west-1"
+  # Optional S3-compatible endpoint (e.g. MinIO, R2, Wasabi). Leave empty for AWS S3.
+  endpointUrl: ""
   pollIntervalSeconds: 30
   # Name of the K8s Secret containing AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
   secretName: "aws-s3-credentials"

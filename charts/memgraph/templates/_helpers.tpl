@@ -142,7 +142,7 @@ Expects a dict with keys: volumeName, mountPath, values (coreDumpUploader values
           echo "New core dump detected: $fname. Waiting 5s for write to complete..."
           sleep 5
           echo "Uploading $fname to s3://${S3_BUCKET}/${S3_PREFIX}/${HOSTNAME}/${fname}"
-          aws s3 cp "$f" "s3://${S3_BUCKET}/${S3_PREFIX}/${HOSTNAME}/${fname}" --region "$AWS_REGION"
+          aws s3 cp "$f" "s3://${S3_BUCKET}/${S3_PREFIX}/${HOSTNAME}/${fname}" --region "$AWS_REGION" ${ENDPOINT_URL:+--endpoint-url "$ENDPOINT_URL"}
           if [ $? -eq 0 ]; then
             echo "$fname" >> "$UPLOADED"
             echo "Upload complete: $fname"
@@ -161,6 +161,8 @@ Expects a dict with keys: volumeName, mountPath, values (coreDumpUploader values
       value: {{ .values.s3Prefix | quote }}
     - name: AWS_REGION
       value: {{ .values.awsRegion | quote }}
+    - name: ENDPOINT_URL
+      value: {{ .values.endpointUrl | default "" | quote }}
     - name: POLL_INTERVAL
       value: {{ .values.pollIntervalSeconds | quote }}
     - name: AWS_ACCESS_KEY_ID
