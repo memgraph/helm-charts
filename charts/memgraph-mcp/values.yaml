@@ -93,14 +93,16 @@ affinity: {}
 # remains valid YAML). The port here uses the container's named port `http`,
 # which already tracks `service.port`, so no templating is needed for it.
 livenessProbe:
-  tcpSocket:
+  httpGet:
+    path: /health
     port: http
   initialDelaySeconds: 15
   periodSeconds: 10
   failureThreshold: 20
   timeoutSeconds: 10
 readinessProbe:
-  tcpSocket:
+  httpGet:
+    path: /health
     port: http
   initialDelaySeconds: 15
   periodSeconds: 10
@@ -122,7 +124,7 @@ env:
 
 # -- This is to set MG_USER and MG_PASSWORD for authentication purpose
 authSecret:
-  enabled: true
+  enabled: false
   name: mcp-auth-secret
   userKey: MEMGRAPH_USER
   passwordKey: MEMGRAPH_PASSWORD
