@@ -82,10 +82,10 @@ storage:
     #     readOnly: true
 
 ports:
-  boltPort: 7687 # If you change this value, change it also in probes definition
+  boltPort: 7687
   managementPort: 10000
   replicationPort: 20000
-  coordinatorPort: 12000 # If you change this value, change it also in probes definition
+  coordinatorPort: 12000
   metricsPort: 9091
 
 externalAccessConfig:
@@ -168,43 +168,33 @@ container:
   data:
     terminationGracePeriodSeconds: 30 # Make sure to increase this value if --storage-snapshot-on-exit=true so that snapshot can be successfully created on exit. The concrete value depends
     # on the amount of data in your database
+    # Probes are hard-coded to tcpSocket against ports.boltPort. Only timings below are configurable.
     readinessProbe:
-      tcpSocket:
-        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
-      tcpSocket:
-        port: 7687 # If you change bolt port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     # When restoring Memgraph from a backup, it is important to give enough time app to start. Here, we set it to 2h by default.
     startupProbe:
-      tcpSocket:
-        port: 7687 # If you change bolt port, change this also
       failureThreshold: 1440
       timeoutSeconds: 10
       periodSeconds: 5
   coordinators:
     terminationGracePeriodSeconds: 30 # Make sure to increase this value if --storage-snapshot-on-exit=true so that snapshot can be successfully created on exit. The concrete value depends
     # on the amount of data in your databas
+    # Probes are hard-coded to tcpSocket against ports.coordinatorPort. Only timings below are configurable.
     readinessProbe:
-      tcpSocket:
-        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     livenessProbe:
-      tcpSocket:
-        port: 12000 # If you change coordinator port, change this also
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5
     startupProbe:
-      tcpSocket:
-        port: 12000
       failureThreshold: 20
       timeoutSeconds: 10
       periodSeconds: 5

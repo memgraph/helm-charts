@@ -44,53 +44,58 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "container.data.readinessProbe" -}}
+{{- $p := .Values.container.data.readinessProbe -}}
 readinessProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.boltPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 
 {{- define "container.data.livenessProbe" -}}
+{{- $p := .Values.container.data.livenessProbe -}}
 livenessProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.boltPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 
 {{- define "container.data.startupProbe" -}}
+{{- $p := .Values.container.data.startupProbe -}}
 startupProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.boltPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 
 
 {{- define "container.coordinators.readinessProbe" -}}
+{{- $p := .Values.container.coordinators.readinessProbe -}}
 readinessProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.coordinatorPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 
 {{- define "container.coordinators.livenessProbe" -}}
+{{- $p := .Values.container.coordinators.livenessProbe -}}
 livenessProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.coordinatorPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 
@@ -107,12 +112,13 @@ livenessProbe:
 
 
 {{- define "container.coordinators.startupProbe" -}}
+{{- $p := .Values.container.coordinators.startupProbe -}}
 startupProbe:
   tcpSocket:
-    port: {{ .tcpSocket.port }}
-  failureThreshold: {{ .failureThreshold }}
-  timeoutSeconds: {{ .timeoutSeconds }}
-  periodSeconds: {{ .periodSeconds }}
+    port: {{ .Values.ports.coordinatorPort }}
+  failureThreshold: {{ $p.failureThreshold }}
+  timeoutSeconds: {{ $p.timeoutSeconds }}
+  periodSeconds: {{ $p.periodSeconds }}
 {{- end }}
 
 

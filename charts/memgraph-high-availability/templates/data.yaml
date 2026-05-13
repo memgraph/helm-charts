@@ -225,9 +225,9 @@ spec:
           seccompProfile:
             type: RuntimeDefault
           # Run by 'memgraph' user as specified in the Dockerfile
-        {{- include "container.data.readinessProbe" $.Values.container.data.readinessProbe | nindent 8 }}
-        {{- include "container.data.livenessProbe" $.Values.container.data.livenessProbe | nindent 8 }}
-        {{- include "container.data.startupProbe" $.Values.container.data.startupProbe | nindent 8 }}
+        {{- include "container.data.readinessProbe" $ | nindent 8 }}
+        {{- include "container.data.livenessProbe" $ | nindent 8 }}
+        {{- include "container.data.startupProbe" $ | nindent 8 }}
         {{- with $.Values.resources.data }}
         resources:
           {{- toYaml . | nindent 10 }}
