@@ -144,6 +144,19 @@ sysctlInitContainer:
     tag: latest
     pullPolicy: IfNotPresent
 
+# Some storage drivers (notably rancher.io/local-path) do not honor pod-level fsGroup,
+# leaving the volume root owned by root:root. Because Memgraph runs as a non-root user,
+# its storage directory ownership assertion (process euid == data directory owner uid)
+# fails on startup. When enabled, an init container runs as root and chowns the lib,
+# log, and core-dumps mount points to memgraphUserId:memgraphGroupId before Memgraph
+# starts
+fixOwnershipInitContainer:
+  enabled: false
+  image:
+    repository: docker.io/library/busybox
+    tag: latest
+    pullPolicy: IfNotPresent
+
 # This is fine because under both
 # Memgraph and Mage images we actually hard-code the user and group id.
 memgraphUserId: 101
