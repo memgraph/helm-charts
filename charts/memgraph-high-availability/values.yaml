@@ -23,7 +23,7 @@ storage:
     coreDumpsMountPath: /var/core/memgraph
     coreDumpsImage:
       repository: docker.io/library/busybox
-      tag: latest
+      tag: 1.37.0
       pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
@@ -60,7 +60,7 @@ storage:
     coreDumpsMountPath: /var/core/memgraph
     coreDumpsImage:
       repository: docker.io/library/busybox
-      tag: latest
+      tag: 1.37.0
       pullPolicy: IfNotPresent
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
@@ -141,7 +141,20 @@ sysctlInitContainer:
   maxMapCount: 262144
   image:
     repository: docker.io/library/busybox
-    tag: latest
+    tag: 1.37.0
+    pullPolicy: IfNotPresent
+
+# Some storage drivers (notably rancher.io/local-path) do not honor pod-level fsGroup,
+# leaving the volume root owned by root:root. Because Memgraph runs as a non-root user,
+# its storage directory ownership assertion (process euid == data directory owner uid)
+# fails on startup. When enabled, an init container runs as root and chowns the lib,
+# log, and core-dumps mount points to memgraphUserId:memgraphGroupId before Memgraph
+# starts
+fixOwnershipInitContainer:
+  enabled: false
+  image:
+    repository: docker.io/library/busybox
+    tag: 1.37.0
     pullPolicy: IfNotPresent
 
 # This is fine because under both
@@ -401,7 +414,7 @@ userContainers:
   # Example:
   # coordinators:
   #  - name: my-debugger
-  #    image: docker.io/library/busybox:latest
+  #    image: docker.io/library/busybox:1.37.0
   #    command: ["sh", "-c", "echo hi; sleep 10000"]
 
 coreDumpUploader:

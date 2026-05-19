@@ -136,6 +136,44 @@ spec:
           runAsNonRoot: false
       {{- end }}
 
+      {{- if $.Values.fixOwnershipInitContainer.enabled }}
+      - name: init-fix-perms
+        image: "{{ $.Values.fixOwnershipInitContainer.image.repository }}:{{ $.Values.fixOwnershipInitContainer.image.tag }}"
+        imagePullPolicy: {{ $.Values.fixOwnershipInitContainer.image.pullPolicy }}
+        command: ['/bin/sh', '-c']
+        args:
+          - |
+            set -e
+            chown -R {{ $.Values.memgraphUserId }}:{{ $.Values.memgraphGroupId }} /var/lib/memgraph
+            {{- if $.Values.storage.data.createLogStorageClaim }}
+            chown -R {{ $.Values.memgraphUserId }}:{{ $.Values.memgraphGroupId }} /var/log/memgraph
+            {{- end }}
+            {{- if $.Values.storage.data.createCoreDumpsClaim }}
+            chown -R {{ $.Values.memgraphUserId }}:{{ $.Values.memgraphGroupId }} {{ $.Values.storage.data.coreDumpsMountPath }}
+            {{- end }}
+        securityContext:
+          runAsUser: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+            add: ["CHOWN"]
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - name: memgraph-data-{{ $data.id }}-lib-storage
+            mountPath: /var/lib/memgraph
+          {{- if $.Values.storage.data.createLogStorageClaim }}
+          - name: memgraph-data-{{ $data.id }}-log-storage
+            mountPath: /var/log/memgraph
+          {{- end }}
+          {{- if $.Values.storage.data.createCoreDumpsClaim }}
+          - name: memgraph-data-{{ $data.id }}-core-dumps-storage
+            mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
+          {{- end }}
+      {{- end }}
+
       {{- with $.Values.initContainers.data }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
