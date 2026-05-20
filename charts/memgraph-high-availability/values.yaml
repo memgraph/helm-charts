@@ -377,6 +377,25 @@ data:
     #   - "--monitoring-address=0.0.0.0"
     args: # Args specific to this instance
       - "--storage-snapshot-on-exit=false"
+    # Per-instance volumes/mounts, merged with storage.data.extraVolumes/extraVolumeMounts.
+    # Use this for resources unique to this pod (e.g. per-instance TLS cert/key).
+    # Supports Helm templating via tpl (root context: $.Release, $.Values, ...).
+    extraVolumes: []
+    # Example: mount this instance's own Bolt TLS secret
+    # extraVolumes:
+    #   - name: bolt-certs
+    #     secret:
+    #       secretName: memgraph-data-0-tls
+    #       defaultMode: 0440
+    extraVolumeMounts: []
+    # Example:
+    # extraVolumeMounts:
+    #   - name: bolt-certs
+    #     mountPath: /etc/memgraph/ssl
+    #     readOnly: true
+    # Then add to args above:
+    #   - "--bolt-cert-file=/etc/memgraph/ssl/tls.crt"
+    #   - "--bolt-key-file=/etc/memgraph/ssl/tls.key"
 
   - id: "1"
     restoreDataFromSnapshot: false
@@ -385,6 +404,8 @@ data:
     externalAccessAnnotations: {}
     args:
       - "--storage-snapshot-on-exit=false"
+    extraVolumes: []
+    extraVolumeMounts: []
 
 coordinators:
   - id: "1"
@@ -393,6 +414,10 @@ coordinators:
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
     args: []
+    # Per-instance volumes/mounts, merged with storage.coordinators.extraVolumes/extraVolumeMounts.
+    # See data[0].extraVolumes above for a per-instance TLS example.
+    extraVolumes: []
+    extraVolumeMounts: []
 
   - id: "2"
     restoreDataFromSnapshot: false
@@ -400,6 +425,8 @@ coordinators:
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
     args: []
+    extraVolumes: []
+    extraVolumeMounts: []
 
   - id: "3"
     restoreDataFromSnapshot: false
@@ -407,6 +434,8 @@ coordinators:
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
     args: []
+    extraVolumes: []
+    extraVolumeMounts: []
 
 userContainers:
   data: []

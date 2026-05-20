@@ -257,6 +257,9 @@ spec:
           {{- with $.Values.storage.coordinators.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
+          {{- with $coordinator.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
 
         securityContext:
           allowPrivilegeEscalation: false
@@ -289,6 +292,9 @@ spec:
         emptyDir: {}
       {{- if $.Values.storage.coordinators.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.coordinators.extraVolumes) $ | nindent 6 }}
+      {{- end }}
+      {{- if $coordinator.extraVolumes }}
+      {{- tpl (toYaml $coordinator.extraVolumes) $ | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
