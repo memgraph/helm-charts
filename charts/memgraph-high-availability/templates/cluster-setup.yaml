@@ -1,10 +1,4 @@
-{{- $hasCert := false }}
-  {{- $hasKey := false }}
-  {{- range (index .Values.coordinators 0).args }}
-    {{- if hasPrefix "--bolt-cert-file" . }}{{- $hasCert = true }}{{- end }}
-    {{- if hasPrefix "--bolt-key-file" . }}{{- $hasKey = true }}{{- end }}
-  {{- end }}
-  {{- $useSSL := and $hasCert $hasKey | ternary "--use-ssl" "" }}
+{{- $useSSL := ternary "--use-ssl" "" (index .Values.coordinators 0).tls.bolt.enabled }}
 
 apiVersion: batch/v1
 kind: Job
