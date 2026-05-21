@@ -216,13 +216,13 @@ updateStrategy:
   type: RollingUpdate # Set to OnDelete to support ISSU
 
 prometheus:
-  enabled: true
+  enabled: false
   namespace: "" # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, if empty, uses release namespace.
   memgraphExporter:
     port: 9115
     pullFrequencySeconds: 5
     repository: docker.io/memgraph/prometheus-exporter
-    tag: 0.2.1
+    tag: 0.2.3
     # TLS settings used by the exporter when scraping Memgraph instances over https.
     # Only applied to instances that have tls.bolt.enabled=true.
     #   - skipVerify: if true, the exporter does not verify Memgraph's server cert.
