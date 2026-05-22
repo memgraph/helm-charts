@@ -238,12 +238,12 @@ spec:
           - name: MEMGRAPH_ENTERPRISE_LICENSE
             valueFrom:
               secretKeyRef:
-                name: {{ $.Values.secrets.name }}
+                name: {{ tpl $.Values.secrets.name $ }}
                 key: {{ $.Values.secrets.licenseKey }}
           - name: MEMGRAPH_ORGANIZATION_NAME
             valueFrom:
               secretKeyRef:
-                name: {{ $.Values.secrets.name }}
+                name: {{ tpl $.Values.secrets.name $ }}
                 key: {{ $.Values.secrets.organizationKey }}
           - name: DGL_DOWNLOAD_DIR # DGL by default writes to /home/memgraph which we set to be read-only
             value: /tmp/.dgl
