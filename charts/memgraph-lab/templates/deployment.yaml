@@ -53,7 +53,7 @@ spec:
             - name: {{ . }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secrets.name }}
+                  name: {{ tpl $.Values.secrets.name $ }}
                   key: {{ . }}
             {{- end }}
             {{- end }}
