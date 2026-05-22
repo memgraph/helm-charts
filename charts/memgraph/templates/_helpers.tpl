@@ -61,6 +61,20 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Create the name for mg-exporter resources.
+*/}}
+{{- define "memgraph.mgExporterName" -}}
+{{- printf "%s-mg-exporter" (include "memgraph.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Create the config map name for mg-exporter resources.
+*/}}
+{{- define "memgraph.mgExporterConfigName" -}}
+{{- printf "%s-config" (include "memgraph.mgExporterName" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
 {{- define "container.readinessProbe" -}}
 readinessProbe:
 {{- if .exec }}
