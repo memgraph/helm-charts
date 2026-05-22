@@ -28,19 +28,17 @@ storage:
     # Supports Helm templating (e.g. {{ .Release.Name }})
     extraVolumes: []
     # extraVolumes:
-    #   - name: bolt-certs
+    #   - name: secret-volume
     #     secret:
-    #       secretName: bolt-ssl-certificates-tls
+    #       secretName: my-secret
     #       items:
-    #         - key: tls.crt
-    #           path: tls.crt
-    #         - key: tls.key
-    #           path: tls.key
+    #         - key: hello_world.txt
+    #           path: hello_world.txt
     extraVolumeMounts: []
     # Example:
     # extraVolumeMounts:
-    #   - name: bolt-certs
-    #     mountPath: /etc/memgraph/ssl
+    #   - name: secret-volume
+    #     mountPath: /etc/memgraph/secret
     #     readOnly: true
 
   coordinators:
@@ -66,19 +64,17 @@ storage:
     extraVolumes: []
     # Example:
     # extraVolumes:
-    #   - name: bolt-certs
+    #   - name: secret-volume
     #     secret:
-    #       secretName: bolt-ssl-certificates-tls
+    #       secretName: my-secret
     #       items:
-    #         - key: tls.crt
-    #           path: tls.crt
-    #         - key: tls.key
-    #           path: tls.key
+    #         - key: hello_world.txt
+    #           path: hello_world.txt
     extraVolumeMounts: []
     # Example:
     # extraVolumeMounts:
-    #   - name: bolt-certs
-    #     mountPath: /etc/memgraph/ssl
+    #   - name: secret-volume
+    #     mountPath: /etc/memgraph/secret
     #     readOnly: true
 
 ports:
@@ -226,7 +222,18 @@ prometheus:
     port: 9115
     pullFrequencySeconds: 5
     repository: docker.io/memgraph/prometheus-exporter
-    tag: 0.2.1
+    tag: 0.2.3
+    # TLS settings used by the exporter when scraping Memgraph instances over https.
+    # Only applied to instances that have tls.bolt.enabled=true.
+    #   - skipVerify: if true, the exporter does not verify Memgraph's server cert.
+    #   - caSecretName: name of a pre-created Secret containing the CA bundle. When set
+    #     (and skipVerify=false), the chart mounts the Secret at /etc/mg-exporter/ssl
+    #     and passes ca_file=/etc/mg-exporter/ssl/<caSecretKey> to the exporter.
+    #   - caSecretKey: key inside the Secret holding the CA cert (default ca.crt).
+    tls:
+      skipVerify: true
+      caSecretName: ""
+      caSecretKey: ca.crt
     extraVolumes: []
     extraVolumeMounts: []
     # extraVolumes:
@@ -238,7 +245,7 @@ prometheus:
     #     mountPath: /etc/memgraph-exporter
     #     readOnly: true
   serviceMonitor:
-    enabled: true
+    enabled: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
 
@@ -369,6 +376,12 @@ data:
     volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
     internalAccessAnnotations: {} # Per-instance annotations for internal ClusterIP service
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.dataInstance.annotations, per-instance takes precedence)
+    tls:
+      bolt:
+        enabled: false
+        secretName: bolt-tls-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
     # Example
     # externalAccessAnnotations:
       # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
@@ -383,6 +396,12 @@ data:
     volumeSnapshotName: data-1-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    tls:
+      bolt:
+        enabled: false
+        secretName: bolt-tls-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
     args:
       - "--storage-snapshot-on-exit=false"
 
@@ -392,6 +411,12 @@ coordinators:
     volumeSnapshotName: coord-1-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    tls:
+      bolt:
+        enabled: false
+        secretName: bolt-tls-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
     args: []
 
   - id: "2"
@@ -399,6 +424,12 @@ coordinators:
     volumeSnapshotName: coord-2-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    tls:
+      bolt:
+        enabled: false
+        secretName: bolt-tls-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
     args: []
 
   - id: "3"
@@ -406,6 +437,12 @@ coordinators:
     volumeSnapshotName: coord-3-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    tls:
+      bolt:
+        enabled: false
+        secretName: bolt-tls-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
     args: []
 
 userContainers:

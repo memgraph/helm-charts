@@ -210,6 +210,15 @@ spec:
           {{- if hasPrefix "--log-file" $arg }}
             {{- fail (printf "Do not set --log-file in data[id=%s].args; configure commonArgs.data.logging.log_file instead." $data.id) }}
           {{- end }}
+          {{- if hasPrefix "--bolt-cert-file" $arg }}
+            {{- fail (printf "Do not set --bolt-cert-file in data[id=%s].args; enable data[id=%s].tls.bolt instead (auto-appended)." $data.id $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--bolt-key-file" $arg }}
+            {{- fail (printf "Do not set --bolt-key-file in data[id=%s].args; enable data[id=%s].tls.bolt instead (auto-appended)." $data.id $data.id) }}
+          {{- end }}
+        {{- end }}
+        {{- if and $data.tls.bolt.enabled (not $data.tls.bolt.secretName) }}
+          {{- fail (printf "data[id=%s].tls.bolt.enabled is true but secretName is empty." $data.id) }}
         {{- end }}
         {{- range $arg := $data.args }}
         - "{{ $arg }}"
@@ -217,6 +226,10 @@ spec:
         - "--bolt-port={{ $.Values.ports.boltPort }}"
         - "--management-port={{ $.Values.ports.managementPort }}"
         - "--data-directory=/var/lib/memgraph/mg_data"
+        {{- if $data.tls.bolt.enabled }}
+        - "--bolt-cert-file=/etc/memgraph/ssl/tls.crt"
+        - "--bolt-key-file=/etc/memgraph/ssl/tls.key"
+        {{- end }}
         {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.data.logging "path" "commonArgs.data.logging") | nindent 8 }}
         env:
           - name: MEMGRAPH_ENTERPRISE_LICENSE
@@ -251,6 +264,11 @@ spec:
           - name: memgraph-data-{{ $data.id }}-core-dumps-storage
             mountPath: {{ $.Values.storage.data.coreDumpsMountPath }}
           {{- end }}
+          {{- if $data.tls.bolt.enabled }}
+          - name: bolt-certs
+            mountPath: /etc/memgraph/ssl
+            readOnly: true
+          {{- end }}
           {{- with $.Values.storage.data.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
@@ -283,6 +301,16 @@ spec:
       volumes:
       - name: memgraph-data-{{ $data.id }}-tmp
         emptyDir: {}
+      {{- if $data.tls.bolt.enabled }}
+      - name: bolt-certs
+        secret:
+          secretName: {{ $data.tls.bolt.secretName }}
+          items:
+            - key: {{ $data.tls.bolt.certSecretPath }}
+              path: tls.crt
+            - key: {{ $data.tls.bolt.keySecretPath }}
+              path: tls.key
+      {{- end }}
       {{- if $.Values.storage.data.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.data.extraVolumes) $ | nindent 6 }}
       {{- end }}

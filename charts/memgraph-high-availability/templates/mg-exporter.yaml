@@ -10,17 +10,34 @@ data:
       port: {{ $.Values.prometheus.memgraphExporter.port }}
       pull_frequency_seconds: {{ $.Values.prometheus.memgraphExporter.pullFrequencySeconds }}
     instances:
+      {{- $exporterTls := $.Values.prometheus.memgraphExporter.tls }}
+      {{- $caFile := "" }}
+      {{- if and (not $exporterTls.skipVerify) $exporterTls.caSecretName }}
+      {{- $caFile = printf "/etc/mg-exporter/ssl/%s" $exporterTls.caSecretKey }}
+      {{- end }}
       {{- range $.Values.coordinators }}
       - name: coord{{ .id }}
-        url: http://memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
-        port: 9091
+        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
+        port: {{ $.Values.ports.metricsPort }}
         type: coordinator
+        {{- if .tls.bolt.enabled }}
+        skip_tls_verify: {{ $exporterTls.skipVerify }}
+        {{- if $caFile }}
+        ca_file: {{ $caFile | quote }}
+        {{- end }}
+        {{- end }}
       {{- end }}
       {{- range $.Values.data }}
       - name: data{{ .id }}
-        url: http://memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
-        port: 9091
+        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
+        port: {{ $.Values.ports.metricsPort }}
         type: data_instance
+        {{- if .tls.bolt.enabled }}
+        skip_tls_verify: {{ $exporterTls.skipVerify }}
+        {{- if $caFile }}
+        ca_file: {{ $caFile | quote }}
+        {{- end }}
+        {{- end }}
       {{- end }}
 ---
 apiVersion: apps/v1
@@ -51,6 +68,11 @@ spec:
             - name: config-volume
               mountPath: /etc/mg-exporter/ha_config.yaml
               subPath: ha_config.yaml
+            {{- if and (not $.Values.prometheus.memgraphExporter.tls.skipVerify) $.Values.prometheus.memgraphExporter.tls.caSecretName }}
+            - name: ca-bundle
+              mountPath: /etc/mg-exporter/ssl
+              readOnly: true
+            {{- end }}
             {{- with $.Values.prometheus.memgraphExporter.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -65,6 +87,11 @@ spec:
         - name: config-volume
           configMap:
             name: mg-exporter-config
+        {{- if and (not $.Values.prometheus.memgraphExporter.tls.skipVerify) $.Values.prometheus.memgraphExporter.tls.caSecretName }}
+        - name: ca-bundle
+          secret:
+            secretName: {{ $.Values.prometheus.memgraphExporter.tls.caSecretName }}
+        {{- end }}
         {{- with $.Values.prometheus.memgraphExporter.extraVolumes }}
         {{- toYaml $.Values.prometheus.memgraphExporter.extraVolumes | nindent 8 }}
         {{- end }}
