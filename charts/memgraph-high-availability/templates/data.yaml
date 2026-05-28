@@ -216,6 +216,9 @@ spec:
           {{- if hasPrefix "--bolt-key-file" $arg }}
             {{- fail (printf "Do not set --bolt-key-file in data[id=%s].args; enable data[id=%s].tls.bolt instead (auto-appended)." $data.id $data.id) }}
           {{- end }}
+          {{- if hasPrefix "--log-retention-days" $arg }}
+            {{- fail (printf "Do not set --log-retention-days in data[id=%s].args; configure commonArgs.data.logging.log_retention_days instead." $data.id) }}
+          {{- end }}
         {{- end }}
         {{- if and $data.tls.bolt.enabled (not $data.tls.bolt.secretName) }}
           {{- fail (printf "data[id=%s].tls.bolt.enabled is true but secretName is empty." $data.id) }}

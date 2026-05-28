@@ -361,11 +361,13 @@ commonArgs:
       log_level: "TRACE" # Must not be empty.
       also_log_to_stderr: true # Can only be bool
       log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+      log_retention_days: 35 # For how many days should logs get persisted
   coordinators: # Common args for coordinator instances
     logging:
       log_level: "TRACE" # Must not be empty.
       also_log_to_stderr: true # Can only be bool
       log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
+      log_retention_days: 35
 
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
