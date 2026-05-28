@@ -219,9 +219,21 @@ spec:
           {{- if hasPrefix "--log-retention-days" $arg }}
             {{- fail (printf "Do not set --log-retention-days in coordinators[id=%s].args; configure commonArgs.coordinators.logging.log_retention_days instead." $coordinator.id) }}
           {{- end }}
+          {{- if hasPrefix "--cluster-key-file" $arg }}
+            {{- fail (printf "Do not set --cluster-key-file in coordinators[id=%s].args; enable coordinators[id=%s].tls.intraCluster instead (auto-appended)." $coordinator.id $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--cluster-cert-file" $arg }}
+            {{- fail (printf "Do not set --cluster-cert-file in coordinators[id=%s].args; enable coordinators[id=%s].tls.intraCluster instead (auto-appended)." $coordinator.id $coordinator.id) }}
+          {{- end }}
+          {{- if hasPrefix "--cluster-ca-file" $arg }}
+            {{- fail (printf "Do not set --cluster-ca-file in coordinators[id=%s].args; enable coordinators[id=%s].tls.intraCluster instead (auto-appended)." $coordinator.id $coordinator.id) }}
+          {{- end }}
         {{- end }}
         {{- if and $coordinator.tls.bolt.enabled (not $coordinator.tls.bolt.secretName) }}
           {{- fail (printf "coordinators[id=%s].tls.bolt.enabled is true but secretName is empty." $coordinator.id) }}
+        {{- end }}
+        {{- if and $coordinator.tls.intraCluster.enabled (not $coordinator.tls.intraCluster.secretName) }}
+          {{- fail (printf "coordinators[id=%s].tls.intraCluster.enabled is true but secretName is empty." $coordinator.id) }}
         {{- end }}
         {{- range $arg := $coordinator.args }}
         - "{{ $arg }}"
@@ -236,6 +248,12 @@ spec:
         - "--bolt-cert-file=/etc/memgraph/ssl/tls.crt"
         - "--bolt-key-file=/etc/memgraph/ssl/tls.key"
         {{- end }}
+        {{- if $coordinator.tls.intraCluster.enabled }}
+        - "--cluster-cert-file=/etc/memgraph/intra_cluster_tls/tls.crt"
+        - "--cluster-key-file=/etc/memgraph/intra_cluster_tls/tls.key"
+        - "--cluster-ca-file=/etc/memgraph/intra_cluster_tls/ca.crt"
+        {{- end }}
+
         {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.coordinators.logging "path" "commonArgs.coordinators.logging") | nindent 8 }}
         env:
           - name: MEMGRAPH_ENTERPRISE_LICENSE
@@ -275,11 +293,14 @@ spec:
             mountPath: /etc/memgraph/ssl
             readOnly: true
           {{- end }}
-
+          {{- if $coordinator.tls.intraCluster.enabled }}
+          - name: intra-cluster-certs
+            mountPath: /etc/memgraph/intra_cluster_tls
+            readOnly: true
+          {{- end }}
           {{- with $.Values.storage.coordinators.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -318,6 +339,18 @@ spec:
               path: tls.crt
             - key: {{ $coordinator.tls.bolt.keySecretPath }}
               path: tls.key
+      {{- end }}
+      {{- if $coordinator.tls.intraCluster.enabled }}
+      - name: intra-cluster-certs
+        secret:
+          secretName: {{ $coordinator.tls.intraCluster.secretName }}
+          items:
+            - key: {{ $coordinator.tls.intraCluster.certSecretPath }}
+              path: tls.crt
+            - key: {{ $coordinator.tls.intraCluster.keySecretPath }}
+              path: tls.key
+            - key: {{ $coordinator.tls.intraCluster.caSecretPath }}
+              path: ca.crt
       {{- end }}
       {{- if $.Values.storage.coordinators.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.coordinators.extraVolumes) $ | nindent 6 }}
