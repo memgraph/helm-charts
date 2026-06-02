@@ -13,8 +13,8 @@ on:
         required: true
         default: true
         type: boolean
-      use_mg_exporter:
-        description: "Scrape via mg-exporter instead of Memgraph's OpenMetrics endpoint directly"
+      use_direct_scraping:
+        description: "Scrape Memgraph's OpenMetrics endpoint directly instead of via mg-exporter (requires Memgraph >= 3.11)."
         required: false
         default: false
         type: boolean
@@ -28,10 +28,11 @@ on:
       - "scripts/verify-remote-monitoring.sh"
       - ".github/workflows/test-remote-monitoring.yaml"
 
-# Default to direct OpenMetrics scraping. Manual runs can flip use_mg_exporter=true
-# to exercise the legacy mg-exporter path; pull_request runs always use direct.
+# Default to the mg-exporter scrape path (works with the released chart appVersion).
+# Direct OpenMetrics scraping requires Memgraph >= 3.11, so it's a manual opt-in via
+# use_direct_scraping=true; pull_request runs always use mg-exporter.
 env:
-  USE_MG_EXPORTER: ${{ inputs.use_mg_exporter == true }}
+  USE_MG_EXPORTER: ${{ inputs.use_direct_scraping != true }}
 
 jobs:
   test-ha-remote-monitoring:
