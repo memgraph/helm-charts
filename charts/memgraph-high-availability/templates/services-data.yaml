@@ -31,7 +31,7 @@ spec:
       name: tcp-replication-port
       port: {{ $.Values.ports.replicationPort }}
       targetPort: {{ $.Values.ports.replicationPort }}
-    {{- if $.Values.prometheus.enabled }}
+    {{- if or $.Values.prometheus.enabled $.Values.vmagentRemote.scrapeMemgraphDirectly }}
     - protocol: TCP
       name: tcp-metrics-port
       port: {{ $.Values.ports.metricsPort }}

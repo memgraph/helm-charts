@@ -96,7 +96,9 @@ Both Memgraph charts support optional remote observability:
 This works with VictoriaMetrics/VictoriaLogs, and with other backends that expose compatible Prometheus remote-write and Loki endpoints.
 
 ### Prerequisites
-- Enable chart-level Prometheus exporter (`prometheus.enabled=true`).
+- Provide a metrics source for `vmagentRemote`, either:
+  - the chart-level Prometheus exporter (`prometheus.enabled=true`) — the default, or
+  - direct scraping of Memgraph's OpenMetrics endpoint (`vmagentRemote.scrapeMemgraphDirectly=true`), which needs no exporter (`prometheus.enabled=false`). See [Scrape Memgraph directly](#scrape-memgraph-directly-without-mg-exporter).
 - Use a secret containing credentials for your remote endpoints (required for `vmagentRemote`; optional for `vectorRemote`).
 - For standalone chart, enable Memgraph monitoring ports:
   - `service.enableHttpMonitoring=true`
@@ -105,6 +107,31 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
   - standalone chart: add `--monitoring-port=<service.websocketPortMonitoring>` and `--monitoring-address=0.0.0.0` to `memgraphConfig`
   - HA chart: add `--monitoring-port=<vectorRemote.websocketPort>` and `--monitoring-address=0.0.0.0` to each instance's `args`
 - If `vmagentRemote.enabled=true` and you only need remote_write, set `prometheus.serviceMonitor.enabled=false` to avoid duplicate scraping of `mg-exporter` by both vmagent and kube-prometheus.
+
+### Scrape Memgraph directly (without mg-exporter)
+By default `vmagentRemote` scrapes the `mg-exporter`, which requires `prometheus.enabled=true`. To scrape Memgraph's OpenMetrics endpoint directly instead — with no exporter deployed — set `vmagentRemote.scrapeMemgraphDirectly=true` and leave `prometheus.enabled=false`:
+
+```yaml
+prometheus:
+  enabled: false  # mg-exporter not needed
+
+vmagentRemote:
+  enabled: true
+  scrapeMemgraphDirectly: true
+  namespace: monitoring
+  remoteWrite:
+    url: "https://<prom-remote-write>/api/v1/write"
+    basicAuth:
+      secretName: monitoring-basic-auth
+      usernameKey: username
+      passwordKey: password
+  externalLabels:
+    cluster_id: "memgraph-ha"
+    service_name: "Memgraph HA"
+    cluster_env: "dev"
+```
+
+When `scrapeMemgraphDirectly=true`, the chart runs each instance with `--metrics-format=OpenMetrics` and exposes the metrics port automatically (for the standalone chart you do not need to set `service.enableHttpMonitoring`). All other `vmagentRemote` / `vectorRemote` settings are the same as the examples below. The metrics endpoint is served over plain HTTP.
 
 ### Standalone chart example
 ```yaml
