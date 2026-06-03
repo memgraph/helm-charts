@@ -253,6 +253,16 @@ prometheus:
     scrapeMemgraphDirectly: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
+  # Provision the generated "Memgraph OpenMetrics" Grafana dashboard as a ConfigMap
+  # for a Grafana sidecar (e.g. kube-prometheus-stack) to auto-load. The dashboard
+  # uses a datasource template variable, so it binds to Grafana's default Prometheus.
+  grafanaDashboard:
+    enabled: false
+    # Namespace for the ConfigMap; must be one the Grafana sidecar watches (default:
+    # prometheus.namespace, else the release namespace).
+    namespace: ""
+    # Label the Grafana sidecar selects dashboards by.
+    label: grafana_dashboard
 
 ## Optional: vmagent for remote monitoring cluster – scrapes Memgraph metrics
 ## (and optionally kube-state-metrics / node-exporter / kubelet when vmagentRemote.kubernetes.enabled=true)

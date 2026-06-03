@@ -1,0 +1,16 @@
+{{- if .Values.prometheus.grafanaDashboard.enabled }}
+# The "Memgraph OpenMetrics" dashboard, provisioned as a ConfigMap for a Grafana
+# sidecar (e.g. kube-prometheus-stack) to discover via the grafana_dashboard label.
+# The dashboard uses a datasource template variable, so it binds to the selected /
+# default Prometheus datasource rather than a hardcoded UID.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "memgraph.fullname" . }}-grafana-dashboard
+  namespace: {{ .Values.prometheus.grafanaDashboard.namespace | default .Values.prometheus.namespace | default .Release.Namespace }}
+  labels:
+    {{ .Values.prometheus.grafanaDashboard.label | default "grafana_dashboard" }}: "1"
+data:
+  memgraph_openmetrics.json: |
+{{ .Files.Get "dashboards/memgraph_openmetrics.json" | indent 4 }}
+{{- end }}
