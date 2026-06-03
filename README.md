@@ -133,6 +133,11 @@ vmagentRemote:
 
 When `scrapeMemgraphDirectly=true`, the chart runs each instance with `--metrics-format=OpenMetrics` and exposes the metrics port automatically (for the standalone chart you do not need to set `service.enableHttpMonitoring`). All other `vmagentRemote` / `vectorRemote` settings are the same as the examples below. The metrics endpoint is served over plain HTTP.
 
+### In-cluster scraping with kube-prometheus-stack
+For an in-cluster Prometheus (e.g. `kube-prometheus-stack`), set `prometheus.serviceMonitor.enabled=true` to provision a `ServiceMonitor`. By default it scrapes the `mg-exporter`; set `prometheus.serviceMonitor.scrapeMemgraphDirectly=true` to scrape Memgraph's OpenMetrics endpoint directly instead (no exporter; requires Memgraph >= 3.11).
+
+Set `prometheus.grafanaDashboard.enabled=true` to ship the bundled "Memgraph OpenMetrics" dashboard as a ConfigMap (labelled `grafana_dashboard`) for the Grafana sidecar to auto-load. It uses a datasource template variable, so it binds to Grafana's default Prometheus. The ConfigMap must live in a namespace the sidecar watches — set `prometheus.grafanaDashboard.namespace` to Grafana's namespace (or run the sidecar with `searchNamespace: ALL`).
+
 ### Standalone chart example
 ```yaml
 prometheus:
