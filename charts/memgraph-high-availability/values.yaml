@@ -246,6 +246,11 @@ prometheus:
     #     readOnly: true
   serviceMonitor:
     enabled: false
+    # When true, the ServiceMonitor scrapes each Memgraph instance's OpenMetrics
+    # endpoint directly instead of the mg-exporter (so prometheus.enabled / the
+    # exporter is not needed). The chart then runs each instance with
+    # --metrics-format=OpenMetrics. Requires Memgraph >= 3.11.
+    scrapeMemgraphDirectly: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
 

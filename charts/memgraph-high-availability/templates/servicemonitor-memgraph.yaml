@@ -1,0 +1,25 @@
+{{- if and $.Values.prometheus.serviceMonitor.enabled $.Values.prometheus.serviceMonitor.scrapeMemgraphDirectly }}
+# Scrape each Memgraph instance's OpenMetrics endpoint directly (no mg-exporter).
+# Instances must run with --metrics-format=OpenMetrics (the chart appends it when
+# scrapeMemgraphDirectly is set). Discovered by kube-prometheus-stack via the
+# `release` label, same as the exporter ServiceMonitor.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "memgraph.fullname" . }}-memgraph
+  namespace: {{ $.Values.prometheus.namespace | default $.Release.Namespace }}
+  labels:
+    release: {{ $.Values.prometheus.serviceMonitor.kubePrometheusStackReleaseName }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: memgraph-high-availability
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  endpoints:
+    - port: tcp-metrics-port  # must match the metrics port name on the instance Services
+      path: /metrics
+      interval: {{ $.Values.prometheus.serviceMonitor.interval }}
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}  # where the Memgraph instance Services live
+{{- end }}

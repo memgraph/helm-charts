@@ -1,3 +1,9 @@
+{{/* "true" when Memgraph should serve OpenMetrics and be scraped directly (by the
+     in-cluster ServiceMonitor and/or remote vmagent), empty otherwise. */}}
+{{- define "memgraph.directScrapeEnabled" -}}
+{{- if or .Values.vmagentRemote.scrapeMemgraphDirectly .Values.prometheus.serviceMonitor.scrapeMemgraphDirectly -}}true{{- end -}}
+{{- end -}}
+
 {{/*
 Expand the name of the chart.
 */}}

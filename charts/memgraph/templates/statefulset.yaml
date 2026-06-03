@@ -103,7 +103,7 @@ spec:
           {{- if not .Values.persistentVolumeClaim.createLogStorage }}
           - "--log-file="
           {{- end }}
-          {{- if .Values.vmagentRemote.scrapeMemgraphDirectly }}
+          {{- if include "memgraph.directScrapeEnabled" . }}
           - "--metrics-format=OpenMetrics"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}

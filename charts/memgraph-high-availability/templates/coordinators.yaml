@@ -234,7 +234,7 @@ spec:
         - "--bolt-key-file=/etc/memgraph/ssl/tls.key"
         {{- end }}
         {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.coordinators.logging "path" "commonArgs.coordinators.logging") | nindent 8 }}
-        {{- if $.Values.vmagentRemote.scrapeMemgraphDirectly }}
+        {{- if include "memgraph.directScrapeEnabled" $ }}
         - "--metrics-format=OpenMetrics"
         {{- end }}
         env:
