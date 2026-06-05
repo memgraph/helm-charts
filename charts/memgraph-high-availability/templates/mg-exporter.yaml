@@ -112,7 +112,7 @@ spec:
       port: {{ $.Values.prometheus.memgraphExporter.port }}
       targetPort: {{ $.Values.prometheus.memgraphExporter.port }}
 ---
-{{- if and $.Values.prometheus.serviceMonitor.enabled (not $.Values.prometheus.serviceMonitor.scrapeMemgraphDirectly) }}
+{{- if and $.Values.prometheus.serviceMonitor.enabled (not $.Values.scrapeMemgraphDirectly) }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

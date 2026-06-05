@@ -98,7 +98,7 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
 ### Prerequisites
 - Provide a metrics source for `vmagentRemote`, either:
   - the chart-level Prometheus exporter (`prometheus.enabled=true`) — the default, or
-  - direct scraping of Memgraph's OpenMetrics endpoint (`vmagentRemote.scrapeMemgraphDirectly=true`), which needs no exporter (`prometheus.enabled=false`). See [Scrape Memgraph directly](#scrape-memgraph-directly-without-mg-exporter).
+  - direct scraping of Memgraph's OpenMetrics endpoint (top-level `scrapeMemgraphDirectly=true`), which needs no exporter (`prometheus.enabled=false`). See [Scrape Memgraph directly](#scrape-memgraph-directly-without-mg-exporter).
 - Use a secret containing credentials for your remote endpoints (required for `vmagentRemote`; optional for `vectorRemote`).
 - For standalone chart, enable Memgraph monitoring ports:
   - `service.enableHttpMonitoring=true`
@@ -109,15 +109,17 @@ This works with VictoriaMetrics/VictoriaLogs, and with other backends that expos
 - If `vmagentRemote.enabled=true` and you only need remote_write, set `prometheus.serviceMonitor.enabled=false` to avoid duplicate scraping of `mg-exporter` by both vmagent and kube-prometheus.
 
 ### Scrape Memgraph directly (without mg-exporter)
-By default `vmagentRemote` scrapes the `mg-exporter`, which requires `prometheus.enabled=true`. To scrape Memgraph's OpenMetrics endpoint directly instead — with no exporter deployed — set `vmagentRemote.scrapeMemgraphDirectly=true` and leave `prometheus.enabled=false`:
+By default `vmagentRemote` scrapes the `mg-exporter`, which requires `prometheus.enabled=true`. To scrape Memgraph's OpenMetrics endpoint directly instead — with no exporter deployed — set the top-level `scrapeMemgraphDirectly=true` and leave `prometheus.enabled=false`:
 
 ```yaml
+# Top-level master switch: Memgraph serves OpenMetrics and all scrapers hit it directly.
+scrapeMemgraphDirectly: true
+
 prometheus:
   enabled: false  # mg-exporter not needed
 
 vmagentRemote:
   enabled: true
-  scrapeMemgraphDirectly: true
   namespace: monitoring
   remoteWrite:
     url: "https://<prom-remote-write>/api/v1/write"
@@ -134,7 +136,7 @@ vmagentRemote:
 When `scrapeMemgraphDirectly=true`, the chart runs each instance with `--metrics-format=OpenMetrics` and exposes the metrics port automatically (for the standalone chart you do not need to set `service.enableHttpMonitoring`). All other `vmagentRemote` / `vectorRemote` settings are the same as the examples below. The metrics endpoint is served over plain HTTP.
 
 ### In-cluster scraping with kube-prometheus-stack
-For an in-cluster Prometheus (e.g. `kube-prometheus-stack`), set `prometheus.serviceMonitor.enabled=true` to provision a `ServiceMonitor`. By default it scrapes the `mg-exporter`; set `prometheus.serviceMonitor.scrapeMemgraphDirectly=true` to scrape Memgraph's OpenMetrics endpoint directly instead (no exporter; requires Memgraph >= 3.11).
+For an in-cluster Prometheus (e.g. `kube-prometheus-stack`), set `prometheus.serviceMonitor.enabled=true` to provision a `ServiceMonitor`. By default it scrapes the `mg-exporter`; set the top-level `scrapeMemgraphDirectly=true` to scrape Memgraph's OpenMetrics endpoint directly instead (no exporter; requires Memgraph >= 3.11). The same `scrapeMemgraphDirectly` switch governs both the in-cluster ServiceMonitor and the remote `vmagentRemote`.
 
 Set `prometheus.grafanaDashboard.enabled=true` to ship the bundled "Memgraph OpenMetrics" dashboard as a ConfigMap (labelled `grafana_dashboard`) for the Grafana sidecar to auto-load. It uses a datasource template variable, so it binds to Grafana's default Prometheus. The ConfigMap must live in a namespace the sidecar watches — set `prometheus.grafanaDashboard.namespace` to Grafana's namespace (or run the sidecar with `searchNamespace: ALL`).
 

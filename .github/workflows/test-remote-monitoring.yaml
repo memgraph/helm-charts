@@ -97,7 +97,7 @@ jobs:
             SCRAPE_ARGS=(--set prometheus.enabled=true --set prometheus.namespace=monitoring --set prometheus.serviceMonitor.enabled=false)
           else
             echo "Scrape path: direct OpenMetrics"
-            SCRAPE_ARGS=(--set prometheus.enabled=false --set vmagentRemote.scrapeMemgraphDirectly=true)
+            SCRAPE_ARGS=(--set prometheus.enabled=false --set scrapeMemgraphDirectly=true)
           fi
           helm install memgraph-db ./charts/memgraph-high-availability \
             "${SCRAPE_ARGS[@]}" \
@@ -197,7 +197,7 @@ jobs:
             SCRAPE_ARGS=(--set prometheus.enabled=true --set prometheus.namespace=monitoring --set prometheus.serviceMonitor.enabled=false)
           else
             echo "Scrape path: direct OpenMetrics"
-            SCRAPE_ARGS=(--set prometheus.enabled=false --set vmagentRemote.scrapeMemgraphDirectly=true)
+            SCRAPE_ARGS=(--set prometheus.enabled=false --set scrapeMemgraphDirectly=true)
           fi
           helm install memgraph-db ./charts/memgraph \
             --set service.enableHttpMonitoring=true \

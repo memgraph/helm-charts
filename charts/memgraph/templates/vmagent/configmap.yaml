@@ -18,7 +18,7 @@ data:
       {{- end }}
 
     scrape_configs:
-      {{- if .Values.vmagentRemote.scrapeMemgraphDirectly }}
+      {{- if .Values.scrapeMemgraphDirectly }}
       # Scrape Memgraph's OpenMetrics endpoint directly (no mg-exporter in between).
       # Memgraph must run with --metrics-format=OpenMetrics so the metrics port serves
       # Prometheus/OpenMetrics text instead of the legacy JSON.

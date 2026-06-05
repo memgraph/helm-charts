@@ -1,4 +1,4 @@
-{{- if and .Values.prometheus.serviceMonitor.enabled .Values.prometheus.serviceMonitor.scrapeMemgraphDirectly }}
+{{- if and .Values.prometheus.serviceMonitor.enabled .Values.scrapeMemgraphDirectly }}
 # Scrape Memgraph's OpenMetrics endpoint directly (no mg-exporter). Memgraph must
 # run with --metrics-format=OpenMetrics (the chart appends it when
 # scrapeMemgraphDirectly is set). Discovered by kube-prometheus-stack via the

@@ -215,6 +215,12 @@ resources:
 updateStrategy:
   type: RollingUpdate # Set to OnDelete to support ISSU
 
+# Master switch for OpenMetrics. When true, Memgraph runs with
+# --metrics-format=OpenMetrics and every scraper (the in-cluster ServiceMonitor and
+# the remote vmagent) scrapes its OpenMetrics endpoint directly instead of the
+# mg-exporter. Requires Memgraph >= 3.11.
+scrapeMemgraphDirectly: false
+
 prometheus:
   enabled: false
   namespace: "" # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, if empty, uses release namespace.
@@ -245,12 +251,10 @@ prometheus:
     #     mountPath: /etc/memgraph-exporter
     #     readOnly: true
   serviceMonitor:
+    # When enabled, the chart creates a ServiceMonitor. It scrapes the mg-exporter
+    # by default, or Memgraph's OpenMetrics endpoint directly when the top-level
+    # scrapeMemgraphDirectly=true.
     enabled: false
-    # When true, the ServiceMonitor scrapes each Memgraph instance's OpenMetrics
-    # endpoint directly instead of the mg-exporter (so prometheus.enabled / the
-    # exporter is not needed). The chart then runs each instance with
-    # --metrics-format=OpenMetrics. Requires Memgraph >= 3.11.
-    scrapeMemgraphDirectly: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
   # Provision the generated "Memgraph OpenMetrics" Grafana dashboard as a ConfigMap
@@ -267,18 +271,12 @@ prometheus:
 ## Optional: vmagent for remote monitoring cluster – scrapes Memgraph metrics
 ## (and optionally kube-state-metrics / node-exporter / kubelet when vmagentRemote.kubernetes.enabled=true)
 ## and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
-## By default it scrapes the mg-exporter, which requires prometheus.enabled=true.
-## Set scrapeMemgraphDirectly=true to scrape each instance's OpenMetrics endpoint
-## directly instead, in which case the exporter (prometheus.enabled) is not needed.
+## By default it scrapes the mg-exporter (requires prometheus.enabled=true), or
+## Memgraph's OpenMetrics endpoint directly when the top-level scrapeMemgraphDirectly=true.
 ## If vmagentRemote.enabled=true and you only need remote_write, set prometheus.serviceMonitor.enabled=false
 ## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
 vmagentRemote:
   enabled: false
-  # When true, scrape Memgraph's OpenMetrics endpoint (ports.metricsPort, path /metrics)
-  # on each data/coordinator instance directly, instead of scraping mg-exporter.
-  # Requires every instance to run with --metrics-format=OpenMetrics. When false
-  # (default), vmagent scrapes mg-exporter and prometheus.enabled must be true.
-  scrapeMemgraphDirectly: false
   namespace: ""  # Defaults to prometheus.namespace when empty
   image:
     repository: victoriametrics/vmagent
