@@ -108,6 +108,7 @@ livenessProbe:
 - "--also-log-to-stderr"
 {{- end }}
 - "--log-file={{ $logging.log_file }}"
+- "--log-retention-days={{ $logging.log_retention_days }}"
 {{- end }}
 
 
