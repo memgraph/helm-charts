@@ -178,6 +178,10 @@ statefulSetAnnotations: {}
 # Annotations to add to the Pod
 podAnnotations: {}
 
+labels:
+  podLabels: {}
+  statefulSetLabels: {}
+
 extraEnv: []
 # Example:
 # extraEnv:

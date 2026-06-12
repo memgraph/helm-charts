@@ -5,6 +5,10 @@ metadata:
   name: {{ include "memgraph.fullname" . }}
   labels:
     {{- include "memgraph.labels" . | nindent 4 }}
+    {{- with .Values.labels.statefulSetLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+
   {{- with .Values.statefulSetAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -22,6 +26,9 @@ spec:
     metadata:
       labels:
         {{- include "memgraph.labels" . | nindent 8 }}
+        {{- with .Values.labels.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 4 }}
