@@ -384,6 +384,12 @@ data:
         secretName: bolt-tls-secret
         certSecretPath: tls.crt
         keySecretPath: tls.key
+      intraCluster:
+        enabled: false
+        secretName: intra-tls-data-0-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
+        caSecretPath: ca.crt
     # Example
     # externalAccessAnnotations:
       # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
@@ -404,6 +410,12 @@ data:
         secretName: bolt-tls-secret
         certSecretPath: tls.crt
         keySecretPath: tls.key
+      intraCluster:
+        enabled: false
+        secretName: intra-tls-data-1-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
+        caSecretPath: ca.crt
     args:
       - "--storage-snapshot-on-exit=false"
 
@@ -419,6 +431,12 @@ coordinators:
         secretName: bolt-tls-secret
         certSecretPath: tls.crt
         keySecretPath: tls.key
+      intraCluster:
+        enabled: false
+        secretName: intra-tls-coord-1-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
+        caSecretPath: ca.crt
     args: []
 
   - id: "2"
@@ -432,6 +450,12 @@ coordinators:
         secretName: bolt-tls-secret
         certSecretPath: tls.crt
         keySecretPath: tls.key
+      intraCluster:
+        enabled: false
+        secretName: intra-tls-coord-2-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
+        caSecretPath: ca.crt
     args: []
 
   - id: "3"
@@ -445,6 +469,12 @@ coordinators:
         secretName: bolt-tls-secret
         certSecretPath: tls.crt
         keySecretPath: tls.key
+      intraCluster:
+        enabled: false
+        secretName: intra-tls-coord-3-secret
+        certSecretPath: tls.crt
+        keySecretPath: tls.key
+        caSecretPath: ca.crt
     args: []
 
 userContainers:

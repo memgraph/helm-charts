@@ -219,9 +219,21 @@ spec:
           {{- if hasPrefix "--log-retention-days" $arg }}
             {{- fail (printf "Do not set --log-retention-days in data[id=%s].args; configure commonArgs.data.logging.log_retention_days instead." $data.id) }}
           {{- end }}
+          {{- if hasPrefix "--cluster-cert-file" $arg }}
+            {{- fail (printf "Do not set --cluster-cert-file in data[id=%s].args; enable data[id=%s].tls.intraCluster instead (auto-appended)." $data.id $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--cluster-key-file" $arg }}
+            {{- fail (printf "Do not set --cluster-key-file in data[id=%s].args; enable data[id=%s].tls.intraCluster instead (auto-appended)." $data.id $data.id) }}
+          {{- end }}
+          {{- if hasPrefix "--cluster-ca-file" $arg }}
+            {{- fail (printf "Do not set --cluster-ca-file in data[id=%s].args; enable data[id=%s].tls.intraCluster instead (auto-appended)." $data.id $data.id) }}
+          {{- end }}
         {{- end }}
         {{- if and $data.tls.bolt.enabled (not $data.tls.bolt.secretName) }}
           {{- fail (printf "data[id=%s].tls.bolt.enabled is true but secretName is empty." $data.id) }}
+        {{- end }}
+        {{- if and $data.tls.intraCluster.enabled (not $data.tls.intraCluster.secretName) }}
+          {{- fail (printf "data[id=%s].tls.intraCluster.enabled is true but secretName is empty." $data.id) }}
         {{- end }}
         {{- range $arg := $data.args }}
         - "{{ $arg }}"
@@ -232,6 +244,11 @@ spec:
         {{- if $data.tls.bolt.enabled }}
         - "--bolt-cert-file=/etc/memgraph/ssl/tls.crt"
         - "--bolt-key-file=/etc/memgraph/ssl/tls.key"
+        {{- end }}
+        {{- if $data.tls.intraCluster.enabled }}
+        - "--cluster-cert-file=/etc/memgraph/intra_cluster_tls/tls.crt"
+        - "--cluster-key-file=/etc/memgraph/intra_cluster_tls/tls.key"
+        - "--cluster-ca-file=/etc/memgraph/intra_cluster_tls/ca.crt"
         {{- end }}
         {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.data.logging "path" "commonArgs.data.logging") | nindent 8 }}
         env:
@@ -270,6 +287,11 @@ spec:
           {{- if $data.tls.bolt.enabled }}
           - name: bolt-certs
             mountPath: /etc/memgraph/ssl
+            readOnly: true
+          {{- end }}
+          {{- if $data.tls.intraCluster.enabled }}
+          - name: intra-cluster-certs
+            mountPath: /etc/memgraph/intra_cluster_tls
             readOnly: true
           {{- end }}
           {{- with $.Values.storage.data.extraVolumeMounts }}
@@ -313,6 +335,18 @@ spec:
               path: tls.crt
             - key: {{ $data.tls.bolt.keySecretPath }}
               path: tls.key
+      {{- end }}
+      {{- if $data.tls.intraCluster.enabled }}
+      - name: intra-cluster-certs
+        secret:
+          secretName: {{ $data.tls.intraCluster.secretName }}
+          items:
+            - key: {{ $data.tls.intraCluster.certSecretPath }}
+              path: tls.crt
+            - key: {{ $data.tls.intraCluster.keySecretPath }}
+              path: tls.key
+            - key: {{ $data.tls.intraCluster.caSecretPath }}
+              path: ca.crt
       {{- end }}
       {{- if $.Values.storage.data.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.data.extraVolumes) $ | nindent 6 }}
