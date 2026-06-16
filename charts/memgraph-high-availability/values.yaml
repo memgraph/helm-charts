@@ -215,6 +215,16 @@ resources:
 updateStrategy:
   type: RollingUpdate # Set to OnDelete to support ISSU
 
+# Selects the OpenMetrics format. When true, Memgraph runs with
+# --metrics-format=OpenMetrics and exposes its metrics port, and any scraper you
+# enable hits that endpoint directly instead of the mg-exporter. Requires Memgraph >= 3.11.
+# NOTE: this flag only switches the format/target — on its own it does NOT scrape
+# anything. You must also enable a scraper:
+#   - in-cluster:  prometheus.serviceMonitor.enabled=true (uses kube-prometheus-stack)
+#   - remote:      vmagentRemote.enabled=true
+# When false, those scrapers read the mg-exporter instead (needs prometheus.enabled=true).
+scrapeMemgraphDirectly: false
+
 prometheus:
   enabled: false
   namespace: "" # Namespace where K8s resources from mg-exporter.yaml will be installed and where your kube-prometheus-stack chart is installed, if empty, uses release namespace.
@@ -245,14 +255,28 @@ prometheus:
     #     mountPath: /etc/memgraph-exporter
     #     readOnly: true
   serviceMonitor:
+    # When enabled, the chart creates a ServiceMonitor. It scrapes the mg-exporter
+    # by default, or Memgraph's OpenMetrics endpoint directly when the top-level
+    # scrapeMemgraphDirectly=true.
     enabled: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
+  # Provision the generated "Memgraph OpenMetrics" Grafana dashboard as a ConfigMap
+  # for a Grafana sidecar (e.g. kube-prometheus-stack) to auto-load. The dashboard
+  # uses a datasource template variable, so it binds to Grafana's default Prometheus.
+  grafanaDashboard:
+    enabled: false
+    # Namespace for the ConfigMap; must be one the Grafana sidecar watches (default:
+    # prometheus.namespace, else the release namespace).
+    namespace: ""
+    # Label the Grafana sidecar selects dashboards by.
+    label: grafana_dashboard
 
-## Optional: vmagent for remote monitoring cluster – scrapes the Prometheus exporter
+## Optional: vmagent for remote monitoring cluster – scrapes Memgraph metrics
 ## (and optionally kube-state-metrics / node-exporter / kubelet when vmagentRemote.kubernetes.enabled=true)
 ## and remote-writes to VictoriaMetrics (or any Prometheus remote-write endpoint).
-## Requires prometheus.enabled so that mg-exporter is deployed.
+## By default it scrapes the mg-exporter (requires prometheus.enabled=true), or
+## Memgraph's OpenMetrics endpoint directly when the top-level scrapeMemgraphDirectly=true.
 ## If vmagentRemote.enabled=true and you only need remote_write, set prometheus.serviceMonitor.enabled=false
 ## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
 vmagentRemote:

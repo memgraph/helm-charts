@@ -13,6 +13,11 @@ on:
         required: true
         default: true
         type: boolean
+      use_direct_scraping:
+        description: "Scrape Memgraph's OpenMetrics endpoint directly instead of via mg-exporter (requires Memgraph >= 3.11)."
+        required: false
+        default: false
+        type: boolean
   pull_request:
     branches:
       - main
@@ -22,6 +27,12 @@ on:
       - "scripts/remote-monitoring-stack.yaml"
       - "scripts/verify-remote-monitoring.sh"
       - ".github/workflows/test-remote-monitoring.yaml"
+
+# Default to the mg-exporter scrape path (works with the released chart appVersion).
+# Direct OpenMetrics scraping requires Memgraph >= 3.11, so it's a manual opt-in via
+# use_direct_scraping=true; pull_request runs always use mg-exporter.
+env:
+  USE_MG_EXPORTER: ${{ inputs.use_direct_scraping != true }}
 
 jobs:
   test-ha-remote-monitoring:
@@ -81,10 +92,15 @@ jobs:
 
       - name: Install HA chart with remote monitoring enabled
         run: |
+          if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
+            echo "Scrape path: mg-exporter"
+            SCRAPE_ARGS=(--set prometheus.enabled=true --set prometheus.namespace=monitoring --set prometheus.serviceMonitor.enabled=false)
+          else
+            echo "Scrape path: direct OpenMetrics"
+            SCRAPE_ARGS=(--set prometheus.enabled=false --set scrapeMemgraphDirectly=true)
+          fi
           helm install memgraph-db ./charts/memgraph-high-availability \
-            --set prometheus.enabled=true \
-            --set prometheus.namespace=monitoring \
-            --set prometheus.serviceMonitor.enabled=false \
+            "${SCRAPE_ARGS[@]}" \
             --set vmagentRemote.enabled=true \
             --set vmagentRemote.namespace=monitoring \
             --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
@@ -104,7 +120,9 @@ jobs:
 
       - name: Wait for monitoring side components
         run: |
-          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
+            kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          fi
           kubectl rollout status deployment/memgraph-db-memgraph-high-availability-vmagent -n monitoring --timeout=300s
 
       - name: Verify metrics and logs reach monitoring cluster
@@ -174,13 +192,18 @@ jobs:
 
       - name: Install standalone chart with remote monitoring enabled
         run: |
+          if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
+            echo "Scrape path: mg-exporter"
+            SCRAPE_ARGS=(--set prometheus.enabled=true --set prometheus.namespace=monitoring --set prometheus.serviceMonitor.enabled=false)
+          else
+            echo "Scrape path: direct OpenMetrics"
+            SCRAPE_ARGS=(--set prometheus.enabled=false --set scrapeMemgraphDirectly=true)
+          fi
           helm install memgraph-db ./charts/memgraph \
             --set service.enableHttpMonitoring=true \
             --set service.enableWebsocketMonitoring=true \
             --set-json 'memgraphConfig=["--data-directory=/var/lib/memgraph/mg_data","--also-log-to-stderr=true","--log-level=TRACE"]' \
-            --set prometheus.enabled=true \
-            --set prometheus.namespace=monitoring \
-            --set prometheus.serviceMonitor.enabled=false \
+            "${SCRAPE_ARGS[@]}" \
             --set vmagentRemote.enabled=true \
             --set vmagentRemote.namespace=monitoring \
             --set vmagentRemote.remoteWrite.url=http://monitoring-gateway.remote-monitoring.svc.cluster.local/api/v1/write \
@@ -200,7 +223,9 @@ jobs:
       - name: Wait for monitoring side components
         run: |
           kubectl rollout status statefulset/memgraph-db -n default --timeout=300s
-          kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
+            kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+          fi
           kubectl rollout status deployment/memgraph-db-vmagent -n monitoring --timeout=300s
 
       - name: Verify metrics and logs reach monitoring cluster

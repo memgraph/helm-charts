@@ -9,6 +9,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
+    app.kubernetes.io/part-of: memgraph-high-availability
+    app.kubernetes.io/instance: {{ $.Release.Name }}
     {{- with $.Values.labels.coordinators.serviceLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -31,7 +33,7 @@ spec:
       name: tcp-management-port
       port: {{ $.Values.ports.managementPort }}
       targetPort: {{ $.Values.ports.managementPort }}
-    {{- if $.Values.prometheus.enabled }}
+    {{- if or $.Values.prometheus.enabled $.Values.scrapeMemgraphDirectly }}
     - protocol: TCP
       name: tcp-metrics-port
       port: {{ $.Values.ports.metricsPort }}
