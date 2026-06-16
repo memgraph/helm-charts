@@ -26,7 +26,7 @@ not re-derive them.
 {{/* Runs all vmagent value validations. Callers must gate this on vmagentRemote.enabled. */}}
 {{- define "memgraph.vmagent.validations" -}}
 {{- if and (not .Values.scrapeMemgraphDirectly) (not .Values.prometheus.enabled) -}}
-{{- fail "vmagentRemote.enabled requires prometheus.enabled=true because vmagentRemote scrapes mg-exporter; set scrapeMemgraphDirectly=true to scrape Memgraph's OpenMetrics endpoint directly without the exporter" -}}
+{{- fail "vmagentRemote.enabled=true needs a metrics source: set prometheus.enabled=true to scrape mg-exporter, or scrapeMemgraphDirectly=true to scrape Memgraph's OpenMetrics endpoint directly (no exporter)." -}}
 {{- end -}}
 {{- if and .Values.vmagentRemote.remoteWrite.basicAuth.secretName (not .Values.vmagentRemote.remoteWrite.basicAuth.usernameKey) -}}
 {{- fail "vmagentRemote.remoteWrite.basicAuth.usernameKey must be set when vmagentRemote.remoteWrite.basicAuth.secretName is provided" -}}
