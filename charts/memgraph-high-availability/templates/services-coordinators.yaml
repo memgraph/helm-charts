@@ -33,7 +33,7 @@ spec:
       name: tcp-management-port
       port: {{ $.Values.ports.managementPort }}
       targetPort: {{ $.Values.ports.managementPort }}
-    {{- if or $.Values.prometheus.enabled (include "memgraph.directScrapeEnabled" $) }}
+    {{- if or $.Values.prometheus.enabled $.Values.scrapeMemgraphDirectly }}
     - protocol: TCP
       name: tcp-metrics-port
       port: {{ $.Values.ports.metricsPort }}

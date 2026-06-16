@@ -1,10 +1,4 @@
 
-{{/* "true" when Memgraph should serve OpenMetrics and be scraped directly (by the
-     in-cluster ServiceMonitor and/or remote vmagent), empty otherwise. */}}
-{{- define "memgraph.directScrapeEnabled" -}}
-{{- if .Values.scrapeMemgraphDirectly -}}true{{- end -}}
-{{- end -}}
-
 {{/* Full name of the application */}}
 {{- define "memgraph.fullname" -}}
 {{- if .Values.fullnameOverride -}}

@@ -26,7 +26,7 @@ spec:
       protocol: TCP
       name: tcp-websocket-monitoring-port
     {{- end }}
-    {{- if or .Values.service.enableHttpMonitoring (include "memgraph.directScrapeEnabled" .) }}
+    {{- if or .Values.service.enableHttpMonitoring .Values.scrapeMemgraphDirectly }}
     - port: {{ .Values.service.httpPortMonitoring }}
       targetPort: {{ .Values.service.httpPortMonitoring }}
       protocol: TCP

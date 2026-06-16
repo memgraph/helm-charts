@@ -33,7 +33,7 @@ spec:
       name: tcp-replication-port
       port: {{ $.Values.ports.replicationPort }}
       targetPort: {{ $.Values.ports.replicationPort }}
-    {{- if or $.Values.prometheus.enabled (include "memgraph.directScrapeEnabled" $) }}
+    {{- if or $.Values.prometheus.enabled $.Values.scrapeMemgraphDirectly }}
     - protocol: TCP
       name: tcp-metrics-port
       port: {{ $.Values.ports.metricsPort }}
