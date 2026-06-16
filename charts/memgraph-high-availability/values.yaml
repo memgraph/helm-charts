@@ -215,10 +215,14 @@ resources:
 updateStrategy:
   type: RollingUpdate # Set to OnDelete to support ISSU
 
-# Master switch for OpenMetrics. When true, Memgraph runs with
-# --metrics-format=OpenMetrics and every scraper (the in-cluster ServiceMonitor and
-# the remote vmagent) scrapes its OpenMetrics endpoint directly instead of the
-# mg-exporter. Requires Memgraph >= 3.11.
+# Selects the OpenMetrics format. When true, Memgraph runs with
+# --metrics-format=OpenMetrics and exposes its metrics port, and any scraper you
+# enable hits that endpoint directly instead of the mg-exporter. Requires Memgraph >= 3.11.
+# NOTE: this flag only switches the format/target — on its own it does NOT scrape
+# anything. You must also enable a scraper:
+#   - in-cluster:  prometheus.serviceMonitor.enabled=true (uses kube-prometheus-stack)
+#   - remote:      vmagentRemote.enabled=true
+# When false, those scrapers read the mg-exporter instead (needs prometheus.enabled=true).
 scrapeMemgraphDirectly: false
 
 prometheus:
