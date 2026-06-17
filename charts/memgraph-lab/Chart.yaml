@@ -9,13 +9,13 @@ version: 1.0.1
 appVersion: "3.11.0"
 description: Memgraph Lab Helm Chart
 keywords:
-  - graph
-  - database
-  - cypher
-  - analytics
+- graph
+- database
+- cypher
+- analytics
 icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
 sources:
-  - https://github.com/memgraph/memgraph
+- https://github.com/memgraph/memgraph
 maintainers:
-  - name: Memgraph
-    email: tech@memgraph.com
+- name: Memgraph
+  email: tech@memgraph.com

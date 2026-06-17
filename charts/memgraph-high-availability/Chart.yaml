@@ -8,21 +8,21 @@ appVersion: "3.11.0"
 type: application
 
 keywords:
-  - memgraph
-  - graph
-  - database
-  - cypher
-  - analytics
-  - high-availability
+- memgraph
+- graph
+- database
+- cypher
+- analytics
+- high-availability
 
 icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
 
 home: https://memgraph.com/
 
 sources:
-  - "https://github.com/memgraph/memgraph"
-  - "https://github.com/memgraph/helm-charts"
+- "https://github.com/memgraph/memgraph"
+- "https://github.com/memgraph/helm-charts"
 
 maintainers:
-  - name: Memgraph
-    email: tech@memgraph.com
+- name: Memgraph
+  email: tech@memgraph.com

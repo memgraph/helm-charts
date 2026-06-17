@@ -91,7 +91,7 @@ externalAccessConfig:
     annotations: {} # Set of annotations applied to all data instances' services
     # Example:
     # annotations:
-    # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
+      # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
   coordinator:
     # Empty = no external access service will be created
     serviceType: ""
@@ -281,13 +281,13 @@ prometheus:
 ## to avoid duplicate scraping of mg-exporter by both vmagent and kube-prometheus.
 vmagentRemote:
   enabled: false
-  namespace: "" # Defaults to prometheus.namespace when empty
+  namespace: ""  # Defaults to prometheus.namespace when empty
   image:
     repository: victoriametrics/vmagent
     tag: v1.139.0
     pullPolicy: IfNotPresent
   remoteWrite:
-    url: "" # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
+    url: ""  # e.g. http://vmsingle.monitoring.svc.cluster.local:8428/api/v1/write
     basicAuth:
       secretName: ""
       usernameKey: username
@@ -295,7 +295,7 @@ vmagentRemote:
   scrapeInterval: 15s
   externalLabels: {}
   kubernetes:
-    enabled: false # Enable scraping of Kubernetes infrastructure metrics used by kube-prometheus dashboards.
+    enabled: false  # Enable scraping of Kubernetes infrastructure metrics used by kube-prometheus dashboards.
     kubeStateMetrics:
       enabled: true
       jobName: kube-state-metrics
@@ -326,7 +326,7 @@ vmagentRemote:
       # Set to true only if your cluster uses an untrusted kube-apiserver serving cert chain.
       insecureSkipVerify: false
   resources: {}
-  httpPort: 8429 # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
+  httpPort: 8429  # vmagent local HTTP listen port (metrics/debug); remote write target is remoteWrite.url
 
 ## Optional: Vector sidecar for remote monitoring cluster – exports Memgraph logs via websocket to VictoriaLogs (Loki-compatible API) or any Loki endpoint.
 ## Add to data and/or coordinator pods. Ensure Memgraph instance args include monitoring flags:
@@ -337,7 +337,7 @@ vectorRemote:
   data: true
   # Add Vector sidecar to coordinator pods
   coordinators: true
-  websocketPort: 7444 # Memgraph monitoring websocket port used by both chart args and Vector sidecars
+  websocketPort: 7444  # Memgraph monitoring websocket port used by both chart args and Vector sidecars
   image:
     repository: timberio/vector
     tag: 0.49.0-debian
@@ -347,7 +347,7 @@ vectorRemote:
     secretName: ""
     usernameKey: username
     passwordKey: password
-  extraLabels: {} # e.g. cluster_id, service_name, cluster_env; role is set per pod type (data/coordinator)
+  extraLabels: {}  # e.g. cluster_id, service_name, cluster_env; role is set per pod type (data/coordinator)
   resources: {}
 
 extraEnv:
@@ -416,7 +416,7 @@ data:
         caSecretPath: ca.crt
     # Example
     # externalAccessAnnotations:
-    # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
+      # external-dns.alpha.kubernetes.io/hostname: "data-0.memgraph.example.com"
     # If vectorRemote.enabled=true, add the following args for each data instance:
     #   - "--monitoring-port=<vectorRemote.websocketPort>"
     #   - "--monitoring-address=0.0.0.0"
