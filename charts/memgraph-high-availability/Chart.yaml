@@ -2,27 +2,27 @@ apiVersion: v2
 name: memgraph-high-availability
 description: A Helm chart for Kubernetes with Memgraph High availability capabilites
 
-version: 1.1.0
-appVersion: "3.10.1"
+version: 1.1.1
+appVersion: "3.11.0"
 
 type: application
 
 keywords:
-- memgraph
-- graph
-- database
-- cypher
-- analytics
-- high-availability
+  - memgraph
+  - graph
+  - database
+  - cypher
+  - analytics
+  - high-availability
 
 icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
 
 home: https://memgraph.com/
 
 sources:
-- "https://github.com/memgraph/memgraph"
-- "https://github.com/memgraph/helm-charts"
+  - "https://github.com/memgraph/memgraph"
+  - "https://github.com/memgraph/helm-charts"
 
 maintainers:
-- name: Memgraph
-  email: tech@memgraph.com
+  - name: Memgraph
+    email: tech@memgraph.com
