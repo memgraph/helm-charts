@@ -16417,6 +16417,20 @@
   "templating": {
     "list": [
       {
+        "name": "datasource",
+        "label": "Data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": [],
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      },
+      {
         "allValue": ".*",
         "current": {
           "selected": false,
