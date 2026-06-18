@@ -35,7 +35,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active transactions",
       "fieldConfig": {
@@ -112,7 +112,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_transactions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -127,7 +127,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Embedding memory usage of the database in bytes",
       "fieldConfig": {
@@ -204,7 +204,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_db_embedding_memory_tracked_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -219,7 +219,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total tracked memory usage of the database in bytes",
       "fieldConfig": {
@@ -296,7 +296,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_db_memory_tracked_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -311,7 +311,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Peak tracked memory usage of the database in bytes",
       "fieldConfig": {
@@ -388,7 +388,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_db_peak_memory_tracked_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -403,7 +403,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Query memory usage of the database in bytes",
       "fieldConfig": {
@@ -480,7 +480,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_db_query_memory_tracked_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -495,7 +495,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Storage memory usage of the database in bytes",
       "fieldConfig": {
@@ -572,7 +572,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_db_storage_memory_tracked_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -587,7 +587,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Disk usage of the database in bytes",
       "fieldConfig": {
@@ -664,7 +664,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_disk_usage_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -679,7 +679,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of edges in the database",
       "fieldConfig": {
@@ -756,7 +756,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -771,7 +771,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Resident memory usage of the process in bytes",
       "fieldConfig": {
@@ -848,7 +848,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_memory_res_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -863,7 +863,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Peak resident memory usage in bytes",
       "fieldConfig": {
@@ -940,7 +940,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_peak_memory_res_bytes{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -955,7 +955,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of unreleased delta objects in memory",
       "fieldConfig": {
@@ -1032,7 +1032,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_unreleased_delta_objects{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -1047,7 +1047,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of vertices in the database",
       "fieldConfig": {
@@ -1124,7 +1124,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_vertex_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -1151,7 +1151,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of committed transactions",
       "fieldConfig": {
@@ -1228,7 +1228,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_committed_transactions_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1243,7 +1243,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of edges deleted via TTL",
       "fieldConfig": {
@@ -1320,7 +1320,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_deleted_edges_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1335,7 +1335,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of nodes deleted via TTL",
       "fieldConfig": {
@@ -1412,7 +1412,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_deleted_nodes_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1427,7 +1427,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of rolled back transactions",
       "fieldConfig": {
@@ -1504,7 +1504,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_rolled_back_transactions_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1519,7 +1519,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of transient errors",
       "fieldConfig": {
@@ -1596,7 +1596,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_transient_errors_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1611,7 +1611,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of write-write conflicts",
       "fieldConfig": {
@@ -1688,7 +1688,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_write_write_conflicts_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1715,7 +1715,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Accumulate operator was used",
       "fieldConfig": {
@@ -1792,7 +1792,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_accumulate_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1807,7 +1807,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Aggregate operator was used",
       "fieldConfig": {
@@ -1884,7 +1884,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_aggregate_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1899,7 +1899,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Apply operator was used",
       "fieldConfig": {
@@ -1976,7 +1976,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_apply_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -1991,7 +1991,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times CallProcedure operator was used",
       "fieldConfig": {
@@ -2068,7 +2068,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_call_procedure_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2083,7 +2083,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Cartesian operator was used",
       "fieldConfig": {
@@ -2160,7 +2160,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_cartesian_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2175,7 +2175,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ConstructNamedPath operator was used",
       "fieldConfig": {
@@ -2252,7 +2252,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_construct_named_path_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2267,7 +2267,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times CreateExpand operator was used",
       "fieldConfig": {
@@ -2344,7 +2344,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_create_expand_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2359,7 +2359,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times CreateNode operator was used",
       "fieldConfig": {
@@ -2436,7 +2436,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_create_node_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2451,7 +2451,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Delete operator was used",
       "fieldConfig": {
@@ -2528,7 +2528,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_delete_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2543,7 +2543,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Distinct operator was used",
       "fieldConfig": {
@@ -2620,7 +2620,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_distinct_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2635,7 +2635,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times EdgeUniquenessFilter operator was used",
       "fieldConfig": {
@@ -2712,7 +2712,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_edge_uniqueness_filter_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2727,7 +2727,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times EmptyResult operator was used",
       "fieldConfig": {
@@ -2804,7 +2804,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_empty_result_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2819,7 +2819,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times EvaluatePatternFilter operator was used",
       "fieldConfig": {
@@ -2896,7 +2896,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_evaluate_pattern_filter_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -2911,7 +2911,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Expand operator was used",
       "fieldConfig": {
@@ -2988,7 +2988,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_expand_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3003,7 +3003,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ExpandVariable operator was used",
       "fieldConfig": {
@@ -3080,7 +3080,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_expand_variable_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3095,7 +3095,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Filter operator was used",
       "fieldConfig": {
@@ -3172,7 +3172,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_filter_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3187,7 +3187,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Foreach operator was used",
       "fieldConfig": {
@@ -3264,7 +3264,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_foreach_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3279,7 +3279,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times HashJoin operator was used",
       "fieldConfig": {
@@ -3356,7 +3356,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_hash_join_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3371,7 +3371,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times IndexedJoin operator was used",
       "fieldConfig": {
@@ -3448,7 +3448,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_indexed_join_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3463,7 +3463,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Limit operator was used",
       "fieldConfig": {
@@ -3540,7 +3540,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_limit_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3555,7 +3555,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Merge operator was used",
       "fieldConfig": {
@@ -3632,7 +3632,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_merge_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3647,7 +3647,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Once operator was used",
       "fieldConfig": {
@@ -3724,7 +3724,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_once_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3739,7 +3739,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Optional operator was used",
       "fieldConfig": {
@@ -3816,7 +3816,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_optional_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3831,7 +3831,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times OrderBy operator was used",
       "fieldConfig": {
@@ -3908,7 +3908,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_order_by_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -3923,7 +3923,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times PeriodicCommit operator was used",
       "fieldConfig": {
@@ -4000,7 +4000,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_periodic_commit_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4015,7 +4015,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times PeriodicSubquery operator was used",
       "fieldConfig": {
@@ -4092,7 +4092,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_periodic_subquery_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4107,7 +4107,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Produce operator was used",
       "fieldConfig": {
@@ -4184,7 +4184,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_produce_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4199,7 +4199,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times RemoveLabels operator was used",
       "fieldConfig": {
@@ -4276,7 +4276,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_remove_labels_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4291,7 +4291,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times RemoveNestedProperty operator was used",
       "fieldConfig": {
@@ -4368,7 +4368,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_remove_nested_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4383,7 +4383,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times RemoveProperty operator was used",
       "fieldConfig": {
@@ -4460,7 +4460,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_remove_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4475,7 +4475,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times RollUpApply operator was used",
       "fieldConfig": {
@@ -4552,7 +4552,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_roll_up_apply_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4567,7 +4567,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeId operator was used",
       "fieldConfig": {
@@ -4644,7 +4644,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_id_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4659,7 +4659,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdge operator was used",
       "fieldConfig": {
@@ -4736,7 +4736,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4751,7 +4751,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeProperty operator was used",
       "fieldConfig": {
@@ -4828,7 +4828,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4843,7 +4843,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgePropertyRange operator was used",
       "fieldConfig": {
@@ -4920,7 +4920,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_property_range_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -4935,7 +4935,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgePropertyValue operator was used",
       "fieldConfig": {
@@ -5012,7 +5012,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_property_value_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5027,7 +5027,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeType operator was used",
       "fieldConfig": {
@@ -5104,7 +5104,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_type_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5119,7 +5119,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeTypeProperty operator was used",
       "fieldConfig": {
@@ -5196,7 +5196,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_type_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5211,7 +5211,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeTypePropertyRange operator was used",
       "fieldConfig": {
@@ -5288,7 +5288,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_type_property_range_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5303,7 +5303,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByEdgeTypePropertyValue operator was used",
       "fieldConfig": {
@@ -5380,7 +5380,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_edge_type_property_value_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5395,7 +5395,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllById operator was used",
       "fieldConfig": {
@@ -5472,7 +5472,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_id_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5487,7 +5487,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByLabel operator was used",
       "fieldConfig": {
@@ -5564,7 +5564,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_label_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5579,7 +5579,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByLabelProperties operator was used",
       "fieldConfig": {
@@ -5656,7 +5656,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_label_properties_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5671,7 +5671,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByPointDistance operator was used",
       "fieldConfig": {
@@ -5748,7 +5748,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_point_distance_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5763,7 +5763,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAllByPointWithinbbox operator was used",
       "fieldConfig": {
@@ -5840,7 +5840,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_by_point_withinbbox_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5855,7 +5855,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times ScanAll operator was used",
       "fieldConfig": {
@@ -5932,7 +5932,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_scan_all_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -5947,7 +5947,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SetLabels operator was used",
       "fieldConfig": {
@@ -6024,7 +6024,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_set_labels_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6039,7 +6039,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SetNestedProperty operator was used",
       "fieldConfig": {
@@ -6116,7 +6116,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_set_nested_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6131,7 +6131,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SetProperties operator was used",
       "fieldConfig": {
@@ -6208,7 +6208,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_set_properties_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6223,7 +6223,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SetProperty operator was used",
       "fieldConfig": {
@@ -6300,7 +6300,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_set_property_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6315,7 +6315,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Skip operator was used",
       "fieldConfig": {
@@ -6392,7 +6392,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_skip_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6407,7 +6407,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Union operator was used",
       "fieldConfig": {
@@ -6484,7 +6484,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_union_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6499,7 +6499,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times Unwind operator was used",
       "fieldConfig": {
@@ -6576,7 +6576,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_unwind_operator_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6603,7 +6603,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of failed query preparations",
       "fieldConfig": {
@@ -6680,7 +6680,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_failed_prepares_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6695,7 +6695,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of failed query pulls",
       "fieldConfig": {
@@ -6772,7 +6772,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_failed_pulls_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6787,7 +6787,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of failed queries",
       "fieldConfig": {
@@ -6864,7 +6864,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_failed_queries_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -6879,7 +6879,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of PrepareCommitRpc in seconds",
       "fieldConfig": {
@@ -6956,7 +6956,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_prepare_commit_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -6967,7 +6967,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_prepare_commit_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -6978,7 +6978,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_prepare_commit_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -6993,7 +6993,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Query execution latency in seconds",
       "fieldConfig": {
@@ -7070,7 +7070,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, database) (rate(memgraph_query_execution_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -7081,7 +7081,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, database) (rate(memgraph_query_execution_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -7092,7 +7092,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, database) (rate(memgraph_query_execution_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -7107,7 +7107,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of read queries",
       "fieldConfig": {
@@ -7184,7 +7184,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_read_queries_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7199,7 +7199,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of read-write queries",
       "fieldConfig": {
@@ -7276,7 +7276,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_read_write_queries_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7291,7 +7291,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SHOW INSTANCE was called",
       "fieldConfig": {
@@ -7368,7 +7368,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_show_instance_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -7383,7 +7383,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SHOW INSTANCES was called",
       "fieldConfig": {
@@ -7460,7 +7460,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_show_instances_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -7475,7 +7475,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SHOW SCHEMA INFO was called",
       "fieldConfig": {
@@ -7552,7 +7552,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_show_schema_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7567,7 +7567,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times SHOW STORAGE INFO was called",
       "fieldConfig": {
@@ -7644,7 +7644,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_show_storage_info_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7659,7 +7659,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of successful queries",
       "fieldConfig": {
@@ -7736,7 +7736,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_successful_queries_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7751,7 +7751,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Total number of write queries",
       "fieldConfig": {
@@ -7828,7 +7828,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_write_queries_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -7855,7 +7855,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active Bolt connections",
       "fieldConfig": {
@@ -7932,7 +7932,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_bolt_sessions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -7947,7 +7947,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active connections",
       "fieldConfig": {
@@ -8024,7 +8024,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_sessions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -8039,7 +8039,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active SSL connections",
       "fieldConfig": {
@@ -8116,7 +8116,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_ssl_sessions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -8131,7 +8131,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active TCP connections",
       "fieldConfig": {
@@ -8208,7 +8208,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_tcp_sessions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -8223,7 +8223,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active WebSocket connections",
       "fieldConfig": {
@@ -8300,7 +8300,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_websocket_sessions{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -8327,7 +8327,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active edge property indices",
       "fieldConfig": {
@@ -8404,7 +8404,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_edge_property_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8419,7 +8419,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active edge type indices",
       "fieldConfig": {
@@ -8496,7 +8496,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_edge_type_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8511,7 +8511,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active edge type property indices",
       "fieldConfig": {
@@ -8588,7 +8588,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_edge_type_property_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8603,7 +8603,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active existence constraints",
       "fieldConfig": {
@@ -8680,7 +8680,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_existence_constraints{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8695,7 +8695,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active label indices",
       "fieldConfig": {
@@ -8772,7 +8772,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_label_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8787,7 +8787,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active label property indices",
       "fieldConfig": {
@@ -8864,7 +8864,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_label_property_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8879,7 +8879,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active point indices",
       "fieldConfig": {
@@ -8956,7 +8956,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_point_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -8971,7 +8971,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active text edge indices",
       "fieldConfig": {
@@ -9048,7 +9048,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_text_edge_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9063,7 +9063,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active text indices",
       "fieldConfig": {
@@ -9140,7 +9140,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_text_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9155,7 +9155,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active type constraints",
       "fieldConfig": {
@@ -9232,7 +9232,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_type_constraints{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9247,7 +9247,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active unique constraints",
       "fieldConfig": {
@@ -9324,7 +9324,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_unique_constraints{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9339,7 +9339,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active vector edge indices",
       "fieldConfig": {
@@ -9416,7 +9416,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_vector_edge_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9431,7 +9431,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of active vector indices",
       "fieldConfig": {
@@ -9508,7 +9508,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_active_vector_indices{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}",
@@ -9535,7 +9535,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of triggers created",
       "fieldConfig": {
@@ -9612,7 +9612,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_triggers_created_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -9627,7 +9627,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of triggers executed",
       "fieldConfig": {
@@ -9704,7 +9704,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_triggers_executed_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -9731,7 +9731,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of Bolt messages sent",
       "fieldConfig": {
@@ -9808,7 +9808,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_bolt_messages_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -9823,7 +9823,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of consumed streamed messages",
       "fieldConfig": {
@@ -9900,7 +9900,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_messages_consumed_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -9915,7 +9915,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of creating replica stream in seconds",
       "fieldConfig": {
@@ -9992,7 +9992,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_replica_stream_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10003,7 +10003,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_replica_stream_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10014,7 +10014,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_replica_stream_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10029,7 +10029,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of streams created",
       "fieldConfig": {
@@ -10106,7 +10106,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_streams_created_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[1i]))",
@@ -10133,7 +10133,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "GC execution latency in seconds",
       "fieldConfig": {
@@ -10210,7 +10210,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, database) (rate(memgraph_gc_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10221,7 +10221,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, database) (rate(memgraph_gc_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10232,7 +10232,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, database) (rate(memgraph_gc_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10247,7 +10247,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "GC skiplist cleanup latency in seconds",
       "fieldConfig": {
@@ -10324,7 +10324,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, database) (rate(memgraph_gc_skiplist_cleanup_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10335,7 +10335,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, database) (rate(memgraph_gc_skiplist_cleanup_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10346,7 +10346,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, database) (rate(memgraph_gc_skiplist_cleanup_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10373,7 +10373,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of CurrentWalRpc in seconds",
       "fieldConfig": {
@@ -10450,7 +10450,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_current_wal_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10461,7 +10461,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_current_wal_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10472,7 +10472,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_current_wal_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10487,7 +10487,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Snapshot creation latency in seconds",
       "fieldConfig": {
@@ -10564,7 +10564,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, database) (rate(memgraph_snapshot_creation_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10575,7 +10575,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, database) (rate(memgraph_snapshot_creation_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10586,7 +10586,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, database) (rate(memgraph_snapshot_creation_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10601,7 +10601,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Snapshot recovery latency in seconds",
       "fieldConfig": {
@@ -10678,7 +10678,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, database) (rate(memgraph_snapshot_recovery_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10689,7 +10689,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, database) (rate(memgraph_snapshot_recovery_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10700,7 +10700,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, database) (rate(memgraph_snapshot_recovery_latency_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\", uuid=~\"$uuid\", database=~\"$database\"}[$__rate_interval])))",
@@ -10715,7 +10715,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of SnapshotRpc in seconds",
       "fieldConfig": {
@@ -10792,7 +10792,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10803,7 +10803,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10814,7 +10814,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10829,7 +10829,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Throughput of snapshot sent to each replica during recovery, in bytes/s",
       "fieldConfig": {
@@ -10906,7 +10906,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10917,7 +10917,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10928,7 +10928,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_snapshot_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -10943,7 +10943,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of WalFilesRpc in seconds",
       "fieldConfig": {
@@ -11020,7 +11020,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_wal_files_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11031,7 +11031,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_wal_files_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11042,7 +11042,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_wal_files_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11057,7 +11057,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Throughput of WAL files sent to each replica during recovery, in bytes/s",
       "fieldConfig": {
@@ -11134,7 +11134,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_wal_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11145,7 +11145,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_wal_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11156,7 +11156,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_wal_throughput_bytes_per_second_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11183,7 +11183,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed DemoteMainToReplicaRpc calls",
       "fieldConfig": {
@@ -11260,7 +11260,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_demote_main_to_replica_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -11275,7 +11275,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of DemoteMainToReplicaRpc in seconds",
       "fieldConfig": {
@@ -11352,7 +11352,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_demote_main_to_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11363,7 +11363,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_demote_main_to_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11374,7 +11374,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_demote_main_to_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11389,7 +11389,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful DemoteMainToReplicaRpc calls",
       "fieldConfig": {
@@ -11466,7 +11466,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_demote_main_to_replica_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -11481,7 +11481,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of finishing txn replication in seconds",
       "fieldConfig": {
@@ -11558,7 +11558,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_finalize_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11569,7 +11569,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_finalize_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11580,7 +11580,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_finalize_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11595,7 +11595,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed RegisterReplicaOnMainRpc calls",
       "fieldConfig": {
@@ -11672,7 +11672,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_register_replica_on_main_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -11687,7 +11687,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of RegisterReplicaOnMainRpc in seconds",
       "fieldConfig": {
@@ -11764,7 +11764,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_register_replica_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11775,7 +11775,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_register_replica_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11786,7 +11786,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_register_replica_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -11801,7 +11801,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful RegisterReplicaOnMainRpc calls",
       "fieldConfig": {
@@ -11878,7 +11878,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_register_replica_on_main_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -11893,7 +11893,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times replica recovery finished unsuccessfully",
       "fieldConfig": {
@@ -11970,7 +11970,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_replica_recovery_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -11985,7 +11985,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times replica recovery was skipped",
       "fieldConfig": {
@@ -12062,7 +12062,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_replica_recovery_skip_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -12077,7 +12077,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times replica recovery finished successfully",
       "fieldConfig": {
@@ -12154,7 +12154,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_replica_recovery_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -12169,7 +12169,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of starting txn replication in seconds",
       "fieldConfig": {
@@ -12246,7 +12246,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_start_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12257,7 +12257,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_start_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12268,7 +12268,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_start_txn_replication_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12283,7 +12283,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed UnregisterReplicaRpc calls",
       "fieldConfig": {
@@ -12360,7 +12360,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_unregister_replica_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -12375,7 +12375,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of UnregisterReplicaRpc in seconds",
       "fieldConfig": {
@@ -12452,7 +12452,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_unregister_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12463,7 +12463,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_unregister_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12474,7 +12474,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_unregister_replica_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12489,7 +12489,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful UnregisterReplicaRpc calls",
       "fieldConfig": {
@@ -12566,7 +12566,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_unregister_replica_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -12593,7 +12593,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times coordinator became leader successfully",
       "fieldConfig": {
@@ -12670,7 +12670,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_become_leader_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -12685,7 +12685,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of choosing next main in seconds",
       "fieldConfig": {
@@ -12762,7 +12762,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_choose_most_up_to_date_instance_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12773,7 +12773,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_choose_most_up_to_date_instance_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12784,7 +12784,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_choose_most_up_to_date_instance_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12799,7 +12799,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of the failover procedure in seconds",
       "fieldConfig": {
@@ -12876,7 +12876,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_data_failover_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12887,7 +12887,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_data_failover_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12898,7 +12898,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_data_failover_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -12913,7 +12913,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times DEMOTE INSTANCE was called",
       "fieldConfig": {
@@ -12990,7 +12990,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_demote_instance_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13005,7 +13005,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed EnableWritingOnMainRpc calls",
       "fieldConfig": {
@@ -13082,7 +13082,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_enable_writing_on_main_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13097,7 +13097,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of EnableWritingOnMainRpc in seconds",
       "fieldConfig": {
@@ -13174,7 +13174,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_enable_writing_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13185,7 +13185,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_enable_writing_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13196,7 +13196,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_enable_writing_on_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13211,7 +13211,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful EnableWritingOnMainRpc calls",
       "fieldConfig": {
@@ -13288,7 +13288,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_enable_writing_on_main_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13303,7 +13303,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times coordinator failed to become leader",
       "fieldConfig": {
@@ -13380,7 +13380,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_failed_to_become_leader_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13395,7 +13395,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of FrequentHeartbeatRpc in seconds",
       "fieldConfig": {
@@ -13472,7 +13472,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_frequent_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13483,7 +13483,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_frequent_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13494,7 +13494,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_frequent_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13509,7 +13509,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed GetDatabaseHistoriesRpc calls",
       "fieldConfig": {
@@ -13586,7 +13586,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_get_database_histories_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13601,7 +13601,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of GetDatabaseHistoriesRpc in seconds",
       "fieldConfig": {
@@ -13678,7 +13678,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_get_database_histories_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13689,7 +13689,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_get_database_histories_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13700,7 +13700,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_get_database_histories_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13715,7 +13715,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful GetDatabaseHistoriesRpc calls",
       "fieldConfig": {
@@ -13792,7 +13792,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_get_database_histories_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -13807,7 +13807,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of retrieving instances history in seconds",
       "fieldConfig": {
@@ -13884,7 +13884,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_get_histories_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13895,7 +13895,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_get_histories_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13906,7 +13906,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_get_histories_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -13921,7 +13921,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of HeartbeatRpc in seconds",
       "fieldConfig": {
@@ -13998,7 +13998,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14009,7 +14009,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14020,7 +14020,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_heartbeat_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14035,7 +14035,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Instance failure callback latency in seconds",
       "fieldConfig": {
@@ -14112,7 +14112,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_instance_fail_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14123,7 +14123,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_instance_fail_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14134,7 +14134,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_instance_fail_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14149,7 +14149,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "1 if the instance is the coordinator leader, 0 otherwise",
       "fieldConfig": {
@@ -14226,7 +14226,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_instance_is_leader{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -14241,7 +14241,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "1 if the instance is the replication main, 0 otherwise",
       "fieldConfig": {
@@ -14318,7 +14318,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_instance_is_main{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -14333,7 +14333,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Seconds since the last successful response from the instance",
       "fieldConfig": {
@@ -14410,7 +14410,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_instance_last_response_seconds{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -14425,7 +14425,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Instance success callback latency in seconds",
       "fieldConfig": {
@@ -14502,7 +14502,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_instance_succ_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14513,7 +14513,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_instance_succ_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14524,7 +14524,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_instance_succ_callback_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14539,7 +14539,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "1 if the instance is up, 0 if down",
       "fieldConfig": {
@@ -14616,7 +14616,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "memgraph_instance_up{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}",
@@ -14631,7 +14631,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed failovers due to no alive instance",
       "fieldConfig": {
@@ -14708,7 +14708,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_no_alive_instance_failed_failovers_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -14723,7 +14723,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed PromoteToMainRpc calls",
       "fieldConfig": {
@@ -14800,7 +14800,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_promote_to_main_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -14815,7 +14815,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of PromoteToMainRpc in seconds",
       "fieldConfig": {
@@ -14892,7 +14892,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_promote_to_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14903,7 +14903,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_promote_to_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14914,7 +14914,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_promote_to_main_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -14929,7 +14929,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful PromoteToMainRpc calls",
       "fieldConfig": {
@@ -15006,7 +15006,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_promote_to_main_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15021,7 +15021,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed failovers due to Raft",
       "fieldConfig": {
@@ -15098,7 +15098,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_raft_failed_failovers_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15113,7 +15113,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times REMOVE COORDINATOR was called",
       "fieldConfig": {
@@ -15190,7 +15190,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_remove_coord_instance_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15205,7 +15205,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed StateCheckRpc calls",
       "fieldConfig": {
@@ -15282,7 +15282,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_state_check_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15297,7 +15297,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of StateCheckRpc in seconds",
       "fieldConfig": {
@@ -15374,7 +15374,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_state_check_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15385,7 +15385,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_state_check_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15396,7 +15396,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_state_check_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15411,7 +15411,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful StateCheckRpc calls",
       "fieldConfig": {
@@ -15488,7 +15488,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_state_check_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15503,7 +15503,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful failovers",
       "fieldConfig": {
@@ -15580,7 +15580,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_successful_failovers_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15595,7 +15595,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed SwapMainUUIDRpc calls",
       "fieldConfig": {
@@ -15672,7 +15672,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_swap_main_uuid_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15687,7 +15687,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful SwapMainUUIDRpc calls",
       "fieldConfig": {
@@ -15764,7 +15764,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_swap_main_uuid_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15779,7 +15779,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of SystemRecoveryRpc in seconds",
       "fieldConfig": {
@@ -15856,7 +15856,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_system_recovery_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15867,7 +15867,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_system_recovery_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15878,7 +15878,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_system_recovery_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -15893,7 +15893,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of times UNREGISTER INSTANCE was called",
       "fieldConfig": {
@@ -15970,7 +15970,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_unregister_repl_instance_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -15985,7 +15985,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of failed UpdateDataInstanceConfigRpc calls",
       "fieldConfig": {
@@ -16062,7 +16062,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_update_data_instance_config_rpc_fail_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -16077,7 +16077,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of UpdateDataInstanceConfigRpc in seconds",
       "fieldConfig": {
@@ -16154,7 +16154,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_update_data_instance_config_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16165,7 +16165,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_update_data_instance_config_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16176,7 +16176,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_update_data_instance_config_rpc_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16191,7 +16191,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Number of successful UpdateDataInstanceConfigRpc calls",
       "fieldConfig": {
@@ -16268,7 +16268,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "running_sum(increase(memgraph_update_data_instance_config_rpc_success_total{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[1i]))",
@@ -16295,7 +16295,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "victoriametrics"
+        "uid": "${datasource}"
       },
       "description": "Latency of Socket::Connect in seconds",
       "fieldConfig": {
@@ -16372,7 +16372,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.5, sum by (le, instance, mg_instance) (rate(memgraph_socket_connect_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16383,7 +16383,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.9, sum by (le, instance, mg_instance) (rate(memgraph_socket_connect_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16394,7 +16394,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "victoriametrics"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.99, sum by (le, instance, mg_instance) (rate(memgraph_socket_connect_seconds_bucket{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", instance=~\"$instance\"}[$__rate_interval])))",
@@ -16425,7 +16425,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(up, cluster_id)",
         "includeAll": true,
@@ -16452,7 +16452,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(up{cluster_id=~\"$cluster_id\"}, cluster_env)",
         "includeAll": true,
@@ -16479,7 +16479,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(up{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\"}, service_name)",
         "includeAll": true,
@@ -16506,7 +16506,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(memgraph_edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\"}, uuid)",
         "includeAll": true,
@@ -16533,7 +16533,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(up{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", uuid=~\"$uuid\"}, instance)",
         "includeAll": true,
@@ -16560,7 +16560,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(memgraph_edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", uuid=~\"$uuid\", instance=~\"$instance\"}, database)",
         "includeAll": true,
