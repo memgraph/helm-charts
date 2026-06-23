@@ -5,6 +5,11 @@ image:
   tag: 3.11.0
   pullPolicy: IfNotPresent
 
+# The Kubernetes cluster domain used to build the internal (FQDN) service addresses
+# of Memgraph data instances and coordinators (e.g. <svc>.<namespace>.svc.<clusterDomain>).
+# Override this if your cluster is configured with a custom domain instead of the default.
+clusterDomain: cluster.local
+
 storage:
   data:
     libPVCSize: "1Gi"

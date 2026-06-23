@@ -20,13 +20,13 @@ spec:
               PORT=7687
 
               hosts_coordinators="
-                memgraph-coordinator-1.default.svc.cluster.local
-                memgraph-coordinator-2.default.svc.cluster.local
-                memgraph-coordinator-3.default.svc.cluster.local
+                memgraph-coordinator-1.default.svc.{{ .Values.clusterDomain }}
+                memgraph-coordinator-2.default.svc.{{ .Values.clusterDomain }}
+                memgraph-coordinator-3.default.svc.{{ .Values.clusterDomain }}
               "
               hosts_data="
-                memgraph-data-0.default.svc.cluster.local
-                memgraph-data-1.default.svc.cluster.local
+                memgraph-data-0.default.svc.{{ .Values.clusterDomain }}
+                memgraph-data-1.default.svc.{{ .Values.clusterDomain }}
               "
 
               echo "=== Checking coordinators with SHOW INSTANCES ==="

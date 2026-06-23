@@ -17,7 +17,7 @@ data:
       {{- end }}
       {{- range $.Values.coordinators }}
       - name: coord{{ .id }}
-        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
+        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}
         port: {{ $.Values.ports.metricsPort }}
         type: coordinator
         {{- if .tls.bolt.enabled }}
@@ -29,7 +29,7 @@ data:
       {{- end }}
       {{- range $.Values.data }}
       - name: data{{ .id }}
-        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local
+        url: {{ if .tls.bolt.enabled }}https{{ else }}http{{ end }}://memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}
         port: {{ $.Values.ports.metricsPort }}
         type: data_instance
         {{- if .tls.bolt.enabled }}
