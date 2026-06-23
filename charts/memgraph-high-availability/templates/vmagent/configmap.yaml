@@ -27,16 +27,16 @@ data:
         static_configs:
           - targets:
               {{- range $.Values.coordinators }}
-              - memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.metricsPort }}
+              - memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.metricsPort }}
               {{- end }}
               {{- range $.Values.data }}
-              - memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.metricsPort }}
+              - memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.metricsPort }}
               {{- end }}
       {{- else }}
       - job_name: memgraph-exporter
         static_configs:
           - targets:
-              - mg-exporter.{{ $exporterNamespace }}.svc.cluster.local:{{ $.Values.prometheus.memgraphExporter.port }}
+              - mg-exporter.{{ $exporterNamespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.prometheus.memgraphExporter.port }}
       {{- end }}
       {{- /* Optional Kubernetes scrape jobs appended when vmagentRemote.kubernetes.enabled=true. */}}
       {{- if $kubernetesMetricsEnabled }}

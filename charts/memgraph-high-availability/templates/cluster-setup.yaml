@@ -46,15 +46,15 @@ spec:
 
               # Wait for all coordinators
               {{- range .Values.coordinators }}
-              wait_for_service "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local" {{ $.Values.ports.boltPort }}
+              wait_for_service "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}" {{ $.Values.ports.boltPort }}
               {{- end }}
 
               # Wait for all data instances
               {{- range .Values.data }}
-              wait_for_service "memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local" {{ $.Values.ports.boltPort }}
+              wait_for_service "memgraph-data-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}" {{ $.Values.ports.boltPort }}
               {{- end }}
 
-              PRIMARY_COORD_HOST="memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.cluster.local"
+              PRIMARY_COORD_HOST="memgraph-coordinator-{{ (index .Values.coordinators 0).id }}.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}"
               PRIMARY_COORD_PORT="{{ $.Values.ports.boltPort }}"
 
               run_mgconsole() {
@@ -126,12 +126,12 @@ spec:
 
               # Add all coordinators
               {{- range .Values.coordinators }}
-              run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.coordinatorPort }}"};'
+              run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
               {{- end }}
 
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
-              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.ports.replicationPort }}"};'
+              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               {{- end }}
 
               # Set first data instance as MAIN

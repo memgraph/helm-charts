@@ -242,7 +242,7 @@ spec:
         - "--management-port={{ $.Values.ports.managementPort }}"
         - "--coordinator-port={{ $.Values.ports.coordinatorPort }}"
         - "--coordinator-id={{ $coordinator.id }}"
-        - "--coordinator-hostname=memgraph-coordinator-{{ $coordinator.id }}.{{ $.Release.Namespace }}.svc.cluster.local"
+        - "--coordinator-hostname=memgraph-coordinator-{{ $coordinator.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}"
         - "--data-directory=/var/lib/memgraph/mg_data"
         {{- if $coordinator.tls.bolt.enabled }}
         - "--bolt-cert-file=/etc/memgraph/ssl/tls.crt"
