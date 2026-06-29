@@ -194,7 +194,7 @@ clusterSetup:
   containerSecurityContext:
     allowPrivilegeEscalation: false
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     seccompProfile:
