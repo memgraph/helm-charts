@@ -178,6 +178,28 @@ labels:
     statefulSetLabels: {}
     serviceLabels: {}
 
+# Configuration for the post-install cluster-setup Job. This Job runs as a Helm
+# post-install hook and registers all coordinators and data instances via mgconsole.
+clusterSetup:
+  # Custom labels applied to both the cluster-setup Job and its pod template.
+  labels: {}
+  # Pod-level security context for the cluster-setup Job pod.
+  podSecurityContext:
+    runAsUser: 101
+    runAsGroup: 103
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  # Container-level security context for the cluster-setup container.
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
 container:
   data:
     terminationGracePeriodSeconds: 30 # Make sure to increase this value if --storage-snapshot-on-exit=true so that snapshot can be successfully created on exit. The concrete value depends
