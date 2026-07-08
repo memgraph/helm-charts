@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mg-exporter-config
+  name: {{ include "memgraph.exporter.fullname" . }}-config
   namespace: {{ .Values.prometheus.namespace | default .Release.Namespace }}
 data:
   standalone_config.yaml: |
@@ -17,19 +17,19 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mg-exporter
+  name: {{ include "memgraph.exporter.fullname" . }}
   namespace: {{ .Values.prometheus.namespace | default .Release.Namespace }}
   labels:
-    app: mg-exporter
+    app: {{ include "memgraph.exporter.fullname" . }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mg-exporter
+      app: {{ include "memgraph.exporter.fullname" . }}
   template:
     metadata:
       labels:
-        app: mg-exporter
+        app: {{ include "memgraph.exporter.fullname" . }}
     spec:
       containers:
         - name: exporter
@@ -48,18 +48,18 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: mg-exporter-config
+            name: {{ include "memgraph.exporter.fullname" . }}-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mg-exporter
+  name: {{ include "memgraph.exporter.fullname" . }}
   namespace: {{ .Values.prometheus.namespace | default .Release.Namespace }}
   labels:
-    app: mg-exporter
+    app: {{ include "memgraph.exporter.fullname" . }}
 spec:
   selector:
-    app: mg-exporter
+    app: {{ include "memgraph.exporter.fullname" . }}
   ports:
     - protocol: TCP
       name: tcp-metrics-port
@@ -70,14 +70,14 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: mg-exporter
+  name: {{ include "memgraph.exporter.fullname" . }}
   namespace: {{ .Values.prometheus.namespace | default .Release.Namespace }}
   labels:
     release: {{ .Values.prometheus.serviceMonitor.kubePrometheusStackReleaseName }}
 spec:
   selector:
     matchLabels:
-      app: mg-exporter
+      app: {{ include "memgraph.exporter.fullname" . }}
   endpoints:
     - port: tcp-metrics-port  # must be the same as the service port name
       interval: {{ .Values.prometheus.serviceMonitor.interval }}

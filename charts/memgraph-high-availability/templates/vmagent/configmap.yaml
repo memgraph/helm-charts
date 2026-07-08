@@ -36,7 +36,7 @@ data:
       - job_name: memgraph-exporter
         static_configs:
           - targets:
-              - mg-exporter.{{ $exporterNamespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.prometheus.memgraphExporter.port }}
+              - {{ include "memgraph.exporter.fullname" $ }}.{{ $exporterNamespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.prometheus.memgraphExporter.port }}
       {{- end }}
       {{- /* Optional Kubernetes scrape jobs appended when vmagentRemote.kubernetes.enabled=true. */}}
       {{- if $kubernetesMetricsEnabled }}

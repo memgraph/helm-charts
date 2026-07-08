@@ -11,6 +11,16 @@
 
 
 
+{{/*
+Fully qualified name for the mg-exporter resources.
+Prefixing with the release-scoped fullname allows multiple releases of this
+chart to coexist in the same namespace without name collisions.
+*/}}
+{{- define "memgraph.exporter.fullname" -}}
+{{- printf "%s-mg-exporter" (include "memgraph.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+
 {{/* Define the chart version and app version */}}
 {{- define "memgraph.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}

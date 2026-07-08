@@ -24,6 +24,15 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Fully qualified name for the mg-exporter resources.
+Prefixing with the release-scoped fullname allows multiple releases of this
+chart to coexist in the same namespace without name collisions.
+*/}}
+{{- define "memgraph.exporter.fullname" -}}
+{{- printf "%s-mg-exporter" (include "memgraph.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "memgraph.chart" -}}
