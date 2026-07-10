@@ -121,7 +121,7 @@ jobs:
       - name: Wait for monitoring side components
         run: |
           if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
-            kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+            kubectl rollout status deployment/memgraph-db-memgraph-high-availability-mg-exporter -n monitoring --timeout=300s
           fi
           kubectl rollout status deployment/memgraph-db-memgraph-high-availability-vmagent -n monitoring --timeout=300s
 
@@ -136,7 +136,7 @@ jobs:
         run: |
           kubectl get pods -A -o wide || true
           kubectl get svc -A || true
-          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-memgraph-high-availability-mg-exporter --tail=200 || true
           kubectl logs -n monitoring deploy/memgraph-db-memgraph-high-availability-vmagent --tail=200 || true
           kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
           kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
@@ -224,7 +224,7 @@ jobs:
         run: |
           kubectl rollout status statefulset/memgraph-db -n default --timeout=300s
           if [[ "${USE_MG_EXPORTER}" == "true" ]]; then
-            kubectl rollout status deployment/mg-exporter -n monitoring --timeout=300s
+            kubectl rollout status deployment/memgraph-db-mg-exporter -n monitoring --timeout=300s
           fi
           kubectl rollout status deployment/memgraph-db-vmagent -n monitoring --timeout=300s
 
@@ -239,7 +239,7 @@ jobs:
         run: |
           kubectl get pods -A -o wide || true
           kubectl get svc -A || true
-          kubectl logs -n monitoring deploy/mg-exporter --tail=200 || true
+          kubectl logs -n monitoring deploy/memgraph-db-mg-exporter --tail=200 || true
           kubectl logs -n monitoring deploy/memgraph-db-vmagent --tail=200 || true
           kubectl logs -n remote-monitoring deploy/victoria-logs --tail=200 || true
           kubectl logs -n remote-monitoring deploy/monitoring-gateway --tail=200 || true
