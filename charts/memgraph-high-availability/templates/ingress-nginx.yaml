@@ -19,13 +19,14 @@ metadata:
   namespace: ingress-nginx
 data:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
-  9000: "default/memgraph-data-0:7687"
-  9001: "default/memgraph-data-1:7687"
+  {{- range $index, $data := $.Values.data }}
+  {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
+  {{- end }}
   {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
-  9011: "default/memgraph-coordinator-1:7687"
-  9012: "default/memgraph-coordinator-2:7687"
-  9013: "default/memgraph-coordinator-3:7687"
+  {{- range $.Values.coordinators }}
+  {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}: "{{ $.Release.Namespace }}/memgraph-coordinator-{{ .id }}:{{ $.Values.ports.boltPort }}"
+  {{- end }}
   {{- end }}
 ---
 apiVersion: v1
@@ -372,28 +373,20 @@ spec:
   ipFamilyPolicy: SingleStack
   ports:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
-  - name: tcp-data-0
-    port: 9000
-    targetPort: 9000
-    protocol: TCP
-  - name: tcp-data-1
-    port: 9001
-    targetPort: 9001
+  {{- range $index, $data := $.Values.data }}
+  - name: tcp-data-{{ $data.id }}
+    port: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
     protocol: TCP
   {{- end }}
+  {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
-  - name: tcp-coord-1
-    port: 9011
-    targetPort: 9011
+  {{- range $.Values.coordinators }}
+  - name: tcp-coord-{{ .id }}
+    port: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
     protocol: TCP
-  - name: tcp-coord-2
-    port: 9012
-    targetPort: 9012
-    protocol: TCP
-  - name: tcp-coord-3
-    port: 9013
-    targetPort: 9013
-    protocol: TCP
+  {{- end }}
   {{- end }}
   - appProtocol: http
     name: http
