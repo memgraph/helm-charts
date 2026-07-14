@@ -42,7 +42,7 @@ spec:
 {{- end }}
 {{- range $index, $data := .Values.data }}
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: gateway.networking.k8s.io/v1
 kind: TCPRoute
 metadata:
   name: {{ include "memgraph.fullname" $ }}-data-{{ $data.id }}-bolt
@@ -61,7 +61,7 @@ spec:
 {{- end }}
 {{- range .Values.coordinators }}
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: gateway.networking.k8s.io/v1
 kind: TCPRoute
 metadata:
   name: {{ include "memgraph.fullname" $ }}-coordinator-{{ .id }}-bolt
