@@ -20,12 +20,12 @@ metadata:
 data:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
-  {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
+  {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
   {{- end }}
   {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   {{- range $.Values.coordinators }}
-  {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}: "{{ $.Release.Namespace }}/memgraph-coordinator-{{ .id }}:{{ $.Values.ports.boltPort }}"
+  {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}: "{{ $.Release.Namespace }}/memgraph-coordinator-{{ .id }}:{{ $.Values.ports.boltPort }}"
   {{- end }}
   {{- end }}
 ---
@@ -375,16 +375,16 @@ spec:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
   - name: tcp-data-{{ $data.id }}
-    port: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
-    targetPort: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+    port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
     protocol: TCP
   {{- end }}
   {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   {{- range $.Values.coordinators }}
   - name: tcp-coord-{{ .id }}
-    port: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
-    targetPort: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
+    port: {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}
     protocol: TCP
   {{- end }}
   {{- end }}
