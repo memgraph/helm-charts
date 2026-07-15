@@ -111,33 +111,90 @@ spec:
 
               # Returns 0 if any instance currently has role "main", 1 if none do,
               # 2 if the "role" column could not be located in SHOW INSTANCES output.
-              # Parses CSV output and locates the column by its "role" header rather
-              # than assuming a fixed position, so it survives column reordering.
+              # Locates the column by its "role" header (survives column reordering)
+              # and scans for the header row rather than assuming line 1, since
+              # mgconsole may emit a banner / "N rows in set" trailer on stdout.
+              # mgconsole CSV double-quotes every value ("""main"""), so unquote()
+              # strips all double quotes, not just the outermost pair.
               cluster_has_main() {
                 local output
                 output="$(run_mgconsole_csv "SHOW INSTANCES;")" || return 2
                 printf '%s\n' "$output" | awk -F',' '
                   function unquote(s) {
                     gsub(/^[ \t]+|[ \t]+$/, "", s)
-                    gsub(/^"|"$/, "", s)
+                    gsub(/"/, "", s)
                     return tolower(s)
                   }
-                  NR == 1 {
+                  !have_header {
+                    ri = 0
                     for (i = 1; i <= NF; i++) {
-                      if (unquote($i) == "role") { role_idx = i }
+                      if (unquote($i) == "role") { ri = i }
                     }
-                    if (role_idx == 0) { role_missing = 1; exit }
+                    if (ri > 0) { role_idx = ri; have_header = 1 }
                     next
                   }
                   unquote($role_idx) == "main" { found = 1 }
-                  # exit in the block above still runs END, whose exit code wins,
-                  # so the "role column missing" and "empty output" cases are
-                  # resolved here rather than inline.
                   END {
-                    if (NR == 0 || role_missing) { exit 2 }
+                    if (!have_header) { exit 2 }
                     exit (found ? 0 : 1)
                   }
                 '
+              }
+
+              # Echoes the currently-registered bolt_server for the row whose "name"
+              # column equals the given target (an instance name like "instance_1"
+              # or a coordinator name like "coordinator_1"). Prints nothing when the
+              # row, the "name" column, or the "bolt_server" column can't be found,
+              # so callers can safely skip reconciliation instead of acting on noise.
+              # Columns are located by header (normalized, so "bolt_server" and
+              # "bolt server" both match) rather than by a fixed position.
+              get_registered_bolt_server() {
+                local target="$1"
+                local output
+                output="$(run_mgconsole_csv "SHOW INSTANCES;")" || return 0
+                printf '%s\n' "$output" | awk -F',' -v target="$target" '
+                  # mgconsole CSV double-quotes every value ("""instance_1"""), so
+                  # strip all double quotes rather than a single outer pair.
+                  function unquote(s) {
+                    gsub(/^[ \t]+|[ \t]+$/, "", s)
+                    gsub(/"/, "", s)
+                    return s
+                  }
+                  function norm(s) { s = unquote(s); gsub(/[^a-zA-Z0-9]/, "", s); return tolower(s) }
+                  # Scan for the header row (has both name + bolt_server columns)
+                  # instead of assuming line 1, since mgconsole may print a banner
+                  # or a "N rows in set" trailer on stdout.
+                  !have_header {
+                    ni = 0; bi = 0
+                    for (i = 1; i <= NF; i++) {
+                      if (norm($i) == "name") { ni = i }
+                      if (norm($i) == "boltserver") { bi = i }
+                    }
+                    if (ni > 0 && bi > 0) { name_idx = ni; bolt_idx = bi; have_header = 1 }
+                    next
+                  }
+                  unquote($name_idx) == target { print unquote($bolt_idx); exit 0 }
+                '
+              }
+
+              # Reconciles a single instance's registered bolt_server with the value
+              # this chart renders. Used to pick up external-dns hostname changes for
+              # ingress/gateway (UPDATE CONFIG only supports bolt_server). Args:
+              #   $1 target      - name in SHOW INSTANCES ("instance_1"/"coordinator_1")
+              #   $2 subject      - UPDATE CONFIG subject ("INSTANCE instance_1"/"COORDINATOR 1")
+              #   $3 desired      - desired bolt_server "host:port"
+              reconcile_bolt_server() {
+                local target="$1" subject="$2" desired="$3"
+                local current
+                current="$(get_registered_bolt_server "$target")"
+                if [ -z "$current" ]; then
+                  echo "ℹ️  Could not read current bolt_server for ${target}; skipping UPDATE CONFIG."
+                elif [ "$current" = "$desired" ]; then
+                  echo "✅ ${target} bolt_server already up to date (${desired})."
+                else
+                  echo "🔄 ${target} bolt_server changed (${current} -> ${desired}); updating."
+                  run_ddl_with_retries "UPDATE CONFIG FOR ${subject}" "UPDATE CONFIG FOR ${subject} {'bolt_server': '${desired}'};"
+                fi
               }
 
               wait_for_query_readiness() {
@@ -209,6 +266,12 @@ spec:
               {{- $coordBoltServer = printf "%s:%d" $externalHost (add $externalCoordPortBase (int .id)) }}
               {{- end }}
               run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "{{ $coordBoltServer }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
+              # ADD COORDINATOR no-ops if already registered, so reconcile bolt_server
+              # separately. $coordBoltServer is the external-dns host:port when
+              # ingress/gateway is enabled, otherwise the internal cluster address, so
+              # this both applies hostname changes and reverts to internal when the
+              # external access is turned off.
+              reconcile_bolt_server "coordinator_{{ .id }}" "COORDINATOR {{ .id }}" "{{ $coordBoltServer }}"
               {{- end }}
 
               # Register all data instances
@@ -218,6 +281,12 @@ spec:
               {{- $dataBoltServer = printf "%s:%d" $externalHost (add $externalDataPortBase (int $index)) }}
               {{- end }}
               run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
+              # REGISTER INSTANCE no-ops if already registered, so reconcile bolt_server
+              # separately. $dataBoltServer is the external-dns host:port when
+              # ingress/gateway is enabled, otherwise the internal cluster address, so
+              # this both applies hostname changes and reverts to internal when the
+              # external access is turned off.
+              reconcile_bolt_server "instance_{{ add $index 1 }}" "INSTANCE instance_{{ add $index 1 }}" "{{ $dataBoltServer }}"
               {{- end }}
 
               # Elect the first data instance as MAIN only on a fresh bootstrap.
