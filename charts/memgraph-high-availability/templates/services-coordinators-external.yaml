@@ -1,10 +1,10 @@
-{{- $validCoordServices := list "" "CommonLoadBalancer" "LoadBalancer" "NodePort" "IngressNginx" }}
+{{- $validCoordServices := list "" "CommonLoadBalancer" "LoadBalancer" "NodePort" }}
 {{- if not (has .Values.externalAccessConfig.coordinator.serviceType $validCoordServices) }}
-  {{- fail "Invalid value for externalAccessConfig.coordinator.serviceType. Use '', 'CommonLoadBalancer', 'LoadBalancer', 'NodePort' or 'IngressNginx'." }}
+  {{- fail "Invalid value for externalAccessConfig.coordinator.serviceType. Use '', 'CommonLoadBalancer', 'LoadBalancer' or 'NodePort'." }}
 {{- end }}
 
-{{- if or (eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.coordinator.serviceType "") }}
-  {{- /* No external service rendered for IngressNginx or empty string */}}
+{{- if eq $.Values.externalAccessConfig.coordinator.serviceType "" }}
+  {{- /* No external service rendered for empty string */}}
 {{- else if eq $.Values.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer" }}
 apiVersion: v1
 kind: Service

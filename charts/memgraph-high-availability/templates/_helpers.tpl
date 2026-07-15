@@ -33,6 +33,19 @@ chart to coexist in the same namespace without name collisions.
 {{- end -}}
 
 
+{{/*
+Validate the external access configuration. Fails rendering when mutually
+exclusive options are enabled. Included from the core StatefulSet templates so
+it triggers at template time (helm template / lint), not only when the
+cluster-setup hook runs.
+*/}}
+{{- define "memgraph.validateExternalAccess" -}}
+{{- if and .Values.externalAccessConfig.ingress.enabled .Values.externalAccessConfig.gateway.enabled -}}
+{{- fail "externalAccessConfig.ingress.enabled and externalAccessConfig.gateway.enabled are mutually exclusive; enable only one." -}}
+{{- end -}}
+{{- end -}}
+
+
 {{/* Common labels */}}
 {{- define "memgraph.labels" -}}
 app.kubernetes.io/name: {{ include "memgraph.name" . }}

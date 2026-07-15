@@ -1,11 +1,36 @@
 {{- $useSSL := ternary "--use-ssl" "" (index .Values.coordinators 0).tls.bolt.enabled }}
 
+{{- include "memgraph.validateExternalAccess" . }}
+
+{{/*
+  When external access is exposed through ingress or gateway with an
+  external-dns hostname, instances are reachable on that hostname at a
+  per-instance port (dataPortBase + index / coordinatorPortBase + id). In that
+  case the routing "bolt_server" registered with the coordinators must point to
+  the external hostname:port so clients get an externally reachable address.
+  The management/coordinator/replication servers stay internal (intra-cluster).
+*/}}
+{{- $externalHost := "" }}
+{{- $externalDataPortBase := 0 }}
+{{- $externalCoordPortBase := 0 }}
+{{- if .Values.externalAccessConfig.ingress.enabled }}
+  {{- $externalHost = index (.Values.externalAccessConfig.ingress.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $externalDataPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
+  {{- $externalCoordPortBase = int .Values.externalAccessConfig.ingress.coordinatorPortBase }}
+{{- else if .Values.externalAccessConfig.gateway.enabled }}
+  {{- $externalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $externalDataPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
+  {{- $externalCoordPortBase = int .Values.externalAccessConfig.gateway.coordinatorPortBase }}
+{{- end }}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: cluster-setup
   annotations:
-    "helm.sh/hook": post-install
+    # post-upgrade lets the job re-run on scale-out so newly added data instances
+    # and coordinators get registered automatically (idempotent for existing ones).
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
   {{- with .Values.clusterSetup.labels }}
   labels:
@@ -79,6 +104,42 @@ spec:
                 echo "$query" | mgconsole {{ $useSSL }} --host "$PRIMARY_COORD_HOST" --port "$PRIMARY_COORD_PORT" 2>&1
               }
 
+              run_mgconsole_csv() {
+                local query="$1"
+                echo "$query" | mgconsole {{ $useSSL }} --host "$PRIMARY_COORD_HOST" --port "$PRIMARY_COORD_PORT" --output-format=csv 2>/dev/null
+              }
+
+              # Returns 0 if any instance currently has role "main", 1 if none do,
+              # 2 if the "role" column could not be located in SHOW INSTANCES output.
+              # Parses CSV output and locates the column by its "role" header rather
+              # than assuming a fixed position, so it survives column reordering.
+              cluster_has_main() {
+                local output
+                output="$(run_mgconsole_csv "SHOW INSTANCES;")" || return 2
+                printf '%s\n' "$output" | awk -F',' '
+                  function unquote(s) {
+                    gsub(/^[ \t]+|[ \t]+$/, "", s)
+                    gsub(/^"|"$/, "", s)
+                    return tolower(s)
+                  }
+                  NR == 1 {
+                    for (i = 1; i <= NF; i++) {
+                      if (unquote($i) == "role") { role_idx = i }
+                    }
+                    if (role_idx == 0) { role_missing = 1; exit }
+                    next
+                  }
+                  unquote($role_idx) == "main" { found = 1 }
+                  # exit in the block above still runs END, whose exit code wins,
+                  # so the "role column missing" and "empty output" cases are
+                  # resolved here rather than inline.
+                  END {
+                    if (NR == 0 || role_missing) { exit 2 }
+                    exit (found ? 0 : 1)
+                  }
+                '
+              }
+
               wait_for_query_readiness() {
                 local max_attempts=60
                 local attempt=0
@@ -143,13 +204,36 @@ spec:
 
               # Add all coordinators
               {{- range .Values.coordinators }}
-              run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.boltPort }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
+              {{- $coordBoltServer := printf "memgraph-coordinator-%s.%s.svc.%s:%v" .id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
+              {{- if $externalHost }}
+              {{- $coordBoltServer = printf "%s:%d" $externalHost (add $externalCoordPortBase (int .id)) }}
+              {{- end }}
+              run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "{{ $coordBoltServer }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
               {{- end }}
 
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
-              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{$.Values.ports.boltPort }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
+              {{- $dataBoltServer := printf "memgraph-data-%s.%s.svc.%s:%v" $instance.id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
+              {{- if $externalHost }}
+              {{- $dataBoltServer = printf "%s:%d" $externalHost (add $externalDataPortBase (int $index)) }}
+              {{- end }}
+              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               {{- end }}
 
-              # Set first data instance as MAIN
-              run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
+              # Elect the first data instance as MAIN only on a fresh bootstrap.
+              # We detect this at runtime (is there already a MAIN?) rather than via
+              # .Release.IsInstall, because ArgoCD renders with `helm template`
+              # (always IsInstall=true) and would otherwise re-assert MAIN on every
+              # sync — disruptive after a failover promoted a different instance.
+              set +e
+              cluster_has_main
+              has_main_status=$?
+              set -e
+              if [ "$has_main_status" -eq 0 ]; then
+                echo "✅ A MAIN already exists; skipping initial MAIN election."
+              elif [ "$has_main_status" -eq 1 ]; then
+                run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
+              else
+                echo "⚠️  Could not locate the 'role' column in SHOW INSTANCES; attempting idempotent MAIN election."
+                run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
+              fi

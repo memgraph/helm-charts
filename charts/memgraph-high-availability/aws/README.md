@@ -22,7 +22,7 @@ Use `aws configure` and enter your `AWS Access Key ID, Secret Access Key, Region
 We provide you with the sample configuration file for AWS in this folder. Running
 
 ```
-eksctl create cluster -f cluster.yaml`
+eksctl create cluster -f cluster.yaml
 ```
 
 should be sufficient. Make sure to change the path to the public SSH key if you want to have SSH access to EC2 instances. After creating the cluster, `kubectl` should pick up

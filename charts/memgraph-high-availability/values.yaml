@@ -91,19 +91,24 @@ ports:
 
 externalAccessConfig:
   dataInstance:
-    # Empty = no external access service will be created
+    # Empty = no external access service will be created. Allowed values are LoadBalancer and NodePort.
     serviceType: ""
     annotations: {} # Set of annotations applied to all data instances' services
     # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
   coordinator:
-    # Empty = no external access service will be created
+    # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer and NodePort.
     serviceType: ""
     annotations: {} # Set of annotations applied to all coordinators' services
   ingress:
+    enabled: false
     dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
     coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
+    annotations: {}
+    # Example:
+    # annotations:
+      # external-dns.alpha.kubernetes.io/hostname: "memgraph.example.com"
   gateway:
     enabled: false
     gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
