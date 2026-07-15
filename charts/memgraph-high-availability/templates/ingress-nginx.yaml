@@ -19,7 +19,7 @@ metadata:
   namespace: ingress-nginx
 data:
   {{- range $index, $data := $.Values.data }}
-  {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
+  {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
   {{- end }}
   {{- range $.Values.coordinators }}
   {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}: "{{ $.Release.Namespace }}/memgraph-coordinator-{{ .id }}:{{ $.Values.ports.boltPort }}"
@@ -374,8 +374,8 @@ spec:
   ports:
   {{- range $index, $data := $.Values.data }}
   - name: tcp-data-{{ $data.id }}
-    port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
-    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
+    port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
     protocol: TCP
   {{- end }}
   {{- range $.Values.coordinators }}

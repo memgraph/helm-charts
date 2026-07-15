@@ -103,7 +103,7 @@ externalAccessConfig:
     annotations: {} # Set of annotations applied to all coordinators' services
   ingress:
     enabled: false
-    dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
+    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
     coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
     annotations: {}
     # Example:
@@ -116,7 +116,7 @@ externalAccessConfig:
     existingGatewayNamespace: "" # Namespace of the existing Gateway. Defaults to release namespace if empty
     annotations: {}
     labels: {}
-    dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
+    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
     coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
 
 headlessService:
@@ -431,6 +431,14 @@ commonArgs:
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.
+#
+# Each data instance's `id` must be a unique, non-negative integer (given as a string,
+# e.g. "0", "1", "2"). The cluster-setup Job derives the registered instance name from
+# it as instance_<id+1> (so ids 0,1,2 -> instance_1,instance_2,instance_3). Because the
+# name is bound to the id (not the array position), you can add or remove any instance —
+# including one in the middle of the list — and it will be registered/unregistered
+# correctly on the next upgrade. Non-numeric ids are not supported (they would all
+# collapse to the same name).
 data:
   - id: "0"
     restoreDataFromSnapshot: false

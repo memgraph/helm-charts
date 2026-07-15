@@ -5,7 +5,7 @@
 {{/*
   When external access is exposed through ingress or gateway with an
   external-dns hostname, instances are reachable on that hostname at a
-  per-instance port (dataPortBase + index / coordinatorPortBase + id). In that
+  per-instance port (dataPortBase + id / coordinatorPortBase + id). In that
   case the routing "bolt_server" registered with the coordinators must point to
   the external hostname:port so clients get an externally reachable address.
   The management/coordinator/replication servers stay internal (intra-cluster).
@@ -177,6 +177,44 @@ spec:
                 '
               }
 
+              # Prints one "<name>\t<role>" line per registered coordinator/data
+              # instance found in SHOW INSTANCES (role lower-cased). Rows whose name
+              # isn't a coordinator_/instance_ managed by this chart (and the banner /
+              # "N rows in set" trailer) are ignored. Prints nothing if the output
+              # can't be parsed, so callers make no removal decisions on bad data.
+              get_registered_instances() {
+                local output
+                output="$(run_mgconsole_csv "SHOW INSTANCES;")" || return 0
+                printf '%s\n' "$output" | awk -F',' '
+                  function unquote(s) { gsub(/^[ \t]+|[ \t]+$/, "", s); gsub(/"/, "", s); return s }
+                  function norm(s) { s = unquote(s); gsub(/[^a-zA-Z0-9]/, "", s); return tolower(s) }
+                  !have_header {
+                    ni = 0; ri = 0
+                    for (i = 1; i <= NF; i++) {
+                      if (norm($i) == "name") { ni = i }
+                      if (norm($i) == "role") { ri = i }
+                    }
+                    if (ni > 0 && ri > 0) { name_idx = ni; role_idx = ri; have_header = 1 }
+                    next
+                  }
+                  {
+                    n = unquote($name_idx)
+                    if (n ~ /^coordinator_/ || n ~ /^instance_/) {
+                      print n "\t" tolower(unquote($role_idx))
+                    }
+                  }
+                '
+              }
+
+              # in_list <needle> <space-separated-list> -> 0 if present, else 1.
+              in_list() {
+                local needle="$1" item
+                for item in $2; do
+                  [ "$item" = "$needle" ] && return 0
+                done
+                return 1
+              }
+
               # Reconciles a single instance's registered bolt_server with the value
               # this chart renders. Used to pick up external-dns hostname changes for
               # ingress/gateway (UPDATE CONFIG only supports bolt_server). Args:
@@ -278,15 +316,19 @@ spec:
               {{- range $index, $instance := .Values.data }}
               {{- $dataBoltServer := printf "memgraph-data-%s.%s.svc.%s:%v" $instance.id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
               {{- if $externalHost }}
-              {{- $dataBoltServer = printf "%s:%d" $externalHost (add $externalDataPortBase (int $index)) }}
+              {{- $dataBoltServer = printf "%s:%d" $externalHost (add $externalDataPortBase (int $instance.id)) }}
               {{- end }}
-              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add $index 1 }}" 'REGISTER INSTANCE instance_{{ add $index 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
+              run_ddl_with_retries "REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }}" 'REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               # REGISTER INSTANCE no-ops if already registered, so reconcile bolt_server
               # separately. $dataBoltServer is the external-dns host:port when
               # ingress/gateway is enabled, otherwise the internal cluster address, so
               # this both applies hostname changes and reverts to internal when the
-              # external access is turned off.
-              reconcile_bolt_server "instance_{{ add $index 1 }}" "INSTANCE instance_{{ add $index 1 }}" "{{ $dataBoltServer }}"
+              # external access is turned off. The instance name is keyed by the data
+              # instance .id (name = instance_<id+1>), not array position, so removing a
+              # middle entry leaves the other instances' names and endpoints untouched.
+              # The +1 keeps names identical to the previous index-based scheme for the
+              # default 0-based ids (instance_1, instance_2, ...), so upgrades are safe.
+              reconcile_bolt_server "instance_{{ add (int $instance.id) 1 }}" "INSTANCE instance_{{ add (int $instance.id) 1 }}" "{{ $dataBoltServer }}"
               {{- end }}
 
               # Elect the first data instance as MAIN only on a fresh bootstrap.
@@ -301,8 +343,49 @@ spec:
               if [ "$has_main_status" -eq 0 ]; then
                 echo "✅ A MAIN already exists; skipping initial MAIN election."
               elif [ "$has_main_status" -eq 1 ]; then
-                run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
+                run_ddl_with_retries "SET INSTANCE instance_{{ add (int (index .Values.data 0).id) 1 }} TO MAIN" 'SET INSTANCE instance_{{ add (int (index .Values.data 0).id) 1 }} TO MAIN;'
               else
                 echo "⚠️  Could not locate the 'role' column in SHOW INSTANCES; attempting idempotent MAIN election."
-                run_ddl_with_retries "SET INSTANCE instance_1 TO MAIN" 'SET INSTANCE instance_1 TO MAIN;'
+                run_ddl_with_retries "SET INSTANCE instance_{{ add (int (index .Values.data 0).id) 1 }} TO MAIN" 'SET INSTANCE instance_{{ add (int (index .Values.data 0).id) 1 }} TO MAIN;'
               fi
+
+              # Scale-down: remove coordinators / data instances that are registered
+              # in the cluster but no longer present in the chart values.
+              #
+              # Desired sets are rendered from values. Both coordinators and data
+              # instances are keyed by their stable .id (coordinator_<id> /
+              # instance_<id+1>), so an instance's name is bound to its pod. That makes
+              # removal position-independent: dropping a middle entry unregisters
+              # exactly that instance and leaves the others' names/endpoints intact.
+              #
+              # Safety: we never remove the current MAIN data instance or the leader
+              # coordinator (the docs forbid it). When a pod is deleted on scale-down,
+              # the cluster fails over / re-elects, so on a later sync the removed
+              # member is no longer MAIN/leader and is cleaned up then — self-healing.
+              DESIRED_COORDINATORS="{{- range $.Values.coordinators }} coordinator_{{ .id }}{{- end }}"
+              DESIRED_INSTANCES="{{- range $.Values.data }} instance_{{ add (int .id) 1 }}{{- end }}"
+
+              echo "Reconciling cluster membership (removing instances no longer in values)..."
+              while IFS="$(printf '\t')" read -r reg_name reg_role; do
+                if [ -z "$reg_name" ]; then continue; fi
+                case "$reg_name" in
+                  coordinator_*)
+                    if ! in_list "$reg_name" "$DESIRED_COORDINATORS"; then
+                      if [ "$reg_role" = "leader" ]; then
+                        echo "⚠️  ${reg_name} is no longer in values but is the current leader; cannot remove the leader. It will be removed on a later sync once leadership changes."
+                      else
+                        run_ddl_with_retries "REMOVE COORDINATOR ${reg_name#coordinator_}" "REMOVE COORDINATOR ${reg_name#coordinator_};"
+                      fi
+                    fi
+                    ;;
+                  instance_*)
+                    if ! in_list "$reg_name" "$DESIRED_INSTANCES"; then
+                      if [ "$reg_role" = "main" ]; then
+                        echo "⚠️  ${reg_name} is no longer in values but is the current MAIN; unregistering a MAIN can corrupt cluster state, so skipping. It will be removed on a later sync once a failover promotes another instance."
+                      else
+                        run_ddl_with_retries "UNREGISTER INSTANCE ${reg_name}" "UNREGISTER INSTANCE ${reg_name};"
+                      fi
+                    fi
+                    ;;
+                esac
+              done < <(get_registered_instances)

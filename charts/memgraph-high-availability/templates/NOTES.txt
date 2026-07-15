@@ -12,7 +12,7 @@ Gateway: {{ include "memgraph.fullname" . }}-gateway (GatewayClass: {{ .Values.e
 
 Data instance ports:
 {{- range $index, $data := .Values.data }}
-  memgraph-data-{{ $data.id }}: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+  memgraph-data-{{ $data.id }}: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $data.id) }}
 {{- end }}
 
 Coordinator instance ports:
