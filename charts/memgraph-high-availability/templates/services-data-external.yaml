@@ -1,6 +1,6 @@
 {{- $validDataServices := list "" "LoadBalancer" "NodePort" }}
 {{- if not (has .Values.externalAccessConfig.dataInstance.serviceType $validDataServices) }}
-  {{- fail "Invalid value for externalAccessConfig.dataInstance.serviceType. Use '', 'LoadBalancer', or 'NodePort'." }}
+  {{- fail "Invalid value for externalAccessConfig.dataInstance.serviceType. Use '', 'LoadBalancer', or 'NodePort'. To expose data instances via ingress-nginx, set externalAccessConfig.ingress.enabled: true instead." }}
 {{- end }}
 
 {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "" }}

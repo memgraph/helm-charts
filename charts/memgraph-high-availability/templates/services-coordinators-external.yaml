@@ -1,6 +1,6 @@
 {{- $validCoordServices := list "" "CommonLoadBalancer" "LoadBalancer" "NodePort" }}
 {{- if not (has .Values.externalAccessConfig.coordinator.serviceType $validCoordServices) }}
-  {{- fail "Invalid value for externalAccessConfig.coordinator.serviceType. Use '', 'CommonLoadBalancer', 'LoadBalancer' or 'NodePort'." }}
+  {{- fail "Invalid value for externalAccessConfig.coordinator.serviceType. Use '', 'CommonLoadBalancer', 'LoadBalancer' or 'NodePort'. To expose coordinators via ingress-nginx, set externalAccessConfig.ingress.enabled: true instead." }}
 {{- end }}
 
 {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "" }}

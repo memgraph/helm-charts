@@ -104,7 +104,7 @@ externalAccessConfig:
   ingress:
     enabled: false
     dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
-    coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
+    coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
     annotations: {}
     # Example:
     # annotations:
@@ -117,7 +117,7 @@ externalAccessConfig:
     annotations: {}
     labels: {}
     dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
-    coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
+    coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
 
 headlessService:
   enabled: false # If set to true, each data and coordinator instance will use headless service
