@@ -28,19 +28,28 @@
 {{- $coordExternalHost := "" }}
 {{- $coordExternalPortBase := 0 }}
 {{- $coordExternalPort := 0 }}
+{{/*
+  IngressNginx tiers share ONE controller Service (one LB, one external-dns
+  hostname); instances behind it are told apart by port, not host. So every
+  IngressNginx tier uses the single hostname that lands on that Service — the
+  merged dataInstance+coordinator annotations, coordinator winning on a key
+  collision (same as memgraph.externalAccessAnnotations). Using a tier's own
+  hostname here would register a bolt_server host with no DNS record.
+*/}}
+{{- $ingressHost := index (include "memgraph.externalAccessAnnotations" . | fromYaml) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
 {{- if eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx" }}
-  {{- $dataExternalHost = index (.Values.externalAccessConfig.dataInstance.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $dataExternalHost = $ingressHost }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
 {{- else if .Values.externalAccessConfig.gateway.enabled }}
   {{- $dataExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
 {{- end }}
 {{- if eq .Values.externalAccessConfig.coordinator.serviceType "IngressNginx" }}
-  {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $coordExternalHost = $ingressHost }}
   {{- $coordExternalPortBase = int .Values.externalAccessConfig.ingress.coordinatorPortBase }}
 {{- else if eq .Values.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer" }}
-  {{- /* One shared LB for all coordinators on the bolt port; every coordinator
-         is reached at the same hostname:boltPort. */}}
+  {{- /* Own dedicated LB for all coordinators on the bolt port; every
+         coordinator is reached at the same hostname:boltPort. */}}
   {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $coordExternalPort = int .Values.ports.boltPort }}
 {{- else if .Values.externalAccessConfig.gateway.enabled }}

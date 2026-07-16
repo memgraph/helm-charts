@@ -94,9 +94,11 @@ externalAccessConfig:
     # Empty = no external access service will be created. Allowed values are LoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all data instances' services
-    # For serviceType: IngressNginx these are merged with coordinator.annotations and applied
-    # to the shared ingress-nginx controller Service; the external-dns hostname below is also
-    # used to set each instance's external bolt_server. On a key collision coordinator wins.
+    # For serviceType: IngressNginx, the annotations of all IngressNginx tiers are merged
+    # (coordinator wins on a key collision) and applied to the single shared ingress-nginx
+    # controller Service. That Service is one LB with one external-dns hostname, so every
+    # IngressNginx instance's external bolt_server uses that shared hostname (instances are told
+    # apart by port, not host) — set the same hostname on both tiers.
     # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.data.example.com"
@@ -104,8 +106,11 @@ externalAccessConfig:
     # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all coordinators' services
-    # For serviceType: IngressNginx these are merged with dataInstance.annotations (coordinator
-    # wins on key collision) and applied to the shared ingress-nginx controller Service.
+    # For serviceType: IngressNginx, merged with dataInstance.annotations (coordinator wins) onto
+    # the shared ingress-nginx controller Service — see the dataInstance note above.
+    # For serviceType: CommonLoadBalancer, applied to the single "coordinators" LoadBalancer
+    # Service; its external-dns hostname sets every coordinator's external bolt_server as
+    # hostname:boltPort (the same shared address for all coordinators).
     # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.coordinators.example.com"
