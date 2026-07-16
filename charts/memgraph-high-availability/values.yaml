@@ -91,19 +91,32 @@ ports:
 
 externalAccessConfig:
   dataInstance:
-    # Empty = no external access service will be created
+    # Empty = no external access service will be created. Allowed values are LoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all data instances' services
+    # For serviceType: IngressNginx, the annotations of all IngressNginx tiers are merged
+    # (coordinator wins on a key collision) and applied to the single shared ingress-nginx
+    # controller Service. That Service is one LB with one external-dns hostname, so every
+    # IngressNginx instance's external bolt_server uses that shared hostname (instances are told
+    # apart by port, not host) — set the same hostname on both tiers.
     # Example:
     # annotations:
-      # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
+      # external-dns.alpha.kubernetes.io/hostname: "memgraph.data.example.com"
   coordinator:
-    # Empty = no external access service will be created
+    # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all coordinators' services
+    # For serviceType: IngressNginx, merged with dataInstance.annotations (coordinator wins) onto
+    # the shared ingress-nginx controller Service — see the dataInstance note above.
+    # For serviceType: CommonLoadBalancer, applied to the single "coordinators" LoadBalancer
+    # Service; its external-dns hostname sets every coordinator's external bolt_server as
+    # hostname:boltPort (the same shared address for all coordinators).
+    # Example:
+    # annotations:
+      # external-dns.alpha.kubernetes.io/hostname: "memgraph.coordinators.example.com"
   ingress:
-    dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
-    coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
+    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
+    coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
   gateway:
     enabled: false
     gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
@@ -111,8 +124,8 @@ externalAccessConfig:
     existingGatewayNamespace: "" # Namespace of the existing Gateway. Defaults to release namespace if empty
     annotations: {}
     labels: {}
-    dataPortBase: 9000 # Data instance ports: dataPortBase + array index (9000, 9001, ...)
-    coordinatorPortBase: 9010 # Coordinator ports: coordinatorPortBase + coordinator id (9011, 9012, ...)
+    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
+    coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
 
 headlessService:
   enabled: false # If set to true, each data and coordinator instance will use headless service
@@ -426,6 +439,14 @@ commonArgs:
 # If setting the --memory-limit flag under data instances, check that the amount of resources that a pod has been given is more than the actual memory limit you give to Memgraph
 # Setting the Memgraph's memory limit to more than the available resources can trigger pod eviction and restarts before Memgraph can make a query exception and continue running
 # the pod.
+#
+# Each data instance's `id` must be a unique, non-negative integer (given as a string,
+# e.g. "0", "1", "2"). The cluster-setup Job derives the registered instance name from
+# it as instance_<id+1> (so ids 0,1,2 -> instance_1,instance_2,instance_3). Because the
+# name is bound to the id (not the array position), you can add or remove any instance —
+# including one in the middle of the list — and it will be registered/unregistered
+# correctly on the next upgrade. Non-numeric ids are not supported (they would all
+# collapse to the same name).
 data:
   - id: "0"
     restoreDataFromSnapshot: false

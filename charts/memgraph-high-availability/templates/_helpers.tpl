@@ -33,6 +33,40 @@ chart to coexist in the same namespace without name collisions.
 {{- end -}}
 
 
+{{/*
+Validate the external access configuration. Fails rendering when mutually
+exclusive options are enabled. Included from the core StatefulSet templates so
+it triggers at template time (helm template / lint), not only when the
+cluster-setup hook runs.
+*/}}
+{{- define "memgraph.validateExternalAccess" -}}
+{{- $ingressNginx := or (eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq .Values.externalAccessConfig.coordinator.serviceType "IngressNginx") -}}
+{{- if and $ingressNginx .Values.externalAccessConfig.gateway.enabled -}}
+{{- fail "IngressNginx serviceType (externalAccessConfig.dataInstance/coordinator.serviceType) and externalAccessConfig.gateway.enabled are mutually exclusive; use only one." -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Annotations for the shared ingress-nginx controller Service. Only tiers whose
+serviceType is "IngressNginx" contribute — a CommonLoadBalancer/LoadBalancer/
+NodePort tier gets its own service elsewhere and must not leak its external-dns
+hostname onto the ingress controller. When both tiers are IngressNginx the maps
+are merged and the coordinator value wins on a key collision (last-write-wins).
+Rendered as YAML — callers pipe through `fromYaml` to get a dict back.
+*/}}
+{{- define "memgraph.externalAccessAnnotations" -}}
+{{- $out := dict -}}
+{{- if eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx" -}}
+{{- $out = mergeOverwrite $out (.Values.externalAccessConfig.dataInstance.annotations | default dict) -}}
+{{- end -}}
+{{- if eq .Values.externalAccessConfig.coordinator.serviceType "IngressNginx" -}}
+{{- $out = mergeOverwrite $out (.Values.externalAccessConfig.coordinator.annotations | default dict) -}}
+{{- end -}}
+{{- $out | toYaml -}}
+{{- end -}}
+
+
 {{/* Common labels */}}
 {{- define "memgraph.labels" -}}
 app.kubernetes.io/name: {{ include "memgraph.name" . }}

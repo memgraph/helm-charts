@@ -1,3 +1,4 @@
+{{- include "memgraph.validateExternalAccess" . }}
 {{- if and (not .Values.storage.coordinators.createLogStorageClaim) .Values.commonArgs.coordinators.logging.log_file }}
 {{- fail (printf "storage.coordinators.createLogStorageClaim is false but commonArgs.coordinators.logging.log_file is %q. Set commonArgs.coordinators.logging.log_file to \"\" to disable file logging, or set storage.coordinators.createLogStorageClaim to true." .Values.commonArgs.coordinators.logging.log_file) }}
 {{- end }}

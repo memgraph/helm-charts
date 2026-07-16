@@ -20,7 +20,7 @@ metadata:
 data:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
-  {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
+  {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
   {{- end }}
   {{- end }}
   {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
@@ -366,6 +366,10 @@ metadata:
     app.kubernetes.io/version: 1.12.0
   name: ingress-nginx-controller
   namespace: ingress-nginx
+  {{- with (include "memgraph.externalAccessAnnotations" $ | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   externalTrafficPolicy: Local
   ipFamilies:
@@ -375,8 +379,8 @@ spec:
   {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
   - name: tcp-data-{{ $data.id }}
-    port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
-    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $index) }}
+    port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
+    targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
     protocol: TCP
   {{- end }}
   {{- end }}

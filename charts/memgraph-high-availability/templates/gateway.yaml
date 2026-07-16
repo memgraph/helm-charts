@@ -24,7 +24,7 @@ spec:
   {{- range $index, $data := .Values.data }}
     - name: data-{{ $data.id }}-bolt
       protocol: TCP
-      port: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $index) }}
+      port: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int $data.id) }}
       allowedRoutes:
         kinds:
           - group: gateway.networking.k8s.io
