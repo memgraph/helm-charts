@@ -91,24 +91,27 @@ ports:
 
 externalAccessConfig:
   dataInstance:
-    # Empty = no external access service will be created. Allowed values are LoadBalancer and NodePort.
+    # Empty = no external access service will be created. Allowed values are LoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all data instances' services
+    # For serviceType: IngressNginx these are merged with coordinator.annotations and applied
+    # to the shared ingress-nginx controller Service; the external-dns hostname below is also
+    # used to set each instance's external bolt_server. On a key collision coordinator wins.
     # Example:
     # annotations:
-      # external-dns.alpha.kubernetes.io/hostname: "coordinators.memgraph.example.com"
+      # external-dns.alpha.kubernetes.io/hostname: "memgraph.data.example.com"
   coordinator:
-    # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer and NodePort.
+    # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer, NodePort and IngressNginx.
     serviceType: ""
     annotations: {} # Set of annotations applied to all coordinators' services
+    # For serviceType: IngressNginx these are merged with dataInstance.annotations (coordinator
+    # wins on key collision) and applied to the shared ingress-nginx controller Service.
+    # Example: 
+    # annotations:
+      # external-dns.alpha.kubernetes.io/hostname: "memgraph.coordinators.example.com"
   ingress:
-    enabled: false
     dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
     coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
-    annotations: {}
-    # Example:
-    # annotations:
-      # external-dns.alpha.kubernetes.io/hostname: "memgraph.example.com"
   gateway:
     enabled: false
     gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)

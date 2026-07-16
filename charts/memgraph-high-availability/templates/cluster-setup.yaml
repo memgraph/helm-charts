@@ -3,24 +3,49 @@
 {{- include "memgraph.validateExternalAccess" . }}
 
 {{/*
-  When external access is exposed through ingress or gateway with an
-  external-dns hostname, instances are reachable on that hostname at a
-  per-instance port (dataPortBase + id / coordinatorPortBase + id). In that
-  case the routing "bolt_server" registered with the coordinators must point to
-  the external hostname:port so clients get an externally reachable address.
+  When a tier is exposed through ingress-nginx or gateway with an external-dns
+  hostname, its instances are reachable on that hostname at a per-instance port
+  (dataPortBase + id / coordinatorPortBase + id), so the routing "bolt_server"
+  registered with the coordinators must point to that external hostname:port.
   The management/coordinator/replication servers stay internal (intra-cluster).
+
+  This is resolved PER TIER: data instances use the dataInstance tier's own
+  service type + external-dns hostname, and coordinators use the coordinator
+  tier's own — the two can differ (e.g. data via IngressNginx, coordinators via
+  CommonLoadBalancer). Only IngressNginx/gateway give each instance a unique
+  external port; CommonLoadBalancer/LoadBalancer/NodePort keep the internal
+  bolt_server (a shared LB can't address individual instances by port).
 */}}
-{{- $externalHost := "" }}
-{{- $externalDataPortBase := 0 }}
-{{- $externalCoordPortBase := 0 }}
-{{- if .Values.externalAccessConfig.ingress.enabled }}
-  {{- $externalHost = index (.Values.externalAccessConfig.ingress.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
-  {{- $externalDataPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
-  {{- $externalCoordPortBase = int .Values.externalAccessConfig.ingress.coordinatorPortBase }}
+{{/*
+  Per instance the external port is either unique (IngressNginx / gateway give
+  portBase + id) or a single shared port (CommonLoadBalancer / LoadBalancer put
+  every instance behind one bolt port). $*ExternalPort, when > 0, is that shared
+  fixed port and takes precedence over $*ExternalPortBase + id in the loops below.
+*/}}
+{{- $dataExternalHost := "" }}
+{{- $dataExternalPortBase := 0 }}
+{{- $dataExternalPort := 0 }}
+{{- $coordExternalHost := "" }}
+{{- $coordExternalPortBase := 0 }}
+{{- $coordExternalPort := 0 }}
+{{- if eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx" }}
+  {{- $dataExternalHost = index (.Values.externalAccessConfig.dataInstance.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $dataExternalPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
 {{- else if .Values.externalAccessConfig.gateway.enabled }}
-  {{- $externalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
-  {{- $externalDataPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
-  {{- $externalCoordPortBase = int .Values.externalAccessConfig.gateway.coordinatorPortBase }}
+  {{- $dataExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $dataExternalPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
+{{- end }}
+{{- if eq .Values.externalAccessConfig.coordinator.serviceType "IngressNginx" }}
+  {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $coordExternalPortBase = int .Values.externalAccessConfig.ingress.coordinatorPortBase }}
+{{- else if eq .Values.externalAccessConfig.coordinator.serviceType "CommonLoadBalancer" }}
+  {{- /* One shared LB for all coordinators on the bolt port; every coordinator
+         is reached at the same hostname:boltPort. */}}
+  {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $coordExternalPort = int .Values.ports.boltPort }}
+{{- else if .Values.externalAccessConfig.gateway.enabled }}
+  {{- $coordExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
+  {{- $coordExternalPortBase = int .Values.externalAccessConfig.gateway.coordinatorPortBase }}
 {{- end }}
 
 apiVersion: batch/v1
@@ -300,8 +325,12 @@ spec:
               # Add all coordinators
               {{- range .Values.coordinators }}
               {{- $coordBoltServer := printf "memgraph-coordinator-%s.%s.svc.%s:%v" .id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
-              {{- if $externalHost }}
-              {{- $coordBoltServer = printf "%s:%d" $externalHost (add $externalCoordPortBase (int .id)) }}
+              {{- if $coordExternalHost }}
+              {{- if gt $coordExternalPort 0 }}
+              {{- $coordBoltServer = printf "%s:%d" $coordExternalHost $coordExternalPort }}
+              {{- else }}
+              {{- $coordBoltServer = printf "%s:%d" $coordExternalHost (add $coordExternalPortBase (int .id)) }}
+              {{- end }}
               {{- end }}
               run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "{{ $coordBoltServer }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
               # ADD COORDINATOR no-ops if already registered, so reconcile bolt_server
@@ -315,8 +344,12 @@ spec:
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
               {{- $dataBoltServer := printf "memgraph-data-%s.%s.svc.%s:%v" $instance.id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
-              {{- if $externalHost }}
-              {{- $dataBoltServer = printf "%s:%d" $externalHost (add $externalDataPortBase (int $instance.id)) }}
+              {{- if $dataExternalHost }}
+              {{- if gt $dataExternalPort 0 }}
+              {{- $dataBoltServer = printf "%s:%d" $dataExternalHost $dataExternalPort }}
+              {{- else }}
+              {{- $dataBoltServer = printf "%s:%d" $dataExternalHost (add $dataExternalPortBase (int $instance.id)) }}
+              {{- end }}
               {{- end }}
               run_ddl_with_retries "REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }}" 'REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               # REGISTER INSTANCE no-ops if already registered, so reconcile bolt_server

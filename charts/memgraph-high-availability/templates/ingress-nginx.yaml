@@ -1,4 +1,4 @@
-{{- if $.Values.externalAccessConfig.ingress.enabled }}
+{{- if or (eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx") }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -18,11 +18,15 @@ metadata:
   name: tcp-services  # If you change it, make sure that you change in the ingress-nginx.yaml file too
   namespace: ingress-nginx
 data:
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
   {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}: "{{ $.Release.Namespace }}/memgraph-data-{{ $data.id }}:{{ $.Values.ports.boltPort }}"
   {{- end }}
+  {{- end }}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   {{- range $.Values.coordinators }}
   {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}: "{{ $.Release.Namespace }}/memgraph-coordinator-{{ .id }}:{{ $.Values.ports.boltPort }}"
+  {{- end }}
   {{- end }}
 ---
 apiVersion: v1
@@ -362,7 +366,7 @@ metadata:
     app.kubernetes.io/version: 1.12.0
   name: ingress-nginx-controller
   namespace: ingress-nginx
-  {{- with $.Values.externalAccessConfig.ingress.annotations }}
+  {{- with (include "memgraph.externalAccessAnnotations" $ | fromYaml) }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -372,17 +376,21 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
+  {{- if eq $.Values.externalAccessConfig.dataInstance.serviceType "IngressNginx"}}
   {{- range $index, $data := $.Values.data }}
   - name: tcp-data-{{ $data.id }}
     port: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
     targetPort: {{ add (int $.Values.externalAccessConfig.ingress.dataPortBase) (int $data.id) }}
     protocol: TCP
   {{- end }}
+  {{- end }}
+  {{- if eq $.Values.externalAccessConfig.coordinator.serviceType "IngressNginx"}}
   {{- range $.Values.coordinators }}
   - name: tcp-coord-{{ .id }}
     port: {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}
     targetPort: {{ add (int $.Values.externalAccessConfig.ingress.coordinatorPortBase) (int .id) }}
     protocol: TCP
+  {{- end }}
   {{- end }}
   - appProtocol: http
     name: http
