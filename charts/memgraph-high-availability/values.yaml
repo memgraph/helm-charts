@@ -106,7 +106,7 @@ externalAccessConfig:
     annotations: {} # Set of annotations applied to all coordinators' services
     # For serviceType: IngressNginx these are merged with dataInstance.annotations (coordinator
     # wins on key collision) and applied to the shared ingress-nginx controller Service.
-    # Example: 
+    # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.coordinators.example.com"
   ingress:
