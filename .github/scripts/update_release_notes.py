@@ -18,6 +18,7 @@ import os
 import re
 import subprocess
 import sys
+import urllib.error
 from collections import defaultdict
 
 from _common import find_release_note, github_request, paginate
@@ -32,7 +33,10 @@ TYPE_SECTIONS = [
     ("bug", "Bug fixes"),
     ("infrastructure", "Infrastructure"),
 ]
-PR_REF = re.compile(r"\(#(\d+)\)")
+# Squash-merges append the PR number as the last "(#N)" on the subject line.
+# Anchor to end-of-line so issue refs embedded in the PR title (e.g.
+# "fix foo (#233) (#261)") are not mistaken for the PR number.
+PR_REF = re.compile(r"\(#(\d+)\)\s*$")
 
 
 def parse_tag(tag: str) -> tuple[str, str] | None:
@@ -95,17 +99,26 @@ def extract_pr_numbers(commits: list[dict]) -> list[int]:
         message = commit.get("commit", {}).get("message", "")
         # Only look at the first line (squash-merge PR refs are in the subject).
         subject = message.split("\n", 1)[0]
-        for match in PR_REF.finditer(subject):
-            n = int(match.group(1))
-            if n not in seen:
-                seen.add(n)
-                ordered.append(n)
+        match = PR_REF.search(subject)
+        if not match:
+            continue
+        n = int(match.group(1))
+        if n not in seen:
+            seen.add(n)
+            ordered.append(n)
     return ordered
 
 
-def fetch_pr(repo: str, pr_number: int, token: str) -> dict:
-    with github_request(f"https://api.github.com/repos/{repo}/pulls/{pr_number}", token) as resp:
-        return json.loads(resp.read())
+def fetch_pr(repo: str, pr_number: int, token: str) -> dict | None:
+    try:
+        with github_request(f"https://api.github.com/repos/{repo}/pulls/{pr_number}", token) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # Not a pull request (e.g. an issue ref that leaked through); skip.
+            print(f"  #{pr_number}: not a pull request (404); skipping")
+            return None
+        raise
 
 
 def fetch_pr_comment_bodies(repo: str, pr_number: int, token: str) -> list[str]:
@@ -154,6 +167,8 @@ def process_tag(tag: str, repo: str, token: str, all_tags: list[str]) -> None:
     grouped: dict[str, list[str]] = defaultdict(list)
     for pr_number in pr_numbers:
         pr = fetch_pr(repo, pr_number, token)
+        if pr is None:
+            continue
         labels = [l["name"] for l in pr.get("labels", [])]
         if component_label not in labels:
             continue

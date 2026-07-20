@@ -78,7 +78,10 @@ def main() -> int:
     prs: dict[int, dict] = {}
     notes: dict[int, str | None] = {}
     for pr_number in pr_numbers:
-        prs[pr_number] = fetch_pr(repo, pr_number, token)
+        pr = fetch_pr(repo, pr_number, token)
+        if pr is None:
+            continue
+        prs[pr_number] = pr
         notes[pr_number] = next(
             (n for n in (find_release_note(b) for b in fetch_pr_comment_bodies(repo, pr_number, token)) if n),
             None,
@@ -87,7 +90,10 @@ def main() -> int:
     for chart, component_label in CHART_LABELS.items():
         grouped: dict[str, list[str]] = defaultdict(list)
         for pr_number in pr_numbers:
-            labels = [l["name"] for l in prs[pr_number].get("labels", [])]
+            pr = prs.get(pr_number)
+            if pr is None:
+                continue
+            labels = [l["name"] for l in pr.get("labels", [])]
             if component_label not in labels:
                 continue
             type_label = primary_type(labels)
