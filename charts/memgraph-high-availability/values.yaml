@@ -99,6 +99,10 @@ externalAccessConfig:
     # controller Service. That Service is one LB with one external-dns hostname, so every
     # IngressNginx instance's external bolt_server uses that shared hostname (instances are told
     # apart by port, not host) — set the same hostname on both tiers.
+    # For serviceType: LoadBalancer, do NOT set an external-dns hostname here: each instance gets
+    # its own LB Service, so a tier-level hostname would put one DNS record in front of every LB
+    # and register the same bolt_server for all instances. Set the hostname per instance in
+    # data[].externalAccessAnnotations instead.
     # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.data.example.com"
@@ -111,6 +115,10 @@ externalAccessConfig:
     # For serviceType: CommonLoadBalancer, applied to the single "coordinators" LoadBalancer
     # Service; its external-dns hostname sets every coordinator's external bolt_server as
     # hostname:boltPort (the same shared address for all coordinators).
+    # For serviceType: LoadBalancer, do NOT set an external-dns hostname here: each coordinator
+    # gets its own LB Service, so a tier-level hostname would put one DNS record in front of every
+    # LB and register the same bolt_server for all coordinators. Set the hostname per instance in
+    # coordinators[].externalAccessAnnotations instead.
     # Example:
     # annotations:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.coordinators.example.com"
