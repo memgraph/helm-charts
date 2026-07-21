@@ -19,6 +19,11 @@
   externalAccessAnnotations (merged with the tier annotations, per-instance
   winning — the same merge the external service templates apply) at the shared
   bolt port. NodePort keeps the internal bolt_server.
+
+  The gateway only applies to a tier whose serviceType is EMPTY — a tier with a
+  serviceType set gets its external access from that service type instead
+  (validation fails the render when gateway.enabled and both tiers have a
+  serviceType, since the Gateway would then apply to nothing).
 */}}
 {{/*
   Per instance the external port is either unique (IngressNginx / gateway give
@@ -45,7 +50,7 @@
 {{- if eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx" }}
   {{- $dataExternalHost = $ingressHost }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
-{{- else if .Values.externalAccessConfig.gateway.enabled }}
+{{- else if and .Values.externalAccessConfig.gateway.enabled (eq .Values.externalAccessConfig.dataInstance.serviceType "") }}
   {{- $dataExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
 {{- end }}
@@ -57,7 +62,7 @@
          coordinator is reached at the same hostname:boltPort. */}}
   {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $coordExternalPort = int .Values.ports.boltPort }}
-{{- else if .Values.externalAccessConfig.gateway.enabled }}
+{{- else if and .Values.externalAccessConfig.gateway.enabled (eq .Values.externalAccessConfig.coordinator.serviceType "") }}
   {{- $coordExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $coordExternalPortBase = int .Values.externalAccessConfig.gateway.coordinatorPortBase }}
 {{- end }}

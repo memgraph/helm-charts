@@ -1,6 +1,14 @@
 {{- if .Values.externalAccessConfig.gateway.enabled }}
+{{- include "memgraph.validateExternalAccess" . }}
 {{- $gatewayName := .Values.externalAccessConfig.gateway.existingGatewayName | default (printf "%s-gateway" (include "memgraph.fullname" .)) }}
 {{- $gatewayNamespace := .Values.externalAccessConfig.gateway.existingGatewayNamespace | default .Release.Namespace }}
+{{/*
+  A tier whose serviceType is set gets its external access from that service
+  type instead — the Gateway only exposes tiers with an empty serviceType.
+  Validation above guarantees at least one tier qualifies.
+*/}}
+{{- $gatewayData := eq (.Values.externalAccessConfig.dataInstance.serviceType | default "") "" }}
+{{- $gatewayCoords := eq (.Values.externalAccessConfig.coordinator.serviceType | default "") "" }}
 {{- if not .Values.externalAccessConfig.gateway.existingGatewayName }}
 {{- if not .Values.externalAccessConfig.gateway.gatewayClassName }}
   {{- fail "externalAccessConfig.gateway.gatewayClassName is required when gateway is enabled and existingGatewayName is not set." }}
@@ -21,6 +29,7 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.externalAccessConfig.gateway.gatewayClassName }}
   listeners:
+  {{- if $gatewayData }}
   {{- range $index, $data := .Values.data }}
     - name: data-{{ $data.id }}-bolt
       protocol: TCP
@@ -30,6 +39,8 @@ spec:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
   {{- end }}
+  {{- end }}
+  {{- if $gatewayCoords }}
   {{- range .Values.coordinators }}
     - name: coordinator-{{ .id }}-bolt
       protocol: TCP
@@ -39,7 +50,9 @@ spec:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
   {{- end }}
+  {{- end }}
 {{- end }}
+{{- if $gatewayData }}
 {{- range $index, $data := .Values.data }}
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -59,6 +72,8 @@ spec:
         - name: memgraph-data-{{ $data.id }}
           port: {{ $.Values.ports.boltPort }}
 {{- end }}
+{{- end }}
+{{- if $gatewayCoords }}
 {{- range .Values.coordinators }}
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -77,5 +92,6 @@ spec:
     - backendRefs:
         - name: memgraph-coordinator-{{ .id }}
           port: {{ $.Values.ports.boltPort }}
+{{- end }}
 {{- end }}
 {{- end }}
