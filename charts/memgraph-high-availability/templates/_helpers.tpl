@@ -40,9 +40,12 @@ it triggers at template time (helm template / lint), not only when the
 cluster-setup hook runs.
 */}}
 {{- define "memgraph.validateExternalAccess" -}}
-{{- $ingressNginx := or (eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx") (eq .Values.externalAccessConfig.coordinator.serviceType "IngressNginx") -}}
-{{- if and $ingressNginx .Values.externalAccessConfig.gateway.enabled -}}
-{{- fail "IngressNginx serviceType (externalAccessConfig.dataInstance/coordinator.serviceType) and externalAccessConfig.gateway.enabled are mutually exclusive; use only one." -}}
+{{- if .Values.externalAccessConfig.gateway.enabled -}}
+{{- $dataHasServiceType := ne (.Values.externalAccessConfig.dataInstance.serviceType | default "") "" -}}
+{{- $coordHasServiceType := ne (.Values.externalAccessConfig.coordinator.serviceType | default "") "" -}}
+{{- if and $dataHasServiceType $coordHasServiceType -}}
+{{- fail "externalAccessConfig.gateway.enabled requires at least one tier without a serviceType: a tier with dataInstance/coordinator.serviceType set is excluded from the Gateway, so with both set the Gateway would apply to nothing. Unset one serviceType or disable the gateway." -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 

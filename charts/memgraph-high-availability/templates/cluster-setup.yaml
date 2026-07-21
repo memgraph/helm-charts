@@ -13,13 +13,23 @@
   service type + external-dns hostname, and coordinators use the coordinator
   tier's own — the two can differ (e.g. data via IngressNginx, coordinators via
   CommonLoadBalancer). Only IngressNginx/gateway give each instance a unique
-  external port; CommonLoadBalancer/LoadBalancer/NodePort keep the internal
-  bolt_server (a shared LB can't address individual instances by port).
+  external port; CommonLoadBalancer shares one hostname:boltPort across all
+  coordinators; LoadBalancer gives each instance its own LB Service, so its
+  hostname is resolved PER INSTANCE from the instance's
+  externalAccessAnnotations (merged with the tier annotations, per-instance
+  winning — the same merge the external service templates apply) at the shared
+  bolt port. NodePort keeps the internal bolt_server.
+
+  The gateway only applies to a tier whose serviceType is EMPTY — a tier with a
+  serviceType set gets its external access from that service type instead
+  (validation fails the render when gateway.enabled and both tiers have a
+  serviceType, since the Gateway would then apply to nothing).
 */}}
 {{/*
   Per instance the external port is either unique (IngressNginx / gateway give
-  portBase + id) or a single shared port (CommonLoadBalancer / LoadBalancer put
-  every instance behind one bolt port). $*ExternalPort, when > 0, is that shared
+  portBase + id) or a single shared port (CommonLoadBalancer puts every
+  coordinator behind one bolt port; a per-instance LoadBalancer exposes its
+  instance on the bolt port too). $*ExternalPort, when > 0, is that shared
   fixed port and takes precedence over $*ExternalPortBase + id in the loops below.
 */}}
 {{- $dataExternalHost := "" }}
@@ -40,7 +50,7 @@
 {{- if eq .Values.externalAccessConfig.dataInstance.serviceType "IngressNginx" }}
   {{- $dataExternalHost = $ingressHost }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.ingress.dataPortBase }}
-{{- else if .Values.externalAccessConfig.gateway.enabled }}
+{{- else if and .Values.externalAccessConfig.gateway.enabled (eq .Values.externalAccessConfig.dataInstance.serviceType "") }}
   {{- $dataExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $dataExternalPortBase = int .Values.externalAccessConfig.gateway.dataPortBase }}
 {{- end }}
@@ -52,10 +62,19 @@
          coordinator is reached at the same hostname:boltPort. */}}
   {{- $coordExternalHost = index (.Values.externalAccessConfig.coordinator.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $coordExternalPort = int .Values.ports.boltPort }}
-{{- else if .Values.externalAccessConfig.gateway.enabled }}
+{{- else if and .Values.externalAccessConfig.gateway.enabled (eq .Values.externalAccessConfig.coordinator.serviceType "") }}
   {{- $coordExternalHost = index (.Values.externalAccessConfig.gateway.annotations | default dict) "external-dns.alpha.kubernetes.io/hostname" | default "" }}
   {{- $coordExternalPortBase = int .Values.externalAccessConfig.gateway.coordinatorPortBase }}
 {{- end }}
+{{/*
+  LoadBalancer = one dedicated LB Service per instance, so the external-dns
+  hostname is per instance, not per tier — it is read inside the registration
+  loops below from the instance's externalAccessAnnotations merged with the
+  tier annotations (per-instance wins, mirroring services-*-external.yaml).
+  An instance without a hostname annotation keeps the internal bolt_server.
+*/}}
+{{- $dataPerInstanceLB := eq .Values.externalAccessConfig.dataInstance.serviceType "LoadBalancer" }}
+{{- $coordPerInstanceLB := eq .Values.externalAccessConfig.coordinator.serviceType "LoadBalancer" }}
 
 apiVersion: batch/v1
 kind: Job
@@ -340,13 +359,18 @@ spec:
               {{- else }}
               {{- $coordBoltServer = printf "%s:%d" $coordExternalHost (add $coordExternalPortBase (int .id)) }}
               {{- end }}
+              {{- else if $coordPerInstanceLB }}
+              {{- $coordLBAnnotations := mergeOverwrite (dict) ($.Values.externalAccessConfig.coordinator.annotations | default dict) (.externalAccessAnnotations | default dict) }}
+              {{- with index $coordLBAnnotations "external-dns.alpha.kubernetes.io/hostname" }}
+              {{- $coordBoltServer = printf "%s:%v" . $.Values.ports.boltPort }}
+              {{- end }}
               {{- end }}
               run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "{{ $coordBoltServer }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
               # ADD COORDINATOR no-ops if already registered, so reconcile bolt_server
               # separately. $coordBoltServer is the external-dns host:port when
-              # ingress/gateway is enabled, otherwise the internal cluster address, so
-              # this both applies hostname changes and reverts to internal when the
-              # external access is turned off.
+              # ingress/gateway/per-instance LoadBalancer is enabled, otherwise the
+              # internal cluster address, so this both applies hostname changes and
+              # reverts to internal when the external access is turned off.
               reconcile_bolt_server "coordinator_{{ .id }}" "COORDINATOR {{ .id }}" "{{ $coordBoltServer }}"
               {{- end }}
 
@@ -359,13 +383,19 @@ spec:
               {{- else }}
               {{- $dataBoltServer = printf "%s:%d" $dataExternalHost (add $dataExternalPortBase (int $instance.id)) }}
               {{- end }}
+              {{- else if $dataPerInstanceLB }}
+              {{- $dataLBAnnotations := mergeOverwrite (dict) ($.Values.externalAccessConfig.dataInstance.annotations | default dict) ($instance.externalAccessAnnotations | default dict) }}
+              {{- with index $dataLBAnnotations "external-dns.alpha.kubernetes.io/hostname" }}
+              {{- $dataBoltServer = printf "%s:%v" . $.Values.ports.boltPort }}
+              {{- end }}
               {{- end }}
               run_ddl_with_retries "REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }}" 'REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               # REGISTER INSTANCE no-ops if already registered, so reconcile bolt_server
               # separately. $dataBoltServer is the external-dns host:port when
-              # ingress/gateway is enabled, otherwise the internal cluster address, so
-              # this both applies hostname changes and reverts to internal when the
-              # external access is turned off. The instance name is keyed by the data
+              # ingress/gateway/per-instance LoadBalancer is enabled, otherwise the
+              # internal cluster address, so this both applies hostname changes and
+              # reverts to internal when the external access is turned off. The
+              # instance name is keyed by the data
               # instance .id (name = instance_<id+1>), not array position, so removing a
               # middle entry leaves the other instances' names and endpoints untouched.
               # The +1 keeps names identical to the previous index-based scheme for the
