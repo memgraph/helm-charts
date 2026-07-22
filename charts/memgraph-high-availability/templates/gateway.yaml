@@ -59,6 +59,10 @@ apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
   name: {{ include "memgraph.fullname" $ }}-data-{{ $data.id }}-bolt
+  {{- with $.Values.externalAccessConfig.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "memgraph.labels" $ | nindent 4 }}
     app: memgraph-data-{{ $data.id }}
@@ -80,6 +84,10 @@ apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
   name: {{ include "memgraph.fullname" $ }}-coordinator-{{ .id }}-bolt
+  {{- with $.Values.externalAccessConfig.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "memgraph.labels" $ | nindent 4 }}
     app: memgraph-coordinator-{{ .id }}

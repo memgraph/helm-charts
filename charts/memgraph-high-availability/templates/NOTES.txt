@@ -1,3 +1,11 @@
+***********************************************************************
+* Memgraph High Availability                                          *
+***********************************************************************
+  Chart version: {{ .Chart.Version }}
+  App version:   {{ .Chart.AppVersion }}
+  Image tag:     {{ .Values.image.repository }}:{{ .Values.image.tag }}
+***********************************************************************
+
 Thank you for installing the Memgraph High-availability cluster (Enterprise)! 🎉
 
 You can find information about installing this chart on Memgraph docs https://memgraph.com/docs/getting-started/install-memgraph/kubernetes.
