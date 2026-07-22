@@ -17,6 +17,6 @@ charts/memgraph-high-availability/charts/
 # Terraform
 .terraform/
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
 *.tfplan
 .terraform.lock.hcl
