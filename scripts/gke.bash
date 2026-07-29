@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-CLUSTER_NAME="${CLUSTER_NAME:-memgraph-standalone}"
+CLUSTER_NAME="${CLUSTER_NAME:-memgraph-ha}"
 ZONE="${ZONE:-europe-west2-a}"
-CLUSTER_SIZE="${CLUSTER_SIZE:-1}"
+CLUSTER_SIZE="${CLUSTER_SIZE:-6}"
 MACHINE_TYPE="${MACHINE_TYPE:-e2-medium}"
 
 # NOTE: Assumes installed gcloud (https://cloud.google.com/sdk/docs/install)
