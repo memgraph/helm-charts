@@ -41,15 +41,21 @@ spec:
   {{- end }}
   {{- end }}
   {{- if $gatewayCoords }}
-  {{- range .Values.coordinators }}
-    - name: coordinator-{{ .id }}-bolt
+  {{- /*
+    One shared listener for ALL coordinators (not one per coordinator), on the
+    Bolt port: the single TCPRoute below lists every coordinator Service as a
+    backendRef, so the Gateway round-robins new connections across them. A
+    client only needs one address — host:boltPort, the same port it would use
+    in-cluster — and it keeps working when the coordinator it happened to land
+    on goes away.
+  */}}
+    - name: coordinators-bolt
       protocol: TCP
-      port: {{ add (int $.Values.externalAccessConfig.gateway.coordinatorPortBase) (int .id) }}
+      port: {{ .Values.ports.boltPort }}
       allowedRoutes:
         kinds:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
-  {{- end }}
   {{- end }}
 {{- end }}
 {{- if $gatewayData }}
@@ -78,28 +84,34 @@ spec:
 {{- end }}
 {{- end }}
 {{- if $gatewayCoords }}
-{{- range .Values.coordinators }}
 ---
+{{- /*
+  A single TCPRoute for all coordinators. Multiple backendRefs with equal
+  (default) weight make the Gateway distribute connections round-robin over the
+  coordinator Services, so clients get one stable entrypoint into the cluster
+  instead of one address per coordinator.
+*/}}
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
 metadata:
-  name: {{ include "memgraph.fullname" $ }}-coordinator-{{ .id }}-bolt
-  {{- with $.Values.externalAccessConfig.gateway.annotations }}
+  name: {{ include "memgraph.fullname" . }}-coordinators-bolt
+  {{- with .Values.externalAccessConfig.gateway.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{- include "memgraph.labels" $ | nindent 4 }}
-    app: memgraph-coordinator-{{ .id }}
+    {{- include "memgraph.labels" . | nindent 4 }}
+    app: memgraph-coordinators
 spec:
   parentRefs:
     - name: {{ $gatewayName }}
       namespace: {{ $gatewayNamespace }}
-      sectionName: coordinator-{{ .id }}-bolt
+      sectionName: coordinators-bolt
   rules:
     - backendRefs:
+      {{- range .Values.coordinators }}
         - name: memgraph-coordinator-{{ .id }}
           port: {{ $.Values.ports.boltPort }}
-{{- end }}
+      {{- end }}
 {{- end }}
 {{- end }}

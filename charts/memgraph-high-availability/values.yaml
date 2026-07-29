@@ -136,8 +136,12 @@ externalAccessConfig:
     existingGatewayNamespace: "" # Namespace of the existing Gateway. Defaults to release namespace if empty
     annotations: {}
     labels: {}
-    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...)
-    coordinatorPortBase: 10000 # Coordinator ports: coordinatorPortBase + coordinator id (10001, 10002, ...). Kept well above dataPortBase so the data and coordinator port ranges never overlap.
+    dataPortBase: 9000 # Data instance ports: dataPortBase + data instance id (9000, 9001, ...). Each data instance needs its own port because clients must reach a specific instance.
+    # Coordinators share ONE listener, on ports.boltPort (7687): a single TCPRoute
+    # fans out to every coordinator Service, so the Gateway load-balances
+    # (round-robin) across them and every coordinator's external bolt_server is
+    # that same host:boltPort. Keep dataPortBase away from ports.boltPort so the
+    # data and coordinator listener ports never collide.
 
 headlessService:
   enabled: false # If set to true, each data and coordinator instance will use headless service
