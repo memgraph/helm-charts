@@ -108,7 +108,7 @@ externalAccessConfig:
       # external-dns.alpha.kubernetes.io/hostname: "memgraph.data.example.com"
   coordinator:
     # Empty = no external access service will be created. Allowed values are LoadBalancer, CommonLoadBalancer, NodePort and IngressNginx.
-    serviceType: ""
+    serviceType: "CommonLoadBalancer"
     annotations: {} # Set of annotations applied to all coordinators' services
     # For serviceType: IngressNginx, merged with dataInstance.annotations (coordinator wins) onto
     # the shared ingress-nginx controller Service — see the dataInstance note above.
@@ -130,8 +130,8 @@ externalAccessConfig:
     # dataInstance/coordinator.serviceType set is excluded from the Gateway and uses that
     # service type instead. Enabling the gateway with BOTH serviceTypes set is an error
     # (the Gateway would apply to nothing).
-    enabled: false
-    gatewayClassName: "" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+    enabled: true
+    gatewayClassName: "traefik" # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
     existingGatewayName: "" # If set, skip Gateway creation and attach routes to this existing Gateway
     existingGatewayNamespace: "" # Namespace of the existing Gateway. Defaults to release namespace if empty
     annotations: {}

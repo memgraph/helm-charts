@@ -82,15 +82,21 @@ ingress:
   #      - chart-example.local
 
 gateway:
-  enabled: false
-  gatewayClassName: ""  # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
+  enabled: true
+  gatewayClassName: "traefik"  # Required when creating a new Gateway. Name of a pre-existing GatewayClass (e.g., "eg" for Envoy Gateway)
   existingGatewayName: ""  # If set, skip Gateway creation and attach routes to this existing Gateway
   existingGatewayNamespace: ""  # Namespace of the existing Gateway. Defaults to release namespace if empty
   annotations: {}
   labels: {}
   listeners:
+    # NOTE for Traefik: a Gateway listener port must match an existing Traefik
+    # entryPoint's container port, and the Traefik pod runs as non-root so it
+    # cannot bind port 80. Use port 8000 to attach to Traefik's built-in `web`
+    # entryPoint (8000 -> exposed as 80), or 8443 for `websecure`. Controllers
+    # that program listener ports from the Gateway spec (Envoy Gateway, Cilium)
+    # work with port 80 as-is. See examples/gateway/traefik-values.yaml.
     - name: lab-http
-      port: 80
+      port: 8000
       protocol: HTTP
     # - name: https
     #   port: 443

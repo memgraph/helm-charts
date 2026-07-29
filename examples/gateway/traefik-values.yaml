@@ -1,25 +1,3 @@
-# Traefik values for using the Memgraph Helm charts with the Kubernetes Gateway API.
-#
-# Prerequisites — the Traefik chart ships NO Gateway API CRDs, and TCPRoute lives
-# in the experimental channel, so install them first:
-#
-#   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml
-#
-# Install:
-#   helm repo add traefik https://traefik.github.io/charts && helm repo update
-#   helm install traefik traefik/traefik -n traefik --create-namespace \
-#     -f examples/gateway/traefik-values.yaml
-#
-# Then install the charts with gatewayClassName "traefik":
-#   helm install ha charts/memgraph-high-availability \
-#     --set externalAccessConfig.gateway.enabled=true \
-#     --set externalAccessConfig.gateway.gatewayClassName=traefik
-#
-# IMPORTANT: unlike Envoy Gateway, Traefik does not program arbitrary listener
-# ports. Every port used by a Gateway listener must be declared as an entryPoint
-# in the `ports` section below, otherwise the listener is silently ignored
-# (listener status shows Detached / UnsupportedProtocol).
-
 providers:
   kubernetesGateway:
     enabled: true
@@ -46,6 +24,10 @@ service:
   type: LoadBalancer
 
 ports:
+  # Memgraph Lab (charts/memgraph-lab, gateway.enabled=true) needs NO entryPoint
+  # here — it uses the Traefik chart's built-in `web` entryPoint (container port
+  # 8000, exposed as 80).
+  
   # Data instances: externalAccessConfig.gateway.dataPortBase + data instance id.
   # Defaults are dataPortBase 9000 with instance ids 0 and 1.
   data-0:
@@ -61,38 +43,7 @@ ports:
     expose:
       default: true
 
-  # Commented out because the recommended approach is to use CommonLoadBalancer for coordinators
-  # Coordinators: externalAccessConfig.gateway.coordinatorPortBase + coordinator id.
-  # Defaults are coordinatorPortBase 10000 with coordinator ids 1, 2 and 3.
-  # coord-1:
-  #   port: 10001
-  #   exposedPort: 10001
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-  # coord-2:
-  #   port: 10002
-  #   exposedPort: 10002
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-  # coord-3:
-  #   port: 10003
-  #   exposedPort: 10003
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-
-  # Memgraph Lab (charts/memgraph-lab, gateway.enabled=true) uses an HTTP
-  # listener. Either point that listener at Traefik's built-in `web` entryPoint
-  # (container port 8000, exposed as 80), or uncomment the entryPoint below and
-  # set the Lab listener port to 80.
-  # lab:
-  #   port: 80
-  #   exposedPort: 80
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-
 # Add more entryPoints whenever you scale the cluster: a new data instance with
-# id 2 needs port 9002, a fourth coordinator needs 10004, and so on.
+# id 2 needs port 9002, a fourth coordinator needs 10004, and so on. Scaling the
+# cluster therefore means a Traefik upgrade as well — which is why
+# CommonLoadBalancer is the recommended path for coordinators.
