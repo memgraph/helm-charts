@@ -274,14 +274,31 @@ spec:
               #   $1 target      - name in SHOW INSTANCES ("instance_1"/"coordinator_1")
               #   $2 subject      - UPDATE CONFIG subject ("INSTANCE instance_1"/"COORDINATOR 1")
               #   $3 desired      - desired bolt_server "host:port"
+              #   $4 authoritative - "true" when $3 comes from an external access
+              #     setting in values (external-dns hostname via ingress / gateway /
+              #     LoadBalancer / CommonLoadBalancer), "false" when it is merely the
+              #     default internal cluster address because no external access is
+              #     configured.
+              #
+              # When $4 is "false" the chart has no opinion on how the instance should
+              # be reached from outside, so a divergent registered value is treated as
+              # a deliberate out-of-band change (e.g. an operator pointed bolt_server
+              # at a Traefik address by hand with UPDATE CONFIG) and is LEFT ALONE.
+              # Overwriting it would silently break external clients on every
+              # `helm upgrade` / ArgoCD sync. The trade-off: removing external access
+              # from values no longer reverts bolt_server to the internal address —
+              # configure the address through values (annotations) if you want the
+              # chart to own it, or run UPDATE CONFIG by hand to go back.
               reconcile_bolt_server() {
-                local target="$1" subject="$2" desired="$3"
+                local target="$1" subject="$2" desired="$3" authoritative="${4:-true}"
                 local current
                 current="$(get_registered_bolt_server "$target")"
                 if [ -z "$current" ]; then
                   echo "ℹ️  Could not read current bolt_server for ${target}; skipping UPDATE CONFIG."
                 elif [ "$current" = "$desired" ]; then
                   echo "✅ ${target} bolt_server already up to date (${desired})."
+                elif [ "$authoritative" != "true" ]; then
+                  echo "ℹ️  ${target} bolt_server is ${current}, which differs from this chart's default internal address (${desired}). No external access is configured in values for this tier, so the existing value is kept (assumed to be an intentional out-of-band override). Set it through externalAccessConfig if the chart should manage it."
                 else
                   echo "🔄 ${target} bolt_server changed (${current} -> ${desired}); updating."
                   run_ddl_with_retries "UPDATE CONFIG FOR ${subject}" "UPDATE CONFIG FOR ${subject} {'bolt_server': '${desired}'};"
@@ -353,7 +370,11 @@ spec:
               # Add all coordinators
               {{- range .Values.coordinators }}
               {{- $coordBoltServer := printf "memgraph-coordinator-%s.%s.svc.%s:%v" .id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
+              {{/* Stays false while $coordBoltServer is only the default internal
+                   address; set to true as soon as values dictate an external one. */}}
+              {{- $coordChartManaged := false }}
               {{- if $coordExternalHost }}
+              {{- $coordChartManaged = true }}
               {{- if gt $coordExternalPort 0 }}
               {{- $coordBoltServer = printf "%s:%d" $coordExternalHost $coordExternalPort }}
               {{- else }}
@@ -363,21 +384,27 @@ spec:
               {{- $coordLBAnnotations := mergeOverwrite (dict) ($.Values.externalAccessConfig.coordinator.annotations | default dict) (.externalAccessAnnotations | default dict) }}
               {{- with index $coordLBAnnotations "external-dns.alpha.kubernetes.io/hostname" }}
               {{- $coordBoltServer = printf "%s:%v" . $.Values.ports.boltPort }}
+              {{- $coordChartManaged = true }}
               {{- end }}
               {{- end }}
               run_ddl_with_retries "ADD COORDINATOR {{ .id }}" 'ADD COORDINATOR {{ .id }} WITH CONFIG {"bolt_server": "{{ $coordBoltServer }}", "management_server": "memgraph-coordinator-{{ .id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "coordinator_server": "memgraph-coordinator-{{ .id }}.{{$.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.coordinatorPort }}"};'
               # ADD COORDINATOR no-ops if already registered, so reconcile bolt_server
               # separately. $coordBoltServer is the external-dns host:port when
-              # ingress/gateway/per-instance LoadBalancer is enabled, otherwise the
-              # internal cluster address, so this both applies hostname changes and
-              # reverts to internal when the external access is turned off.
-              reconcile_bolt_server "coordinator_{{ .id }}" "COORDINATOR {{ .id }}" "{{ $coordBoltServer }}"
+              # ingress/gateway/per-instance LoadBalancer is enabled — the chart owns
+              # the value then and applies hostname changes. Without external access in
+              # values it is only the default internal address, and $coordChartManaged
+              # is false, so an out-of-band bolt_server is preserved instead of reverted.
+              reconcile_bolt_server "coordinator_{{ .id }}" "COORDINATOR {{ .id }}" "{{ $coordBoltServer }}" "{{ $coordChartManaged }}"
               {{- end }}
 
               # Register all data instances
               {{- range $index, $instance := .Values.data }}
               {{- $dataBoltServer := printf "memgraph-data-%s.%s.svc.%s:%v" $instance.id $.Release.Namespace $.Values.clusterDomain $.Values.ports.boltPort }}
+              {{/* Stays false while $dataBoltServer is only the default internal
+                   address; set to true as soon as values dictate an external one. */}}
+              {{- $dataChartManaged := false }}
               {{- if $dataExternalHost }}
+              {{- $dataChartManaged = true }}
               {{- if gt $dataExternalPort 0 }}
               {{- $dataBoltServer = printf "%s:%d" $dataExternalHost $dataExternalPort }}
               {{- else }}
@@ -387,20 +414,22 @@ spec:
               {{- $dataLBAnnotations := mergeOverwrite (dict) ($.Values.externalAccessConfig.dataInstance.annotations | default dict) ($instance.externalAccessAnnotations | default dict) }}
               {{- with index $dataLBAnnotations "external-dns.alpha.kubernetes.io/hostname" }}
               {{- $dataBoltServer = printf "%s:%v" . $.Values.ports.boltPort }}
+              {{- $dataChartManaged = true }}
               {{- end }}
               {{- end }}
               run_ddl_with_retries "REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }}" 'REGISTER INSTANCE instance_{{ add (int $instance.id) 1 }} WITH CONFIG {"bolt_server": "{{ $dataBoltServer }}", "management_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.managementPort }}", "replication_server": "memgraph-data-{{ $instance.id }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.ports.replicationPort }}"};'
               # REGISTER INSTANCE no-ops if already registered, so reconcile bolt_server
               # separately. $dataBoltServer is the external-dns host:port when
-              # ingress/gateway/per-instance LoadBalancer is enabled, otherwise the
-              # internal cluster address, so this both applies hostname changes and
-              # reverts to internal when the external access is turned off. The
-              # instance name is keyed by the data
+              # ingress/gateway/per-instance LoadBalancer is enabled — the chart owns
+              # the value then and applies hostname changes. Without external access in
+              # values it is only the default internal address, and $dataChartManaged is
+              # false, so an out-of-band bolt_server is preserved instead of reverted.
+              # The instance name is keyed by the data
               # instance .id (name = instance_<id+1>), not array position, so removing a
               # middle entry leaves the other instances' names and endpoints untouched.
               # The +1 keeps names identical to the previous index-based scheme for the
               # default 0-based ids (instance_1, instance_2, ...), so upgrades are safe.
-              reconcile_bolt_server "instance_{{ add (int $instance.id) 1 }}" "INSTANCE instance_{{ add (int $instance.id) 1 }}" "{{ $dataBoltServer }}"
+              reconcile_bolt_server "instance_{{ add (int $instance.id) 1 }}" "INSTANCE instance_{{ add (int $instance.id) 1 }}" "{{ $dataBoltServer }}" "{{ $dataChartManaged }}"
               {{- end }}
 
               # Elect the first data instance as MAIN only on a fresh bootstrap.

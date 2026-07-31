@@ -89,6 +89,17 @@ ports:
   coordinatorPort: 12000
   metricsPort: 9091
 
+# The routing address ("bolt_server") that coordinators hand back to clients is derived from
+# the settings below and reconciled by the cluster-setup Job on every install/upgrade:
+#   * When a tier's external access resolves to an external-dns hostname (IngressNginx, gateway,
+#     LoadBalancer, CommonLoadBalancer), the chart OWNS bolt_server for that tier and rewrites it
+#     with UPDATE CONFIG whenever the rendered value changes.
+#   * When it does not (no serviceType, NodePort, or an external access setup with no external-dns
+#     hostname annotation), the chart only has the default internal cluster address. If the
+#     registered bolt_server differs, it is assumed to be a deliberate out-of-band change made
+#     with UPDATE CONFIG and is LEFT AS IS — the chart will not overwrite it on `helm upgrade` or
+#     an ArgoCD sync. Consequence: clearing external access from these values does not revert
+#     bolt_server to the internal address; run UPDATE CONFIG by hand to do that.
 externalAccessConfig:
   dataInstance:
     # Empty = no external access service will be created. Allowed values are LoadBalancer, NodePort and IngressNginx.
