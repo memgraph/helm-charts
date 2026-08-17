@@ -448,13 +448,13 @@ initContainers:
 commonArgs:
   data: # Common args for data instances
     logging:
-      log_level: "TRACE" # Must not be empty.
+      log_level: "INFO" # Must not be empty.
       also_log_to_stderr: true # Can only be bool
       log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
       log_retention_days: 35 # For how many days should logs get persisted
   coordinators: # Common args for coordinator instances
     logging:
-      log_level: "TRACE" # Must not be empty.
+      log_level: "INFO" # Must not be empty.
       also_log_to_stderr: true # Can only be bool
       log_file: "/var/log/memgraph/memgraph.log" # If empty, log file won't be created
       log_retention_days: 35
