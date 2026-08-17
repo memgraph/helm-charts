@@ -23,7 +23,7 @@
     {
       "datasource": {
         "type": "victoriametrics-logs-datasource",
-        "uid": "victorialogs"
+        "uid": "${logs_datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -107,7 +107,7 @@
         {
           "datasource": {
             "type": "victoriametrics-logs-datasource",
-            "uid": "victorialogs"
+            "uid": "${logs_datasource}"
           },
           "editorMode": "code",
           "expr": "app:memgraph pod:$pod level:$level | stats by (_time:1m) count() as logs",
@@ -117,7 +117,7 @@
         {
           "datasource": {
             "type": "victoriametrics-logs-datasource",
-            "uid": "victorialogs"
+            "uid": "${logs_datasource}"
           },
           "editorMode": "code",
           "expr": "app:memgraph pod:$pod level:$level | stats by (_time:1m, service_name) count() as logs",
@@ -131,7 +131,7 @@
     {
       "datasource": {
         "type": "victoriametrics-logs-datasource",
-        "uid": "victorialogs"
+        "uid": "${logs_datasource}"
       },
       "fieldConfig": {
         "defaults": {},
@@ -162,7 +162,7 @@
         {
           "datasource": {
             "type": "victoriametrics-logs-datasource",
-            "uid": "victorialogs"
+            "uid": "${logs_datasource}"
           },
           "editorMode": "code",
           "expr": "* cluster_id:$cluster_id cluster_env:$cluster_env service_uuid:$service_uuid service_name:$service_name instance_id:$instance_id instance:$instance database_name:$database_name pod:$pod level:$level",
@@ -183,6 +183,34 @@
   "templating": {
     "list": [
       {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Logs data source",
+        "multi": false,
+        "name": "logs_datasource",
+        "options": [],
+        "query": "victoriametrics-logs-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metrics data source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
         "allValue": ".*",
         "current": {
           "text": "All",
@@ -190,7 +218,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count, cluster_id)",
         "includeAll": true,
@@ -216,7 +244,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\"}, cluster_env)",
         "includeAll": true,
@@ -242,7 +270,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\"}, service_name)",
         "includeAll": true,
@@ -268,7 +296,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\"}, service_uuid)",
         "includeAll": true,
@@ -294,7 +322,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", service_uuid=~\"$service_uuid\"}, instance_id)",
         "includeAll": true,
@@ -320,7 +348,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", service_uuid=~\"$service_uuid\", instance_id=~\"$instance_id\"}, database_name)",
         "includeAll": true,
@@ -346,7 +374,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "victoriametrics"
+          "uid": "${datasource}"
         },
         "definition": "label_values(edge_count{cluster_id=~\"$cluster_id\", cluster_env=~\"$cluster_env\", service_name=~\"$service_name\", service_uuid=~\"$service_uuid\", instance_id=~\"$instance_id\", database_name=~\"$database_name\"}, instance)",
         "includeAll": true,
@@ -372,7 +400,7 @@
         },
         "datasource": {
           "type": "victoriametrics-logs-datasource",
-          "uid": "victorialogs"
+          "uid": "${logs_datasource}"
         },
         "definition": "field_values(pod)",
         "includeAll": true,
@@ -400,7 +428,7 @@
         },
         "datasource": {
           "type": "victoriametrics-logs-datasource",
-          "uid": "victorialogs"
+          "uid": "${logs_datasource}"
         },
         "definition": "field_values(level)",
         "includeAll": true,
