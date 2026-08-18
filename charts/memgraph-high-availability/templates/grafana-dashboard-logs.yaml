@@ -1,0 +1,17 @@
+{{- if .Values.vectorRemote.grafanaDashboard.enabled }}
+# The "Memgraph Logs" dashboard, provisioned as a ConfigMap for a Grafana sidecar
+# (e.g. kube-prometheus-stack) to discover via the grafana_dashboard label.
+# It queries the logs shipped by the Vector sidecars from VictoriaLogs, and uses
+# datasource template variables rather than hardcoded UIDs: a VictoriaLogs
+# datasource for the panels and a Prometheus datasource for the filter variables.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "memgraph.fullname" . }}-grafana-dashboard-logs
+  namespace: {{ .Values.vectorRemote.grafanaDashboard.namespace | default .Values.prometheus.namespace | default .Release.Namespace }}
+  labels:
+    {{ .Values.vectorRemote.grafanaDashboard.label | default "grafana_dashboard" }}: "1"
+data:
+  memgraph_victorialogs.json: |
+{{ .Files.Get "dashboards/memgraph_victorialogs.json" | indent 4 }}
+{{- end }}

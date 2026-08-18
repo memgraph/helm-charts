@@ -140,13 +140,29 @@ For an in-cluster Prometheus (e.g. `kube-prometheus-stack`), set `prometheus.ser
 
 Set `prometheus.grafanaDashboard.enabled=true` to ship the bundled "Memgraph OpenMetrics" dashboard as a ConfigMap (labelled `grafana_dashboard`) for the Grafana sidecar to auto-load. It uses a datasource template variable, so it binds to Grafana's default Prometheus. The ConfigMap must live in a namespace the sidecar watches — set `prometheus.grafanaDashboard.namespace` to Grafana's namespace (or run the sidecar with `searchNamespace: ALL`).
 
-### Example Grafana dashboards
-Ready-to-import dashboards live under [`examples/dashboards/`](./examples/dashboards/):
+### Grafana dashboards
+Both charts bundle two dashboards under `charts/<chart>/dashboards/`, each shipped as a `ConfigMap` (labelled `grafana_dashboard`) for a Grafana sidecar to auto-load, and each behind its own flag:
 
-- [`memgraph_openmetrics.json`](./examples/dashboards/memgraph_openmetrics.json) — Memgraph metrics scraped directly from the OpenMetrics endpoint (`scrapeMemgraphDirectly=true`).
-- [`memgraph_victorialogs.json`](./examples/dashboards/memgraph_victorialogs.json) — Memgraph logs shipped by `vectorRemote`, queried from VictoriaLogs.
+| Dashboard | Enable with | Shows |
+| --- | --- | --- |
+| **Memgraph OpenMetrics** ([standalone](./charts/memgraph/dashboards/memgraph_openmetrics.json), [HA](./charts/memgraph-high-availability/dashboards/memgraph_openmetrics.json)) | `prometheus.grafanaDashboard.enabled=true` | Memgraph metrics from the OpenMetrics endpoint (`scrapeMemgraphDirectly=true`) |
+| **Memgraph Logs** ([standalone](./charts/memgraph/dashboards/memgraph_victorialogs.json), [HA](./charts/memgraph-high-availability/dashboards/memgraph_victorialogs.json)) | `vectorRemote.grafanaDashboard.enabled=true` | Memgraph logs shipped by `vectorRemote`, queried from VictoriaLogs |
 
-Both use datasource template variables, so pick your Prometheus-compatible ("Metrics data source") and VictoriaLogs ("Logs data source") datasources after importing.
+```yaml
+prometheus:
+  grafanaDashboard:
+    enabled: true
+    namespace: monitoring   # must be a namespace the Grafana sidecar watches
+
+vectorRemote:
+  grafanaDashboard:
+    enabled: true
+    namespace: monitoring
+```
+
+Each `ConfigMap` must live in a namespace the sidecar watches — set `namespace` to Grafana's namespace (or run the sidecar with `searchNamespace: ALL`). Both default to `prometheus.namespace`, else the release namespace.
+
+If you do not run a Grafana sidecar, import the JSON files above by hand instead. Both use datasource template variables rather than hardcoded datasource UIDs. The OpenMetrics dashboard needs a Prometheus-compatible datasource ("Data source"); the logs dashboard needs a VictoriaLogs datasource ("Logs data source") plus a Prometheus-compatible one ("Metrics data source") that populates its filters.
 
 ### Standalone chart example
 ```yaml
