@@ -414,6 +414,18 @@ vectorRemote:
     usernameKey: username
     passwordKey: password
   extraLabels: {}  # e.g. cluster_id, service_name, cluster_env; role is set per pod type (data/coordinator)
+  # Provision the "Memgraph Logs" Grafana dashboard as a ConfigMap for a Grafana
+  # sidecar (e.g. kube-prometheus-stack) to auto-load. The dashboard queries the logs
+  # shipped by the Vector sidecars from VictoriaLogs, and uses datasource template
+  # variables: a VictoriaLogs datasource for the panels and a Prometheus datasource
+  # for the filter variables.
+  grafanaDashboard:
+    enabled: false
+    # Namespace for the ConfigMap; must be one the Grafana sidecar watches (default:
+    # prometheus.namespace, else the release namespace).
+    namespace: ""
+    # Label the Grafana sidecar selects dashboards by.
+    label: grafana_dashboard
   resources: {}
 
 extraEnv:
