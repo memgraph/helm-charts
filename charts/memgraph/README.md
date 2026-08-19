@@ -146,7 +146,7 @@ The `memgraphConfig` parameter should be a list of strings defining the values o
 ```yaml
 memgraphConfig:
   - "--also-log-to-stderr=true"
-  - "--log-level=TRACE"
+  - "--log-level=INFO"
   - "--log-file=''"
 
 ```
