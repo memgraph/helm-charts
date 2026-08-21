@@ -301,6 +301,9 @@ spec:
           {{- with $.Values.storage.data.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
+          {{- with $data.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -354,6 +357,9 @@ spec:
       {{- end }}
       {{- if $.Values.storage.data.extraVolumes }}
       {{- tpl (toYaml $.Values.storage.data.extraVolumes) $ | nindent 6 }}
+      {{- end }}
+      {{- if $data.extraVolumes }}
+      {{- tpl (toYaml $data.extraVolumes) $ | nindent 6 }}
       {{- end }}
 
   volumeClaimTemplates:
