@@ -33,8 +33,9 @@ providers:
         # external-dns.alpha.kubernetes.io/hostname annotation on the Gateway.
         enabled: true
 
-# The Memgraph charts create their own Gateway (one listener per data instance
-# and coordinator), so the chart's default Gateway is not needed.
+# The Memgraph charts create their own Gateway (one listener per data instance,
+# plus one shared listener for all coordinators), so the chart's default Gateway
+# is not needed.
 gateway:
   enabled: false
 
@@ -61,24 +62,13 @@ ports:
     expose:
       default: true
 
-  # Commented out because the recommended approach is to use CommonLoadBalancer for coordinators
-  # Coordinators: externalAccessConfig.gateway.coordinatorPortBase + coordinator id.
-  # Defaults are coordinatorPortBase 10000 with coordinator ids 1, 2 and 3.
-  # coord-1:
-  #   port: 10001
-  #   exposedPort: 10001
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-  # coord-2:
-  #   port: 10002
-  #   exposedPort: 10002
-  #   protocol: TCP
-  #   expose:
-  #     default: true
-  # coord-3:
-  #   port: 10003
-  #   exposedPort: 10003
+  # Commented out because the recommended approach is to use CommonLoadBalancer for coordinators.
+  # Coordinators share ONE listener on ports.boltPort (default 7687) — a single
+  # TCPRoute round-robins over all coordinators, so one entryPoint covers the whole
+  # coordinator tier no matter how many there are.
+  # coordinators:
+  #   port: 7687
+  #   exposedPort: 7687
   #   protocol: TCP
   #   expose:
   #     default: true
@@ -94,5 +84,6 @@ ports:
   #   expose:
   #     default: true
 
-# Add more entryPoints whenever you scale the cluster: a new data instance with
-# id 2 needs port 9002, a fourth coordinator needs 10004, and so on.
+# Add more entryPoints whenever you scale the data tier: a new data instance with
+# id 2 needs port 9002, and so on. Adding coordinators needs no new entryPoint —
+# they all share the single coordinator port.

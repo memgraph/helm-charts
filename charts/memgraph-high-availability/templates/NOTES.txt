@@ -12,4 +12,15 @@ You can find information about installing this chart on Memgraph docs https://me
 {{- if .Values.externalAccessConfig.gateway.enabled }}
 
 Gateway API external access is enabled.
+{{- if eq (.Values.externalAccessConfig.dataInstance.serviceType | default "") "" }}
+  Data instances: one listener per instance on port dataPortBase + id:
+  {{- range .Values.data }}
+    - data {{ .id }}: {{ add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int .id) }}
+  {{- end }}
+{{- end }}
+{{- if eq (.Values.externalAccessConfig.coordinator.serviceType | default "") "" }}
+  Coordinators: a single listener on the Bolt port ({{ .Values.ports.boltPort }}) with one TCPRoute
+  fanning out to all {{ len .Values.coordinators }} coordinators, so connections are load balanced
+  (round-robin) across them. Point your client at that one port.
+{{- end }}
 {{- end }}

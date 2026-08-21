@@ -41,10 +41,25 @@ cluster-setup hook runs.
 */}}
 {{- define "memgraph.validateExternalAccess" -}}
 {{- if .Values.externalAccessConfig.gateway.enabled -}}
+{{- if or (hasKey .Values.externalAccessConfig.gateway "coordinatorPortBase") (hasKey .Values.externalAccessConfig.gateway "coordinatorPort") -}}
+{{- fail "externalAccessConfig.gateway.coordinatorPortBase/coordinatorPort no longer exist: all coordinators now share one Gateway listener/TCPRoute on ports.boltPort, so connections are load balanced across them instead of one port per coordinator. Remove the value; change ports.boltPort if you need a different port." -}}
+{{- end -}}
 {{- $dataHasServiceType := ne (.Values.externalAccessConfig.dataInstance.serviceType | default "") "" -}}
 {{- $coordHasServiceType := ne (.Values.externalAccessConfig.coordinator.serviceType | default "") "" -}}
 {{- if and $dataHasServiceType $coordHasServiceType -}}
 {{- fail "externalAccessConfig.gateway.enabled requires at least one tier without a serviceType: a tier with dataInstance/coordinator.serviceType set is excluded from the Gateway, so with both set the Gateway would apply to nothing. Unset one serviceType or disable the gateway." -}}
+{{- end -}}
+{{- /*
+  Both tiers on the Gateway: the coordinators' shared listener sits on
+  ports.boltPort, so no data listener (dataPortBase + id) may land on it — two
+  TCP listeners on one port conflict and the Gateway rejects them.
+*/ -}}
+{{- if and (not $dataHasServiceType) (not $coordHasServiceType) -}}
+{{- range .Values.data -}}
+{{- if eq (add (int $.Values.externalAccessConfig.gateway.dataPortBase) (int .id)) (int $.Values.ports.boltPort) -}}
+{{- fail (printf "Gateway port conflict: data instance %v maps to port %d (dataPortBase + id), which is ports.boltPort — the port of the shared coordinators listener. Move externalAccessConfig.gateway.dataPortBase away from ports.boltPort." .id (int $.Values.ports.boltPort)) -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
