@@ -488,6 +488,10 @@ data:
     volumeSnapshotName: data-0-snap # Used only if restoreDataFromSnapshot is set to true
     internalAccessAnnotations: {} # Per-instance annotations for internal ClusterIP service
     externalAccessAnnotations: {} # Per-instance annotations for external access service (merged with externalAccessConfig.dataInstance.annotations, per-instance takes precedence)
+    # Optional volumes mounted only by this data instance. Supports Helm templating (e.g. {{ .Release.Name }}).
+    extraVolumes: []
+    # Optional mounts for this data instance. Names must match extraVolumes entries.
+    extraVolumeMounts: []
     tls:
       bolt:
         enabled: false
@@ -514,6 +518,8 @@ data:
     volumeSnapshotName: data-1-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    extraVolumes: []
+    extraVolumeMounts: []
     tls:
       bolt:
         enabled: false
@@ -535,6 +541,10 @@ coordinators:
     volumeSnapshotName: coord-1-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    # Optional volumes mounted only by this coordinator. Supports Helm templating (e.g. {{ .Release.Name }}).
+    extraVolumes: []
+    # Optional mounts for this coordinator. Names must match extraVolumes entries.
+    extraVolumeMounts: []
     tls:
       bolt:
         enabled: false
@@ -554,6 +564,8 @@ coordinators:
     volumeSnapshotName: coord-2-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    extraVolumes: []
+    extraVolumeMounts: []
     tls:
       bolt:
         enabled: false
@@ -573,6 +585,8 @@ coordinators:
     volumeSnapshotName: coord-3-snap
     internalAccessAnnotations: {}
     externalAccessAnnotations: {}
+    extraVolumes: []
+    extraVolumeMounts: []
     tls:
       bolt:
         enabled: false
