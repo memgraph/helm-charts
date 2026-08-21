@@ -122,13 +122,22 @@ spec:
                 local port=$2
                 local max_attempts=60
                 local attempt=0
+                local tcp_error
+                local status
 
                 while [ $attempt -lt $max_attempts ]; do
                   echo "Checking $host:$port (attempt $((attempt+1))/$max_attempts)"
 
-                  if timeout 5 bash -c "cat < /dev/null > /dev/tcp/$host/$port" 2>/dev/null; then
+                  if tcp_error=$(timeout 5 bash -c ">/dev/tcp/\"\$1\"/\"\$2\"" _ "$host" "$port" 2>&1); then
                     echo "✅ $host:$port is ready"
                     return 0
+                  fi
+
+                  status=$?
+                  if [ "$status" -eq 124 ]; then
+                    echo "⏳ $host:$port connection timed out after 5s"
+                  else
+                    echo "⏳ $host:$port is not ready (exit $status): ${tcp_error:-no diagnostic}"
                   fi
 
                   attempt=$((attempt+1))
