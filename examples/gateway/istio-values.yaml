@@ -1,0 +1,64 @@
+# Istiod values for using the Memgraph Helm charts with the Kubernetes Gateway API.
+#
+# Prerequisites — Istio ships NO Gateway API CRDs, and TCPRoute lives in the
+# experimental channel, so install them first (BEFORE istiod — istiod detects
+# the alpha CRDs at startup; if it is already running, restart it afterwards
+# with `kubectl rollout restart deploy/istiod -n istio-system`):
+#
+#   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml
+#
+# Install (only the base and istiod charts are needed — Gateway API gateways
+# are deployed automatically by istiod, so the istio/gateway chart is not used):
+#
+#   helm repo add istio https://istio-release.storage.googleapis.com/charts && helm repo update
+#   helm install istio-base istio/base -n istio-system --create-namespace
+#   helm install istiod istio/istiod -n istio-system --wait \
+#     -f examples/gateway/istio-values.yaml
+#
+# Then install the charts with gatewayClassName "istio" (the GatewayClass is
+# created automatically by Istio):
+#
+#   helm install ha charts/memgraph-high-availability \
+#     --set externalAccessConfig.gateway.enabled=true \
+#     --set externalAccessConfig.gateway.gatewayClassName=istio
+#
+# Unlike Traefik, Istio programs arbitrary listener ports automatically: it
+# provisions a per-Gateway Deployment and LoadBalancer Service carrying every
+# listener port (ports.boltPort for the shared coordinator listener, plus
+# dataPortBase + id per data instance), so scaling the data tier needs no
+# change to these values.
+
+pilot:
+  env:
+    # IMPORTANT: required for TCPRoute (and TLSRoute) support — the Memgraph HA
+    # chart exposes Bolt through TCPRoute, which is an alpha Gateway API
+    # resource. Without this flag istiod rejects the TCP listeners
+    # ('protocol "TCP" is supported, but only when
+    # PILOT_ENABLE_ALPHA_GATEWAY_API=true is configured') and the failure is
+    # easy to misread: the Gateway still shows Programmed=True and its
+    # LoadBalancer Service still lists the ports, but the TCPRoutes get no
+    # status at all and every connection times out because the gateway's Envoy
+    # has no listeners on those ports.
+    PILOT_ENABLE_ALPHA_GATEWAY_API: "true"
+
+    # Only relevant when sidecar-injecting the Memgraph pods themselves
+    # (namespace label istio-injection=enabled) on Kubernetes >= 1.28: native
+    # sidecars let the cluster-setup Job complete (a classic istio-proxy
+    # sidecar keeps the Job pod running forever, hanging the Helm post-install
+    # hook) and start the proxy before Memgraph, so coordinators don't fail
+    # their initial connections to each other. Without native sidecars,
+    # exclude the Job from the mesh instead via
+    # `--set clusterSetup.labels."sidecar\.istio\.io/inject"=false`.
+    # ENABLE_NATIVE_SIDECARS: "true"
+
+# Client routing: the coordinators register in-cluster bolt_server addresses by
+# default, so a driver connecting with neo4j:// (routing mode) through the
+# gateway is handed unreachable internal addresses. Either connect with bolt://
+# directly to the port you want, or set an external-dns hostname on the Gateway
+# so the HA chart registers hostname:boltPort as every coordinator's external
+# bolt_server:
+#
+#   --set externalAccessConfig.gateway.annotations."external-dns\.alpha\.kubernetes\.io/hostname"=memgraph.example.com
+#
+# Istio copies the LoadBalancer address into the Gateway's .status.addresses,
+# which is where external-dns reads it from — no extra Istio config needed.
