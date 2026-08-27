@@ -55,23 +55,14 @@ spec:
         kinds:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
-    # HA coordinator listeners (one per coordinator)
-    - name: coordinator-1-bolt
-      port: 9011
-      protocol: TCP
-      allowedRoutes:
-        kinds:
-          - group: gateway.networking.k8s.io
-            kind: TCPRoute
-    - name: coordinator-2-bolt
-      port: 9012
-      protocol: TCP
-      allowedRoutes:
-        kinds:
-          - group: gateway.networking.k8s.io
-            kind: TCPRoute
-    - name: coordinator-3-bolt
-      port: 9013
+    # HA coordinator listener — ONE shared listener for all coordinators. The
+    # chart creates a single TCPRoute ("coordinators-bolt" sectionName) whose
+    # backendRefs list every coordinator, so the Gateway load balances
+    # (round-robin) across them and scaling the coordinator tier needs no new
+    # listener. The name must be "coordinators-bolt" and the port must match
+    # ports.boltPort (default 7687).
+    - name: coordinators-bolt
+      port: 7687
       protocol: TCP
       allowedRoutes:
         kinds:
