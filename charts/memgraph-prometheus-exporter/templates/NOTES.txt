@@ -1,0 +1,18 @@
+memgraph-prometheus-exporter deployed as {{ include "memgraph-prometheus-exporter.fullname" . }}.
+
+Exporter metrics: http://{{ include "memgraph-prometheus-exporter.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.exporter.port }}/
+
+Instance source:
+{{- if .Values.hosts.existingSecret.name }}
+  existingSecret "{{ .Values.hosts.existingSecret.name }}" (key: {{ .Values.hosts.existingSecret.key }})
+{{- else if .Values.hosts.instances }}
+  explicit list ({{ len .Values.hosts.instances }} instances)
+{{- else if .Values.hosts.cluster.enabled }}
+  templated from naming convention ({{ .Values.hosts.cluster.coordinatorCount }} coordinators + {{ .Values.hosts.cluster.dataCount }} data)
+{{- end }}
+
+{{- if .Values.serviceMonitor.enabled }}
+A ServiceMonitor was created; Prometheus will discover this exporter automatically.
+{{- else }}
+ServiceMonitor is disabled — add a scrape config pointing at the Service above.
+{{- end }}
