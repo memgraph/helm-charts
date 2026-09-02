@@ -1,0 +1,94 @@
+{{- $g := .Values.global | default dict -}}
+{{- $reg := $g.imageRegistry | default .Values.image.registry -}}
+{{- $pullSecrets := $g.imagePullSecrets | default .Values.imagePullSecrets -}}
+{{- $useSecret := .Values.hosts.existingSecret.name -}}
+{{- $configKey := ternary "ha_config.yaml" .Values.hosts.existingSecret.key (empty $useSecret) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "memgraph-prometheus-exporter.fullname" . }}
+  labels: {{- include "memgraph-prometheus-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: {{- include "memgraph-prometheus-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        # exporter reads config once; roll on change (subPath mounts don't refresh)
+        checksum/ha-config: {{ printf "%s-%s" (toJson .Values.hosts) (toJson .Values.exporter) | sha256sum }}
+        {{- if and .Values.reloaderEnabled .Values.hosts.existingSecret.name }}
+        reloader.stakater.com/auto: "true"
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "memgraph-prometheus-exporter.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "memgraph-prometheus-exporter.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      {{- with $pullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: exporter
+          image: "{{ $reg }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: DEPLOYMENT_TYPE
+              value: HA
+            - name: CONFIG_FILE
+              value: /etc/mg-exporter/ha_config.yaml
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.exporter.port }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/mg-exporter/ha_config.yaml
+              subPath: {{ $configKey }}
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          {{- with .Values.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          {{- if $useSecret }}
+          secret:
+            secretName: {{ .Values.hosts.existingSecret.name }}
+          {{- else }}
+          configMap:
+            name: {{ include "memgraph-prometheus-exporter.fullname" . }}-config
+          {{- end }}
+        - name: tmp
+          emptyDir:
+            sizeLimit: 16Mi
+      {{- with .Values.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
