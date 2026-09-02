@@ -62,7 +62,7 @@ spec:
                 operator: In
                 values:
                 - data
-            topologyKey: "kubernetes.io/hostname"
+            topologyKey: {{ $.Values.affinity.topologyKey | quote }}
         {{- else if $.Values.affinity.unique }}
         # Unique Affinity: Schedule pods on different nodes where there is no coordinator or data pod
         podAntiAffinity:
@@ -74,7 +74,7 @@ spec:
                 values:
                 - coordinator
                 - data
-            topologyKey: "kubernetes.io/hostname"
+            topologyKey: {{ $.Values.affinity.topologyKey | quote }}
         {{- else if $.Values.affinity.parity }}
         # Parity Affinity: One coordinator and one data node per node, coordinator schedules first, needs to be in pairs
         podAffinity:
@@ -85,7 +85,7 @@ spec:
                     operator: In
                     values:
                       - coordinator
-              topologyKey: "kubernetes.io/hostname"
+              topologyKey: {{ $.Values.affinity.topologyKey | quote }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -94,7 +94,7 @@ spec:
                 operator: In
                 values:
                 - data
-            topologyKey: "kubernetes.io/hostname"
+            topologyKey: {{ $.Values.affinity.topologyKey | quote }}
         {{- else }}
         # Default Affinity: Avoid scheduling on the same node
         podAntiAffinity:
@@ -107,7 +107,7 @@ spec:
                       operator: In
                       values:
                         - data
-                topologyKey: "kubernetes.io/hostname"
+                topologyKey: {{ $.Values.affinity.topologyKey | quote }}
         {{- end }}
 
       initContainers:
