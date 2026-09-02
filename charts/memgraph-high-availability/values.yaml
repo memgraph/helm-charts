@@ -162,6 +162,8 @@ headlessService:
 # and coordinator pods will avoid being scheduled on the same node as other coordinator pods.
 # Deployment won't fail if there is no sufficient nodes.
 affinity:
+  # The topology domain used by pod affinity and anti-affinity rules.
+  topologyKey: "kubernetes.io/hostname"
   # The unique affinity, will schedule the pods on different nodes in the cluster.
   # This means coordinators and data nodes will not be scheduled on the same node. If there are more pods than nodes, deployment will fail.
   unique: false
