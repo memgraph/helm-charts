@@ -254,6 +254,8 @@ spec:
         {{- include "memgraph.commonLoggingArgs" (dict "logging" $.Values.commonArgs.data.logging "path" "commonArgs.data.logging") | nindent 8 }}
         {{- if $.Values.scrapeMemgraphDirectly }}
         - "--metrics-format=OpenMetrics"
+        {{- else if $.Values.prometheus.enabled }}
+        - "--metrics-format=JSON"
         {{- end }}
         env:
           - name: MEMGRAPH_ENTERPRISE_LICENSE

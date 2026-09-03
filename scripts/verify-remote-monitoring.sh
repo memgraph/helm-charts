@@ -70,16 +70,23 @@ PF_VLOGS_PID=$!
 trap 'kill "$PF_GATEWAY_PID" "$PF_VLOGS_PID" >/dev/null 2>&1 || true' EXIT
 sleep 5
 
+# Assert on real Memgraph series rather than `up`. The mg-exporter answers its
+# own metrics port even when it cannot parse what Memgraph served it, so `up`
+# stays 1 for a deployment that ships no Memgraph metrics at all. Match the
+# memgraph_ prefix instead of one metric name, because the series differ
+# between the direct OpenMetrics scrape and the mg-exporter.
+METRICS_QUERY="count(%7B__name__%3D~%22memgraph_.%2B%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)"
+
 echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
 for i in $(seq 1 40); do
-  resp="$(curl -s -u ci-monitor:ci-monitor-pass "http://127.0.0.1:18080/api/v1/query?query=count(up%7Bjob%3D%22memgraph-exporter%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)")"
+  resp="$(curl -s -u ci-monitor:ci-monitor-pass "http://127.0.0.1:18080/api/v1/query?query=${METRICS_QUERY}")"
   val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
   if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"; then
-    echo -e "${GREEN}Metrics are ingested (matching series: ${val}).${NC}"
+    echo -e "${GREEN}Memgraph metrics are ingested (matching series: ${val}).${NC}"
     break
   fi
   if [[ "$i" -eq 40 ]]; then
-    echo -e "${RED}Timed out waiting for remote metrics ingestion.${NC}"
+    echo -e "${RED}Timed out waiting for Memgraph metrics ingestion (no memgraph_* series reached the gateway).${NC}"
     exit 1
   fi
   echo -e "${YELLOW}Metrics not ingested yet (attempt ${i}/40, value=${val}).${NC}"
