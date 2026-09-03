@@ -315,7 +315,10 @@ initContainers: []
 # anything. You must also enable a scraper:
 #   - in-cluster:  prometheus.serviceMonitor.enabled=true (uses kube-prometheus-stack)
 #   - remote:      vmagentRemote.enabled=true
-# When false, those scrapers read the mg-exporter instead (needs prometheus.enabled=true).
+# When false, those scrapers read the mg-exporter instead (needs prometheus.enabled=true),
+# and the chart pins --metrics-format=JSON because that is the format the exporter reads.
+# Memgraph 3.12 changed the server-side default from JSON to OpenMetrics, so the chart
+# always sets the flag rather than relying on whichever default the image ships with.
 scrapeMemgraphDirectly: false
 
 prometheus:

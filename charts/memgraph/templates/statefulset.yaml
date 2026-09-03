@@ -112,6 +112,8 @@ spec:
           {{- end }}
           {{- if .Values.scrapeMemgraphDirectly }}
           - "--metrics-format=OpenMetrics"
+          {{- else if .Values.prometheus.enabled }}
+          - "--metrics-format=JSON"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
