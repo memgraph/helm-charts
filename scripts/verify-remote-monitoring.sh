@@ -70,23 +70,23 @@ PF_VLOGS_PID=$!
 trap 'kill "$PF_GATEWAY_PID" "$PF_VLOGS_PID" >/dev/null 2>&1 || true' EXIT
 sleep 5
 
-# Assert on real Memgraph series rather than `up`. The mg-exporter answers its
-# own metrics port even when it cannot parse what Memgraph served it, so `up`
-# stays 1 for a deployment that ships no Memgraph metrics at all. Only the
-# direct OpenMetrics scrape carries the memgraph_ prefix; the mg-exporter emits
-# bare names and vmagent relabels neither job, so match both spellings.
-METRICS_QUERY="count(%7B__name__%3D~%22(memgraph_)%3F(vertex_count%7Cedge_count)%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)"
+# The mg-exporter answers its own port and registers every gauge at 0 when it
+# cannot parse what Memgraph served, so series existence proves nothing; only a
+# non-zero value does. Resident memory is never legitimately 0 for a running
+# Memgraph, unlike vertex_count on an empty database. Each scrape path spells
+# the metric differently and vmagent relabels neither job.
+METRICS_QUERY="max(%7B__name__%3D~%22memory_usage%7Cmemgraph_memory_res_bytes%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)"
 
 echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
 for i in $(seq 1 40); do
   resp="$(curl -s -u ci-monitor:ci-monitor-pass "http://127.0.0.1:18080/api/v1/query?query=${METRICS_QUERY}")"
   val="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]).get("data",{}).get("result",[]); print("0" if not r else r[0]["value"][1])' "$resp" 2>/dev/null || echo 0)"
   if python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) > 0 else 1)' "$val"; then
-    echo -e "${GREEN}Memgraph metrics are ingested (matching series: ${val}).${NC}"
+    echo -e "${GREEN}Memgraph metrics are ingested (resident memory: ${val} bytes).${NC}"
     break
   fi
   if [[ "$i" -eq 40 ]]; then
-    echo -e "${RED}Timed out waiting for Memgraph metrics ingestion (no vertex_count/edge_count series reached the gateway).${NC}"
+    echo -e "${RED}Timed out waiting for Memgraph metrics ingestion (no non-zero memory sample reached the gateway; the exporter serves zeroed gauges when it cannot parse Memgraph's output).${NC}"
     exit 1
   fi
   echo -e "${YELLOW}Metrics not ingested yet (attempt ${i}/40, value=${val}).${NC}"
