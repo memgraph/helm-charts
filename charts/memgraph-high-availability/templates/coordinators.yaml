@@ -229,6 +229,9 @@ spec:
           {{- if hasPrefix "--cluster-ca-file" $arg }}
             {{- fail (printf "Do not set --cluster-ca-file in coordinators[id=%s].args; enable coordinators[id=%s].tls.intraCluster instead (auto-appended)." $coordinator.id $coordinator.id) }}
           {{- end }}
+          {{- if hasPrefix "--metrics-format" $arg }}
+            {{- fail (printf "Do not set --metrics-format in coordinators[id=%s].args; it is auto-appended to match the scrape path (scrapeMemgraphDirectly or prometheus.enabled)." $coordinator.id) }}
+          {{- end }}
         {{- end }}
         {{- if and $coordinator.tls.bolt.enabled (not $coordinator.tls.bolt.secretName) }}
           {{- fail (printf "coordinators[id=%s].tls.bolt.enabled is true but secretName is empty." $coordinator.id) }}
