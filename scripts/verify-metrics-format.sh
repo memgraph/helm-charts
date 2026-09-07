@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Asserts that each chart pins --metrics-format to match the scrape path it
 # deploys. The mg-exporter reads Memgraph's JSON endpoint, so a chart that
-# leaves the flag unset breaks against Memgraph >= 3.12, where the server
-# default became OpenMetrics.
+# leaves the flag unset breaks against Memgraph 3.13 and later, where the
+# server default is OpenMetrics.
 
 STANDALONE="charts/memgraph"
 HA="charts/memgraph-high-availability"
