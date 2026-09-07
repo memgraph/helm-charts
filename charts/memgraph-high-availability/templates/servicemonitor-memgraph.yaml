@@ -18,6 +18,11 @@ spec:
   endpoints:
     - port: tcp-metrics-port  # must match the metrics port name on the instance Services
       path: /metrics
+      scheme: {{ $.Values.prometheus.serviceMonitor.scheme }}
+      {{- with $.Values.prometheus.serviceMonitor.tlsConfig }}
+      tlsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       interval: {{ $.Values.prometheus.serviceMonitor.interval }}
   namespaceSelector:
     matchNames:

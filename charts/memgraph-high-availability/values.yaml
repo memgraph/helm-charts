@@ -331,6 +331,15 @@ prometheus:
     enabled: false
     kubePrometheusStackReleaseName: kube-prometheus-stack
     interval: 15s
+    # Protocol used by Prometheus when scraping Memgraph directly. This applies to
+    # every instance selected by this ServiceMonitor, so all instances must expose
+    # their metrics endpoint using the same protocol.
+    scheme: http
+    # Prometheus Operator TLSConfig for direct HTTPS scraping. For example:
+    # tlsConfig:
+    #   insecureSkipVerify: true
+    # For production, prefer caFile/serverName over disabling verification.
+    tlsConfig: {}
   # Provision the generated "Memgraph OpenMetrics" Grafana dashboard as a ConfigMap
   # for a Grafana sidecar (e.g. kube-prometheus-stack) to auto-load. The dashboard
   # uses a datasource template variable, so it binds to Grafana's default Prometheus.
