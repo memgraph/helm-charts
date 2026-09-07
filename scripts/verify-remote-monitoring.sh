@@ -72,10 +72,10 @@ sleep 5
 
 # Assert on real Memgraph series rather than `up`. The mg-exporter answers its
 # own metrics port even when it cannot parse what Memgraph served it, so `up`
-# stays 1 for a deployment that ships no Memgraph metrics at all. Match the
-# memgraph_ prefix instead of one metric name, because the series differ
-# between the direct OpenMetrics scrape and the mg-exporter.
-METRICS_QUERY="count(%7B__name__%3D~%22memgraph_.%2B%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)"
+# stays 1 for a deployment that ships no Memgraph metrics at all. Only the
+# direct OpenMetrics scrape carries the memgraph_ prefix; the mg-exporter emits
+# bare names and vmagent relabels neither job, so match both spellings.
+METRICS_QUERY="count(%7B__name__%3D~%22(memgraph_)%3F(vertex_count%7Cedge_count)%22%2Cservice_name%3D%22${SERVICE_NAME_ESCAPED}%22%7D)"
 
 echo -e "${BLUE}Checking remote_write metrics ingestion...${NC}"
 for i in $(seq 1 40); do
@@ -86,7 +86,7 @@ for i in $(seq 1 40); do
     break
   fi
   if [[ "$i" -eq 40 ]]; then
-    echo -e "${RED}Timed out waiting for Memgraph metrics ingestion (no memgraph_* series reached the gateway).${NC}"
+    echo -e "${RED}Timed out waiting for Memgraph metrics ingestion (no vertex_count/edge_count series reached the gateway).${NC}"
     exit 1
   fi
   echo -e "${YELLOW}Metrics not ingested yet (attempt ${i}/40, value=${val}).${NC}"
