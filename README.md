@@ -135,6 +135,8 @@ vmagentRemote:
 
 When `scrapeMemgraphDirectly=true`, the chart runs each instance with `--metrics-format=OpenMetrics` and exposes the metrics port automatically (for the standalone chart you do not need to set `service.enableHttpMonitoring`). All other `vmagentRemote` / `vectorRemote` settings are the same as the examples below. The metrics endpoint is served over plain HTTP.
 
+Whenever the chart provisions a scraper it pins `--metrics-format` to match it: `OpenMetrics` with `scrapeMemgraphDirectly=true`, `JSON` with `prometheus.enabled=true`, because that is the format the `mg-exporter` reads. Memgraph 3.13 changes the server-side default from `JSON` to `OpenMetrics`, so a chart that leaves the flag unset hands the exporter a payload it cannot parse. With neither switch set the chart pins nothing and Memgraph uses its own default. If you set both, `scrapeMemgraphDirectly` wins and the instances serve OpenMetrics. Setting `--metrics-format` yourself takes precedence in the standalone chart; the HA chart rejects it, so configure the switches instead.
+
 ### In-cluster scraping with kube-prometheus-stack
 For an in-cluster Prometheus (e.g. `kube-prometheus-stack`), set `prometheus.serviceMonitor.enabled=true` to provision a `ServiceMonitor`. By default it scrapes the `mg-exporter`; set the top-level `scrapeMemgraphDirectly=true` to scrape Memgraph's OpenMetrics endpoint directly instead (no exporter; requires Memgraph >= 3.11). The same `scrapeMemgraphDirectly` switch governs both the in-cluster ServiceMonitor and the remote `vmagentRemote`.
 

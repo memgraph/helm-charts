@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "charts/memgraph-high-availability/**"
+      - "scripts/verify-metrics-format.sh"
+      - ".github/workflows/lint-test-high-availability.yaml"
 
 jobs:
   lint-test:
@@ -23,6 +25,9 @@ jobs:
         with:
           python-version: "3.12"
           check-latest: true
+
+      - name: Verify metrics-format pinning
+        run: ./scripts/verify-metrics-format.sh
 
       - name: Download dependencies
         run: |

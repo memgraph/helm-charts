@@ -110,8 +110,18 @@ spec:
           {{- if not .Values.persistentVolumeClaim.createLogStorage }}
           - "--log-file="
           {{- end }}
+          {{- $userSetsMetricsFormat := false }}
+          {{- range .Values.memgraphConfig }}
+            {{- if hasPrefix "--metrics-format" . }}
+              {{- $userSetsMetricsFormat = true }}
+            {{- end }}
+          {{- end }}
+          {{- if not $userSetsMetricsFormat }}
           {{- if .Values.scrapeMemgraphDirectly }}
           - "--metrics-format=OpenMetrics"
+          {{- else if .Values.prometheus.enabled }}
+          - "--metrics-format=JSON"
+          {{- end }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:

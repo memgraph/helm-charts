@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'charts/memgraph/**'
+      - 'scripts/verify-metrics-format.sh'
+      - '.github/workflows/lint-test-memgraph.yml'
 
 
 jobs:
@@ -24,6 +26,9 @@ jobs:
         with:
           python-version: '3.12'
           check-latest: true
+
+      - name: Verify metrics-format pinning
+        run: ./scripts/verify-metrics-format.sh
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
