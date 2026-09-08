@@ -1,0 +1,97 @@
+# Memgraph HA Prometheus exporter — Deployment + Service + optional ServiceMonitor.
+
+nameOverride: ""
+fullnameOverride: ""
+replicaCount: 1
+
+image:
+  # global.imageRegistry (if set) overrides image.registry.
+  registry: docker.io
+  repository: memgraph/prometheus-exporter
+  tag: ""              # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+imagePullSecrets: []  # list of {name: <secret>} objects, e.g. [{name: my-registry-creds}]
+
+exporter:
+  port: 9115
+  pullFrequencySeconds: 5
+
+# Instance list. Precedence: existingSecret > instances > cluster. Modes 2 and 3 need no secret store.
+hosts:
+  # 3) Templated from the tofu-memgraph naming (<namePrefix>-{coordinator,data}-<startIndex+i>.<domain>). Fields are tpl-rendered.
+  cluster:
+    enabled: true
+    namePrefix: ""     # e.g. '{{ .Values.global.env }}-memgraph-adr'
+    domain: ""         # e.g. '{{ .Values.global.internalDomainSuffix }}'
+    coordinatorCount: 3
+    dataCount: 3
+    startIndex: 11
+    scheme: http       # http | https
+    metricsPort: 9091
+    skipTlsVerify: true
+  # 2) Explicit list (overrides cluster). Fields are tpl-rendered.
+  instances: []
+  # 1) Ready ha_config.yaml from a Secret (overrides both above).
+  existingSecret:
+    name: ""
+    key: ha_config.yaml
+
+# Roll the Deployment on Secret change (needs Stakater Reloader); templated modes roll via a config checksum.
+reloaderEnabled: false
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+  automountServiceAccountToken: false
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10000
+  seccompProfile:
+    type: RuntimeDefault
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: metrics
+readinessProbe:
+  httpGet:
+    path: /
+    port: metrics
+
+extraEnv: []
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 128Mi
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+service:
+  type: ClusterIP
+  annotations: {}
+  labels: {}
+
+serviceMonitor:
+  # Enable only where the Prometheus Operator CRDs are installed.
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels: {}
+  targetLabels: []
+  honorLabels: false
+  relabelings: []
+  metricRelabelings: []

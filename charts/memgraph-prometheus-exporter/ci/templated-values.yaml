@@ -1,0 +1,10 @@
+# ct lint case: templated instance list (no external dependency)
+hosts:
+  cluster:
+    enabled: true
+    namePrefix: stg-us-west-2-memgraph-adr
+    domain: stg.internal.bigpanda.io
+    coordinatorCount: 3
+    dataCount: 3
+serviceMonitor:
+  enabled: false
