@@ -1,0 +1,53 @@
+{{- /* ha_config.yaml ConfigMap. Skipped when hosts.existingSecret.name is set. Source: instances > cluster. */ -}}
+{{- if not .Values.hosts.existingSecret.name }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "memgraph-prometheus-exporter.fullname" . }}-config
+  labels: {{- include "memgraph-prometheus-exporter.labels" . | nindent 4 }}
+data:
+  ha_config.yaml: |
+    exporter:
+      port: {{ .Values.exporter.port }}
+      pull_frequency_seconds: {{ .Values.exporter.pullFrequencySeconds }}
+    instances:
+    {{- if .Values.hosts.instances }}
+      {{- range .Values.hosts.instances }}
+      - name: {{ tpl (.name | toString) $ | quote }}
+        url: {{ tpl (.url | toString) $ | quote }}
+        port: {{ .port | default $.Values.hosts.cluster.metricsPort }}
+        type: {{ .type }}
+        {{- if hasKey . "skipTlsVerify" }}
+        skip_tls_verify: {{ .skipTlsVerify }}
+        {{- end }}
+      {{- end }}
+    {{- else if .Values.hosts.cluster.enabled }}
+      {{- $c := .Values.hosts.cluster }}
+      {{- $prefix := tpl ($c.namePrefix | toString) $ }}
+      {{- $domain := tpl ($c.domain | toString) $ }}
+      {{- $start := int $c.startIndex }}
+      {{- $https := eq ($c.scheme | toString) "https" }}
+      {{- range $i := until (int $c.coordinatorCount) }}
+      {{- $n := add $start $i }}
+      - name: coordinator-{{ $n }}
+        url: {{ printf "%s://%s-coordinator-%d.%s" $c.scheme $prefix $n $domain | quote }}
+        port: {{ $c.metricsPort }}
+        type: coordinator
+        {{- if $https }}
+        skip_tls_verify: {{ $c.skipTlsVerify }}
+        {{- end }}
+      {{- end }}
+      {{- range $i := until (int $c.dataCount) }}
+      {{- $n := add $start $i }}
+      - name: data-{{ $n }}
+        url: {{ printf "%s://%s-data-%d.%s" $c.scheme $prefix $n $domain | quote }}
+        port: {{ $c.metricsPort }}
+        type: data_instance
+        {{- if $https }}
+        skip_tls_verify: {{ $c.skipTlsVerify }}
+        {{- end }}
+      {{- end }}
+    {{- else }}
+      {{- fail "memgraph-prometheus-exporter: set hosts.existingSecret.name, hosts.instances, or hosts.cluster.enabled" }}
+    {{- end }}
+{{- end }}
