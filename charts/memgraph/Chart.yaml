@@ -2,8 +2,8 @@ apiVersion: v2
 name: memgraph
 home: https://memgraph.com/
 type: application
-version: 1.0.6
-appVersion: "3.13.0"
+version: 1.0.7
+appVersion: "3.13.1"
 description: MemgraphDB Helm Chart
 keywords:
 - graph
