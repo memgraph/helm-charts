@@ -1,0 +1,19 @@
+apiVersion: v2
+name: memgraph-prometheus-exporter
+description: Standalone Prometheus exporter for a Memgraph High-Availability cluster (memgraph/prometheus-exporter). Polls each node's :9091 JSON metrics endpoint and exposes aggregated + HA cluster-state metrics.
+type: application
+version: 0.1.0
+appVersion: "0.2.3"
+home: https://memgraph.com/
+icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+sources:
+  - https://github.com/memgraph/prometheus-exporter
+  - https://github.com/memgraph/helm-charts
+maintainers:
+  - name: Memgraph
+    email: tech@memgraph.com
+keywords:
+  - memgraph
+  - prometheus
+  - exporter
+  - high-availability

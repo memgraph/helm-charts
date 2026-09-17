@@ -1,0 +1,56 @@
+name: Lint and Test Charts Memgraph Prometheus Exporter
+
+on:
+  pull_request:
+    paths:
+      - 'charts/memgraph-prometheus-exporter/**'
+
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          check-latest: true
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false --charts charts/memgraph-prometheus-exporter --lint-conf lintconf.yaml
+
+      - name: Create kind cluster
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.8.0
+
+      - name: Create exporter config Secret (existing-secret ci case)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          kubectl create secret generic memgraph-adr-exporter-config \
+            --namespace default \
+            --from-literal=ha_config.yaml=$'exporter:\n  port: 9115\n  pull_frequency_seconds: 5\ninstances: []\n'
+
+      - name: Run chart-testing (install)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --target-branch ${{ github.event.repository.default_branch }} --charts charts/memgraph-prometheus-exporter --namespace default
