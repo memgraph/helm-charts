@@ -13,7 +13,7 @@ keywords:
 - database
 - cypher
 - analytics
-icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+icon: https://raw.githubusercontent.com/memgraph/helm-charts/main/img/memgraph-logo.png
 sources:
 - https://github.com/memgraph/memgraph
 maintainers:
