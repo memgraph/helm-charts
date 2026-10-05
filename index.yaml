@@ -7,7 +7,7 @@ entries:
     description: MemgraphDB Helm Chart
     digest: d09182554cbece1d321cfd212dc43f8ff8fddd8cfd54036153de787123c4c4ce
     home: https://memgraph.com/
-    icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+    icon: https://raw.githubusercontent.com/memgraph/helm-charts/main/img/memgraph-logo.png
     keywords:
     - graph
     - database

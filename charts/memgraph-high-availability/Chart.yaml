@@ -15,7 +15,7 @@ keywords:
 - analytics
 - high-availability
 
-icon: https://public-assets.memgraph.com/memgraph-logo/logo-large.png
+icon: https://raw.githubusercontent.com/memgraph/helm-charts/main/img/memgraph-logo.png
 
 home: https://memgraph.com/
 
