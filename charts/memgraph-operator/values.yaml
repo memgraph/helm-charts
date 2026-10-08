@@ -1,0 +1,92 @@
+# Default values for the memgraph-operator chart.
+
+# The operator container image. tag defaults to the chart's appVersion, so a
+# chart version always installs the operator version it was released with.
+image:
+  repository: docker.io/memgraph/kubernetes-operator
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# References to Secrets used to pull the operator image from a private registry.
+imagePullSecrets: []
+  # - name: my-registry-credentials
+
+# One replica reconciles at a time; leader election lets a second replica stand
+# by (and makes a rolling restart safe) by taking over the Lease.
+replicaCount: 1
+leaderElection:
+  enabled: true
+
+# Requests and limits of the operator container. The operator holds a cache of
+# the objects it watches, so memory scales with the number of MemgraphClusters
+# and their workloads.
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+# The controller-runtime metrics endpoint. Serving is HTTPS with a self-signed
+# certificate and every request is authenticated and authorized against the
+# API server, so scraping requires a token bound to the metrics-reader
+# ClusterRole this chart installs. Set secure to false to serve plain HTTP
+# without authorization — do that only on a trusted network.
+metrics:
+  enabled: true
+  port: 8443
+  secure: true
+
+# RBAC: the operator gets exactly the permissions its controller declares —
+# MemgraphClusters, the StatefulSets and Services it provisions, plus a Lease
+# and Events in its own namespace for leader election. Set create to false to
+# bind an existing role set yourself; serviceAccount.name is then required.
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  # Defaults to <release>-controller-manager when empty.
+  name: ""
+  annotations: {}
+
+# Install the operator's namespaced objects into a namespace other than the
+# release namespace. Empty means the release namespace.
+namespaceOverride: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Pod-level knobs.
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
+terminationGracePeriodSeconds: 10
+
+# The operator image is distroless and runs as uid/gid 65532, which satisfies
+# the restricted Pod Security Standard. The one supported change is for a
+# platform that assigns the identity itself: OpenShift's restricted-v2 SCC
+# rejects a pod naming a uid outside the namespace's range, so there drop
+# runAsUser and runAsGroup (--set podSecurityContext.runAsUser=null
+# --set podSecurityContext.runAsGroup=null) and keep the rest.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Additional command-line arguments and environment variables for the operator
+# container, appended after the ones this chart derives.
+extraArgs: []
+extraEnv: []
