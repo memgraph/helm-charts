@@ -1,0 +1,17 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "memgraph-operator.metricsServiceName" . }}
+  namespace: {{ include "memgraph-operator.namespace" . }}
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: {{ ternary "https" "http" .Values.metrics.secure }}
+      port: {{ .Values.metrics.port }}
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    {{- include "memgraph-operator.selectorLabels" . | nindent 4 }}
+{{- end }}

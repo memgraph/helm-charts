@@ -1,0 +1,46 @@
+{{- if and .Values.rbac.create .Values.leaderElection.enabled }}
+{{/*
+Leader election is namespaced: one Lease in the operator's own namespace, plus
+the Events the election records on it. Nothing here is needed to reconcile a
+MemgraphCluster, so it is gated on leaderElection.enabled.
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-leader-election-role
+  namespace: {{ include "memgraph-operator.namespace" . }}
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - create
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-leader-election-rolebinding
+  namespace: {{ include "memgraph-operator.namespace" . }}
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "memgraph-operator.fullname" . }}-leader-election-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "memgraph-operator.serviceAccountName" . }}
+    namespace: {{ include "memgraph-operator.namespace" . }}
+{{- end }}

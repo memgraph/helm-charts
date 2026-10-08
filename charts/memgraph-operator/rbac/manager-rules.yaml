@@ -1,0 +1,112 @@
+# The rule list of the operator's manager ClusterRole: every API call the
+# reconciler makes is authorized against exactly these rules, because the
+# manager Pod authenticates as the ServiceAccount they are bound to.
+#
+# templates/manager-rbac.yaml inlines this file under 'rules:' with .Files.Get
+# (Helm cannot read config/rbac/role.yaml from outside the chart directory).
+#
+# Note what is absent: no 'delete' on StatefulSets or PVCs, so the operator
+# cannot remove a workload or its storage -- the only objects it deletes are
+# Pods, to restart them one at a time, and what a removed externalAccess or
+# monitoring block or a retired data instance leaves behind (external Services,
+# Gateways, TCPRoutes, ServiceMonitors, ConfigMaps, the vmagent Deployment);
+# no 'secrets', because license and auth material reaches the workload Pods
+# via the kubelet, never through the operator.
+#
+# Generated from the +kubebuilder:rbac markers in the controller sources.
+# Regenerate with 'make chart-sync'; do not edit by hand. To widen or tighten
+# the permissions, edit the markers -- 'make chart-verify' fails if the two drift.
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - gateways
+  - tcproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - memgraph.com
+  resources:
+  - memgraphclusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - memgraph.com
+  resources:
+  - memgraphclusters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - memgraph.com
+  resources:
+  - memgraphclusters/status
+  verbs:
+  - get
+  - patch
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
