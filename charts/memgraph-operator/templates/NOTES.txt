@@ -1,0 +1,38 @@
+{{ .Chart.Name }} {{ .Chart.AppVersion }} is installed in namespace {{ include "memgraph-operator.namespace" . }}.
+
+Watch the operator come up:
+
+  kubectl rollout status deployment/{{ include "memgraph-operator.managerName" . }} -n {{ include "memgraph-operator.namespace" . }}
+
+Then declare a cluster (3 coordinators, 2 data instances) in any namespace,
+referencing a Secret that holds your Memgraph enterprise license:
+
+  apiVersion: memgraph.com/v1alpha1
+  kind: MemgraphCluster
+  metadata:
+    name: memgraph
+  spec:
+    coordinators: 3
+    dataInstances: 2
+    image:
+      repository: docker.io/memgraph/memgraph
+      tag: 3.13.0-relwithdebinfo
+    secrets:
+      name: memgraph-secrets
+      licenseKey: MEMGRAPH_ENTERPRISE_LICENSE
+      organizationKey: MEMGRAPH_ORGANIZATION_NAME
+
+Save it as cluster.yaml and create it with apply, so that later edits — growing
+the cluster, for instance — stay a clean apply too:
+
+  kubectl apply -f cluster.yaml
+
+Follow the cluster reaching a registered, MAIN-elected state with:
+
+  kubectl get mgc -w
+
+Note that `helm uninstall` leaves the MemgraphCluster CustomResourceDefinition
+(and therefore your clusters) in place, as Helm never removes CRDs it installed.
+Remove it explicitly once no cluster needs it:
+
+  kubectl delete crd memgraphclusters.memgraph.com
