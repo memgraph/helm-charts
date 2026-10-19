@@ -5,8 +5,8 @@ least-privilege RBAC set, and the controller Deployment. Declaring a cluster is 
 resource — see the [repository README](../../README.md) and its
 [`docs/`](../../docs).
 
-The chart lives in the operator repository next to the generated manifests: the CRDs under
-`crds/` and the manager's RBAC rules under `rbac/` are generated from the Go types and the
+The chart lives in the operator repository next to the generated manifests: the CRD under
+`templates/crds/` and the manager's RBAC rules under `rbac/` are generated from the Go types and the
 `+kubebuilder:rbac` markers (`make chart-sync`), and CI fails if they drift from the controller
 they ship with.
 
@@ -39,20 +39,38 @@ helm install memgraph-operator ./charts/memgraph-operator \
 helm uninstall memgraph-operator --namespace memgraph-operator-system
 ```
 
-Helm never deletes CRDs it installed, so the `MemgraphCluster` CRD — and with it your clusters
-and their PersistentVolumeClaims — survive the uninstall. Remove it explicitly when no cluster
-needs it any more:
+The chart annotates the `MemgraphCluster` CRD with `helm.sh/resource-policy: keep`, so it — and
+with it your clusters and their PersistentVolumeClaims — survives the uninstall. Remove it
+explicitly when no cluster needs it any more:
 
 ```sh
 kubectl delete crd memgraphclusters.memgraph.com
 ```
 
-For the same reason, `helm upgrade` does not update the CRD. Apply the new one before upgrading
-to a chart version that changes the API:
+## Upgrade
 
 ```sh
-kubectl apply -f charts/memgraph-operator/crds/
+helm upgrade memgraph-operator memgraph/memgraph-operator \
+  --namespace memgraph-operator-system --wait
 ```
+
+The CRD is a template of the chart, not a file under `crds/`, so `helm upgrade` updates it along
+with the operator. Set `crds.enabled=false` to manage the CRD outside the release instead.
+
+### From chart 1.1.0 or earlier
+
+Up to 1.1.0 the CRD shipped under `crds/`, which Helm installs once and never takes ownership of,
+so the first upgrade past it fails with `invalid ownership metadata`. Hand the existing CRD to the
+release once, then upgrade:
+
+```sh
+kubectl label crd memgraphclusters.memgraph.com app.kubernetes.io/managed-by=Helm --overwrite
+kubectl annotate crd memgraphclusters.memgraph.com --overwrite \
+  meta.helm.sh/release-name=memgraph-operator \
+  meta.helm.sh/release-namespace=memgraph-operator-system
+```
+
+Use your release name and namespace if they differ.
 
 ## Permissions
 
@@ -83,6 +101,7 @@ reads that one Secret uncached, so a renewal or rotation reaches running pods wi
 | `image.repository` | `docker.io/memgraph/kubernetes-operator` | Operator image repository |
 | `image.tag` | `""` | Operator image tag; defaults to the chart's `appVersion` |
 | `image.pullPolicy` | `IfNotPresent` | Operator image pull policy |
+| `crds.enabled` | `true` | Install and upgrade the `MemgraphCluster` CRD with the release (kept on uninstall) |
 | `imagePullSecrets` | `[]` | Secrets used to pull the operator image |
 | `replicaCount` | `1` | Controller replicas |
 | `leaderElection.enabled` | `true` | Elect a leader, so a second replica can stand by |
