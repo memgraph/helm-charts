@@ -11,6 +11,14 @@ image:
 imagePullSecrets: []
   # - name: my-registry-credentials
 
+# The MemgraphCluster CustomResourceDefinition. The chart installs it and
+# upgrades it on every helm upgrade, and helm uninstall leaves it in place
+# (helm.sh/resource-policy: keep): deleting the CRD would delete every
+# MemgraphCluster with it. Set enabled to false to manage the CRD outside this
+# release, e.g. from a GitOps tool; it must exist before the operator starts.
+crds:
+  enabled: true
+
 # One replica reconciles at a time; leader election lets a second replica stand
 # by (and makes a rolling restart safe) by taking over the Lease.
 replicaCount: 1

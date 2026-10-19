@@ -5,8 +5,8 @@ least-privilege RBAC set, and the controller Deployment. Declaring a cluster is 
 resource — see the [repository README](../../README.md) and its
 [`docs/`](../../docs).
 
-The chart lives in the operator repository next to the generated manifests: the CRDs under
-`crds/` and the manager's RBAC rules under `rbac/` are generated from the Go types and the
+The chart lives in the operator repository next to the generated manifests: the CRD under
+`templates/crds/` and the manager's RBAC rules under `rbac/` are generated from the Go types and the
 `+kubebuilder:rbac` markers (`make chart-sync`), and CI fails if they drift from the controller
 they ship with.
 
@@ -39,19 +39,12 @@ helm install memgraph-operator ./charts/memgraph-operator \
 helm uninstall memgraph-operator --namespace memgraph-operator-system
 ```
 
-Helm never deletes CRDs it installed, so the `MemgraphCluster` CRD — and with it your clusters
-and their PersistentVolumeClaims — survive the uninstall. Remove it explicitly when no cluster
-needs it any more:
+The chart annotates the `MemgraphCluster` CRD with `helm.sh/resource-policy: keep`, so it — and
+with it your clusters and their PersistentVolumeClaims — survives the uninstall. Remove it
+explicitly when no cluster needs it any more:
 
 ```sh
 kubectl delete crd memgraphclusters.memgraph.com
-```
-
-For the same reason, `helm upgrade` does not update the CRD. Apply the new one before upgrading
-to a chart version that changes the API:
-
-```sh
-kubectl apply -f charts/memgraph-operator/crds/
 ```
 
 ## Permissions
@@ -83,6 +76,7 @@ reads that one Secret uncached, so a renewal or rotation reaches running pods wi
 | `image.repository` | `docker.io/memgraph/kubernetes-operator` | Operator image repository |
 | `image.tag` | `""` | Operator image tag; defaults to the chart's `appVersion` |
 | `image.pullPolicy` | `IfNotPresent` | Operator image pull policy |
+| `crds.enabled` | `true` | Install and upgrade the `MemgraphCluster` CRD with the release (kept on uninstall) |
 | `imagePullSecrets` | `[]` | Secrets used to pull the operator image |
 | `replicaCount` | `1` | Controller replicas |
 | `leaderElection.enabled` | `true` | Elect a leader, so a second replica can stand by |

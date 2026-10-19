@@ -32,7 +32,7 @@ Follow the cluster reaching a registered, MAIN-elected state with:
   kubectl get mgc -w
 
 Note that `helm uninstall` leaves the MemgraphCluster CustomResourceDefinition
-(and therefore your clusters) in place, as Helm never removes CRDs it installed.
-Remove it explicitly once no cluster needs it:
+(and therefore your clusters) in place: the chart marks it to be kept. Remove it
+explicitly once no cluster needs it:
 
   kubectl delete crd memgraphclusters.memgraph.com
