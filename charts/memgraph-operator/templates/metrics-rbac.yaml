@@ -1,0 +1,56 @@
+{{- if and .Values.rbac.create .Values.metrics.enabled }}
+{{/*
+The metrics endpoint authenticates and authorizes every scrape against the API
+server, which is what the TokenReview and SubjectAccessReview permissions are
+for. metrics-reader is the role a scraper (e.g. Prometheus) binds its own
+ServiceAccount to; the operator itself never uses it.
+*/}}
+{{- if .Values.metrics.secure }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-metrics-auth-role
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-metrics-auth-rolebinding
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "memgraph-operator.fullname" . }}-metrics-auth-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "memgraph-operator.serviceAccountName" . }}
+    namespace: {{ include "memgraph-operator.namespace" . }}
+---
+{{- end }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-metrics-reader
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+rules:
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+{{- end }}

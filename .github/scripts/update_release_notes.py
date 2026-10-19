@@ -27,6 +27,7 @@ CHART_LABELS = {
     "memgraph": "memgraph",
     "memgraph-high-availability": "memgraph-ha",
     "memgraph-lab": "memgraph-lab",
+    "memgraph-operator": "memgraph-operator",
 }
 TYPE_SECTIONS = [
     ("feature", "Features"),

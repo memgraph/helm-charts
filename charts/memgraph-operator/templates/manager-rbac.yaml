@@ -1,0 +1,32 @@
+{{- if .Values.rbac.create }}
+{{/*
+The rules come from rbac/manager-rules.yaml, which `make chart-sync` generates
+from the +kubebuilder:rbac markers in the controller sources — the chart cannot
+grant a permission the controller does not declare, and CI fails when the two
+drift apart. A ClusterRole, because the operator watches MemgraphClusters in
+every namespace.
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-manager-role
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+rules:
+{{- .Files.Get "rbac/manager-rules.yaml" | nindent 0 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "memgraph-operator.fullname" . }}-manager-rolebinding
+  labels:
+    {{- include "memgraph-operator.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "memgraph-operator.fullname" . }}-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "memgraph-operator.serviceAccountName" . }}
+    namespace: {{ include "memgraph-operator.namespace" . }}
+{{- end }}
