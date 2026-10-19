@@ -47,31 +47,6 @@ explicitly when no cluster needs it any more:
 kubectl delete crd memgraphclusters.memgraph.com
 ```
 
-## Upgrade
-
-```sh
-helm upgrade memgraph-operator memgraph/memgraph-operator \
-  --namespace memgraph-operator-system --wait
-```
-
-The CRD is a template of the chart, not a file under `crds/`, so `helm upgrade` updates it along
-with the operator. Set `crds.enabled=false` to manage the CRD outside the release instead.
-
-### From a chart that shipped the CRD under `crds/`
-
-Earlier charts shipped the CRD under `crds/`, which Helm installs once and never takes ownership
-of, so the first upgrade from one fails with `invalid ownership metadata`. Hand the existing CRD to the
-release once, then upgrade:
-
-```sh
-kubectl label crd memgraphclusters.memgraph.com app.kubernetes.io/managed-by=Helm --overwrite
-kubectl annotate crd memgraphclusters.memgraph.com --overwrite \
-  meta.helm.sh/release-name=memgraph-operator \
-  meta.helm.sh/release-namespace=memgraph-operator-system
-```
-
-Use your release name and namespace if they differ.
-
 ## Permissions
 
 The manager's ClusterRole is generated from the controller's own RBAC markers, so it grants
