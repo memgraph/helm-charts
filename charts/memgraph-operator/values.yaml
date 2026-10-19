@@ -47,15 +47,16 @@ metrics:
   secure: true
 
 # RBAC: the operator gets exactly the permissions its controller declares —
-# MemgraphClusters, the StatefulSets and Services it provisions, plus a Lease
-# and Events in its own namespace for leader election. Set create to false to
-# bind an existing role set yourself; serviceAccount.name is then required.
+# see Permissions in the chart README — plus a Lease and Events in its own
+# namespace for leader election. Set create to false to bind an existing role
+# set yourself.
 rbac:
   create: true
 
 serviceAccount:
   create: true
-  # Defaults to <release>-controller-manager when empty.
+  # Defaults to <fullname>-controller-manager when empty; required when create
+  # is false.
   name: ""
   annotations: {}
 
