@@ -57,10 +57,10 @@ helm upgrade memgraph-operator memgraph/memgraph-operator \
 The CRD is a template of the chart, not a file under `crds/`, so `helm upgrade` updates it along
 with the operator. Set `crds.enabled=false` to manage the CRD outside the release instead.
 
-### From chart 1.1.0 or earlier
+### From a chart that shipped the CRD under `crds/`
 
-Up to 1.1.0 the CRD shipped under `crds/`, which Helm installs once and never takes ownership of,
-so the first upgrade past it fails with `invalid ownership metadata`. Hand the existing CRD to the
+Earlier charts shipped the CRD under `crds/`, which Helm installs once and never takes ownership
+of, so the first upgrade from one fails with `invalid ownership metadata`. Hand the existing CRD to the
 release once, then upgrade:
 
 ```sh
