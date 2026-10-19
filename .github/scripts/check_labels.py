@@ -6,7 +6,7 @@ import os
 import sys
 
 DOCS_GROUP = ["docs-changelog-only", "docs-needed", "docs-not-needed"]
-COMPONENT_GROUP = ["memgraph", "memgraph-ha", "memgraph-lab", "infrastructure"]
+COMPONENT_GROUP = ["memgraph", "memgraph-ha", "memgraph-lab", "memgraph-operator", "infrastructure"]
 TYPE_GROUP = ["bug", "feature", "infrastructure"]
 
 

@@ -14,7 +14,7 @@ ___
 
 ### Labels checklist
 - [ ] Add a docs label (exactly one): `docs-changelog-only`, `docs-needed`, or `docs-not-needed`
-- [ ] Add at least one component label: `memgraph`, `memgraph-ha`, `memgraph-lab`, or `infrastructure`
+- [ ] Add at least one component label: `memgraph`, `memgraph-ha`, `memgraph-lab`, `memgraph-operator`, or `infrastructure`
 - [ ] Add at least one type label: `bug`, `feature`, or `infrastructure`
 - [ ] Assign the PR to a milestone
     - If not known, set for a later milestone
