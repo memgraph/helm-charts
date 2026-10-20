@@ -1,4 +1,4 @@
-"""Shared helpers for pre-merge and post-release scripts."""
+"""Shared helpers for the release-notes scripts."""
 
 import json
 import re
