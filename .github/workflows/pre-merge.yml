@@ -12,7 +12,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Check PR labels and release note
-        uses: memgraph/pr-checker@cd528716b9bb8246c743441e60ca5a7db4b8460e
+        uses: memgraph/pr-checker@df8fe0211696d6e262e1019f13ce7bf722e76dca  #v1.0.0
         with:
           github-token: ${{ github.token }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
