@@ -11,10 +11,10 @@ image:
 imagePullSecrets: []
   # - name: my-registry-credentials
 
-# The MemgraphCluster CustomResourceDefinition. The chart installs it and
+# The MemgraphDBCluster CustomResourceDefinition. The chart installs it and
 # upgrades it on every helm upgrade, and helm uninstall leaves it in place
 # (helm.sh/resource-policy: keep): deleting the CRD would delete every
-# MemgraphCluster with it. Set enabled to false to manage the CRD outside this
+# MemgraphDBCluster with it. Set enabled to false to manage the CRD outside this
 # release, e.g. from a GitOps tool; it must exist before the operator starts.
 crds:
   enabled: true
@@ -26,7 +26,7 @@ leaderElection:
   enabled: true
 
 # Requests and limits of the operator container. The operator holds a cache of
-# the objects it watches, so memory scales with the number of MemgraphClusters
+# the objects it watches, so memory scales with the number of MemgraphDBClusters
 # and their workloads.
 resources:
   limits:

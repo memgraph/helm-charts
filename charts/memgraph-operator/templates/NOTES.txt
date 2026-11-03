@@ -8,7 +8,7 @@ Then declare a cluster (3 coordinators, 2 data instances) in any namespace,
 referencing a Secret that holds your Memgraph enterprise license:
 
   apiVersion: memgraph.com/v1alpha1
-  kind: MemgraphCluster
+  kind: MemgraphDBCluster
   metadata:
     name: memgraph
   spec:
@@ -29,10 +29,10 @@ the cluster, for instance — stay a clean apply too:
 
 Follow the cluster reaching a registered, MAIN-elected state with:
 
-  kubectl get mgc -w
+  kubectl get mgdbc -w
 
-Note that `helm uninstall` leaves the MemgraphCluster CustomResourceDefinition
+Note that `helm uninstall` leaves the MemgraphDBCluster CustomResourceDefinition
 (and therefore your clusters) in place: the chart marks it to be kept. Remove it
 explicitly once no cluster needs it:
 
-  kubectl delete crd memgraphclusters.memgraph.com
+  kubectl delete crd memgraphdbclusters.memgraph.com

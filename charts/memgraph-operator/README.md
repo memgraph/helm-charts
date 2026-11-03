@@ -1,6 +1,6 @@
 # memgraph-operator
 
-Installs the Memgraph Kubernetes operator: the `MemgraphCluster` CustomResourceDefinition, a
+Installs the Memgraph Kubernetes operator: the `MemgraphDBCluster` CustomResourceDefinition, a
 least-privilege RBAC set, and the controller Deployment. Declaring a cluster is then a single
 resource — see the [repository README](../../README.md).
 
@@ -37,18 +37,18 @@ helm install memgraph-operator ./charts/memgraph-operator \
 helm uninstall memgraph-operator --namespace memgraph-operator-system
 ```
 
-The chart annotates the `MemgraphCluster` CRD with `helm.sh/resource-policy: keep`, so it — and
+The chart annotates the `MemgraphDBCluster` CRD with `helm.sh/resource-policy: keep`, so it — and
 with it your clusters and their PersistentVolumeClaims — survives the uninstall. Remove it
 explicitly when no cluster needs it any more:
 
 ```sh
-kubectl delete crd memgraphclusters.memgraph.com
+kubectl delete crd memgraphdbclusters.memgraph.com
 ```
 
 ## Permissions
 
 The manager's ClusterRole is generated from the controller's own RBAC markers, so it grants
-exactly what the reconciler issues: read MemgraphClusters, patch their status, and create and
+exactly what the reconciler issues: read MemgraphDBClusters, patch their status, and create and
 patch (server-side apply) the StatefulSets, Services, Gateways, TCPRoutes, ServiceMonitors,
 ConfigMaps and the vmagent Deployment it provisions. It deletes three kinds of thing: Pods,
 one at a time, to roll a changed pod template through the cluster; StatefulSets, with their
@@ -57,17 +57,20 @@ block leaves behind — the external Services, Gateways and TCPRoutes of a remov
 block or a retired data instance, and the ServiceMonitor, ConfigMaps and vmagent Deployment of a
 removed `monitoring` block. The ConfigMap and Deployment rules reach every object of those kinds,
 but the operator's cache holds only the ones it labelled as its own. It never deletes a
-headless Service or a PersistentVolumeClaim — deleting a `MemgraphCluster` removes the workloads
+headless Service or a PersistentVolumeClaim — deleting a `MemgraphDBCluster` removes the workloads
 through garbage collection of the owner references, and claims follow the StatefulSets' retention
 policy. The Gateway API and `monitoring.coreos.com` rules are granted
 whether or not the cluster serves those groups; a cluster without them simply never exercises
 the rules. Leader election adds a Lease and
 Events in the operator's own namespace, and the
 metrics endpoint adds the TokenReview/SubjectAccessReview permissions it authorizes scrapes
-with. Secrets are read-only and only for the license and the AWS credentials: `list`/`watch`
-feed a metadata-only informer that notices a changed license or AWS credentials Secret, and `get`
-reads that one Secret uncached, so a renewal or rotation reaches running pods with
-`SET DATABASE SETTING`. No Secret data is cached, and no Secret is ever written.
+with. Secrets are read for the license and the AWS credentials: `list`/`watch` feed a
+metadata-only informer that notices a changed license or AWS credentials Secret, and `get` reads
+that one Secret uncached, so a renewal or rotation reaches running pods with
+`SET DATABASE SETTING`. No Secret data is cached. The only Secrets written are each cluster's two
+for the `memgraph_internal` system user the operator logs in as: `create` for its generated
+password, which only the operator reads, and `patch` for the bcrypt hash the pods mount, kept
+apart so the password never reaches a Memgraph pod. A Secret you name is never written.
 
 ## Values
 
@@ -76,7 +79,7 @@ reads that one Secret uncached, so a renewal or rotation reaches running pods wi
 | `image.repository` | `docker.io/memgraph/kubernetes-operator` | Operator image repository |
 | `image.tag` | `""` | Operator image tag; defaults to the chart's `appVersion` |
 | `image.pullPolicy` | `IfNotPresent` | Operator image pull policy |
-| `crds.enabled` | `true` | Install and upgrade the `MemgraphCluster` CRD with the release (kept on uninstall) |
+| `crds.enabled` | `true` | Install and upgrade the `MemgraphDBCluster` CRD with the release (kept on uninstall) |
 | `imagePullSecrets` | `[]` | Secrets used to pull the operator image |
 | `replicaCount` | `1` | Controller replicas |
 | `leaderElection.enabled` | `true` | Elect a leader, so a second replica can stand by |
