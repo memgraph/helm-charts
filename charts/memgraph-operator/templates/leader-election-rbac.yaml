@@ -2,7 +2,7 @@
 {{/*
 Leader election is namespaced: one Lease in the operator's own namespace, plus
 the Events the election records on it. Nothing here is needed to reconcile a
-MemgraphCluster, so it is gated on leaderElection.enabled.
+MemgraphDBCluster, so it is gated on leaderElection.enabled.
 */}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

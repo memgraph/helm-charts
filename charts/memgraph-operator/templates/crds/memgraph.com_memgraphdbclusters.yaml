@@ -12,16 +12,18 @@ metadata:
     controller-gen.kubebuilder.io/version: v0.21.0
   labels:
     {{- include "memgraph-operator.labels" . | nindent 4 }}
-  name: memgraphclusters.memgraph.com
+  name: memgraphdbclusters.memgraph.com
 spec:
   group: memgraph.com
   names:
-    kind: MemgraphCluster
-    listKind: MemgraphClusterList
-    plural: memgraphclusters
+    categories:
+    - memgraph
+    kind: MemgraphDBCluster
+    listKind: MemgraphDBClusterList
+    plural: memgraphdbclusters
     shortNames:
-    - mgc
-    singular: memgraphcluster
+    - mgdbc
+    singular: memgraphdbcluster
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -54,7 +56,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: MemgraphCluster is the Schema for the memgraphclusters API
+        description: MemgraphDBCluster is the Schema for the memgraphdbclusters API
         properties:
           apiVersion:
             description: |-
@@ -74,7 +76,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: spec defines the desired state of MemgraphCluster
+            description: spec defines the desired state of MemgraphDBCluster
             properties:
               awsCredentials:
                 description: |-
@@ -85,10 +87,10 @@ spec:
                 properties:
                   secretRef:
                     description: |-
-                      secretRef names a Secret in the cluster's namespace holding the access
-                      key under AWS_ACCESS_KEY_ID, the secret key under AWS_SECRET_ACCESS_KEY,
-                      the region under AWS_REGION and the endpoint URL under
-                      AWS_ENDPOINT_URL.
+                      secretRef names a Secret in the cluster's namespace holding any of the
+                      access key under AWS_ACCESS_KEY_ID, the secret key under
+                      AWS_SECRET_ACCESS_KEY, the region under AWS_REGION and the endpoint URL
+                      under AWS_ENDPOINT_URL.
                     properties:
                       name:
                         description: name is the name of the Secret in the cluster's
@@ -141,7 +143,7 @@ spec:
                       onto a volume of the size it names. It is a create-time choice: once the
                       cluster exists the block cannot be added or removed, and an edit that
                       tries is rejected at admission with the procedure that works — delete the
-                      MemgraphCluster, whose claims the default Retain policy keeps, and
+                      MemgraphDBCluster, whose claims the default Retain policy keeps, and
                       recreate it.
                     properties:
                       size:
@@ -232,7 +234,7 @@ spec:
                       the operator mounts the core dumps volume into the sidecar read-only,
                       passes the directory as CORE_DUMPS_DIR, and gives it the same locked-down
                       security context as the Memgraph container. See
-                      config/samples/v1alpha1_memgraphcluster.yaml for an S3 uploader
+                      config/samples/v1alpha1_memgraphdbcluster.yaml for an S3 uploader
                       equivalent to the Helm chart's.
 
                       One definition serves both roles — the destination and credentials do not
@@ -381,12 +383,12 @@ spec:
                 - message: 'coreDumps.coordinators cannot be added or removed on a
                     live cluster: the core dumps volume is a StatefulSet volumeClaimTemplate,
                     which Kubernetes forbids adding or removing in place. Delete the
-                    MemgraphCluster (its claims are retained under the default retention
+                    MemgraphDBCluster (its claims are retained under the default retention
                     policy) and recreate it with the new setting'
                   rule: has(self.coordinators) == has(oldSelf.coordinators)
                 - message: 'coreDumps.data cannot be added or removed on a live cluster:
                     the core dumps volume is a StatefulSet volumeClaimTemplate, which
-                    Kubernetes forbids adding or removing in place. Delete the MemgraphCluster
+                    Kubernetes forbids adding or removing in place. Delete the MemgraphDBCluster
                     (its claims are retained under the default retention policy) and
                     recreate it with the new setting'
                   rule: has(self.data) == has(oldSelf.data)
@@ -396,7 +398,7 @@ spec:
                 - message: 'coreDumps storageClassName cannot be changed on a live
                     cluster while a role collects dumps: it is part of a StatefulSet
                     volumeClaimTemplate, which Kubernetes forbids changing in place.
-                    Delete the MemgraphCluster (its claims are retained under the
+                    Delete the MemgraphDBCluster (its claims are retained under the
                     default retention policy) and recreate it with the new value'
                   rule: '!(has(self.coordinators) || has(self.data)) || (has(self.storageClassName)
                     == has(oldSelf.storageClassName) && (!has(self.storageClassName)
@@ -582,13 +584,11 @@ spec:
                     - name
                     x-kubernetes-list-type: map
                     x-kubernetes-validations:
-                    - message: extraEnv must not set MEMGRAPH_ENTERPRISE_LICENSE,
-                        MEMGRAPH_ORGANIZATION_NAME or MEMGRAPH_AWS_* (they come from
-                        the secrets and awsCredentials blocks) or POD_NAME (it carries
-                        the pod's own identity)
+                    - message: extraEnv must not set MEMGRAPH_ENTERPRISE_LICENSE or
+                        MEMGRAPH_ORGANIZATION_NAME (the license comes from the secrets
+                        block) or POD_NAME (it carries the pod's own identity)
                       rule: self.all(e, !(e.name in ['MEMGRAPH_ENTERPRISE_LICENSE',
-                        'MEMGRAPH_ORGANIZATION_NAME', 'MEMGRAPH_AWS_ACCESS_KEY', 'MEMGRAPH_AWS_SECRET_KEY',
-                        'MEMGRAPH_AWS_REGION', 'MEMGRAPH_AWS_ENDPOINT_URL', 'POD_NAME']))
+                        'MEMGRAPH_ORGANIZATION_NAME', 'POD_NAME']))
                   data:
                     description: data are added to every data instance pod's Memgraph
                       container.
@@ -618,13 +618,11 @@ spec:
                     - name
                     x-kubernetes-list-type: map
                     x-kubernetes-validations:
-                    - message: extraEnv must not set MEMGRAPH_ENTERPRISE_LICENSE,
-                        MEMGRAPH_ORGANIZATION_NAME or MEMGRAPH_AWS_* (they come from
-                        the secrets and awsCredentials blocks) or POD_NAME (it carries
-                        the pod's own identity)
+                    - message: extraEnv must not set MEMGRAPH_ENTERPRISE_LICENSE or
+                        MEMGRAPH_ORGANIZATION_NAME (the license comes from the secrets
+                        block) or POD_NAME (it carries the pod's own identity)
                       rule: self.all(e, !(e.name in ['MEMGRAPH_ENTERPRISE_LICENSE',
-                        'MEMGRAPH_ORGANIZATION_NAME', 'MEMGRAPH_AWS_ACCESS_KEY', 'MEMGRAPH_AWS_SECRET_KEY',
-                        'MEMGRAPH_AWS_REGION', 'MEMGRAPH_AWS_ENDPOINT_URL', 'POD_NAME']))
+                        'MEMGRAPH_ORGANIZATION_NAME', 'POD_NAME']))
                 type: object
               extraVolumeMounts:
                 description: |-
@@ -792,6 +790,12 @@ spec:
                     description: data are added to every data instance pod.
                     x-kubernetes-preserve-unknown-fields: true
                 type: object
+              fips:
+                description: |-
+                  fips runs every instance of both roles in FIPS 140-3 approved mode.
+                  Absent, they run in the normal mode. It needs a FIPS build of Memgraph:
+                  set image to the "-fips" tag of the release.
+                type: object
               fixOwnershipInitContainer:
                 description: |-
                   fixOwnershipInitContainer chowns every pod's volume mount points to the
@@ -838,11 +842,12 @@ spec:
                       rule: self.all(k, k.matches('^[A-Za-z][A-Za-z0-9_-]*$'))
                     - message: 'flags must not set a port, a listen address, the coordinator
                         identity, the data directory, the log file, a TLS file, the
-                        metrics format, the license (license-key, organization-name)
-                        or the AWS configuration (aws-access-key, aws-secret-key,
-                        aws-region, aws-endpoint-url): the operator derives the former,
-                        and the latter come from the secrets and awsCredentials blocks'
-                      rule: self.all(k, !k.replace('-', '_').matches('^(bolt_port|management_port|coordinator_port|coordinator_id|coordinator_hostname|data_directory|log_file|bolt_cert_file|bolt_key_file|cluster_cert_file|cluster_key_file|cluster_ca_file|metrics_format|metrics_port|monitoring_port|bolt_address|monitoring_address|aws_access_key|aws_secret_key|aws_region|aws_endpoint_url|license_key|organization_name)$'))
+                        metrics format, the system user''s hash file, FIPS mode (fips-mode),
+                        the license (license-key, organization-name) or the AWS configuration
+                        (aws-access-key, aws-secret-key, aws-region, aws-endpoint-url):
+                        the operator derives the former, and the latter come from
+                        the fips, secrets and awsCredentials blocks'
+                      rule: self.all(k, !k.replace('-', '_').matches('^(bolt_port|management_port|coordinator_port|coordinator_id|coordinator_hostname|data_directory|log_file|bolt_cert_file|bolt_key_file|cluster_cert_file|cluster_key_file|cluster_ca_file|metrics_format|metrics_port|monitoring_port|bolt_address|monitoring_address|aws_access_key|aws_secret_key|aws_region|aws_endpoint_url|license_key|organization_name|system_user_internal_hash_file|fips_mode)$'))
                     - message: two keys spell the same flag
                       rule: self.all(k, self.all(j, k == j || k.replace('-', '_')
                         != j.replace('-', '_')))
@@ -876,11 +881,12 @@ spec:
                       rule: self.all(k, k.matches('^[A-Za-z][A-Za-z0-9_-]*$'))
                     - message: 'flags must not set a port, a listen address, the coordinator
                         identity, the data directory, the log file, a TLS file, the
-                        metrics format, the license (license-key, organization-name)
-                        or the AWS configuration (aws-access-key, aws-secret-key,
-                        aws-region, aws-endpoint-url): the operator derives the former,
-                        and the latter come from the secrets and awsCredentials blocks'
-                      rule: self.all(k, !k.replace('-', '_').matches('^(bolt_port|management_port|coordinator_port|coordinator_id|coordinator_hostname|data_directory|log_file|bolt_cert_file|bolt_key_file|cluster_cert_file|cluster_key_file|cluster_ca_file|metrics_format|metrics_port|monitoring_port|bolt_address|monitoring_address|aws_access_key|aws_secret_key|aws_region|aws_endpoint_url|license_key|organization_name)$'))
+                        metrics format, the system user''s hash file, FIPS mode (fips-mode),
+                        the license (license-key, organization-name) or the AWS configuration
+                        (aws-access-key, aws-secret-key, aws-region, aws-endpoint-url):
+                        the operator derives the former, and the latter come from
+                        the fips, secrets and awsCredentials blocks'
+                      rule: self.all(k, !k.replace('-', '_').matches('^(bolt_port|management_port|coordinator_port|coordinator_id|coordinator_hostname|data_directory|log_file|bolt_cert_file|bolt_key_file|cluster_cert_file|cluster_key_file|cluster_ca_file|metrics_format|metrics_port|monitoring_port|bolt_address|monitoring_address|aws_access_key|aws_secret_key|aws_region|aws_endpoint_url|license_key|organization_name|system_user_internal_hash_file|fips_mode)$'))
                     - message: two keys spell the same flag
                       rule: self.all(k, self.all(j, k == j || k.replace('-', '_')
                         != j.replace('-', '_')))
@@ -2931,7 +2937,7 @@ spec:
                     x-kubernetes-validations:
                     - message: 'libStorageClassName cannot be changed on a live cluster:
                         it is part of a StatefulSet volumeClaimTemplate, which Kubernetes
-                        forbids changing in place. Delete the MemgraphCluster (its
+                        forbids changing in place. Delete the MemgraphDBCluster (its
                         claims are retained under the default retention policy) and
                         recreate it with the new value'
                       rule: has(self.libStorageClassName) == has(oldSelf.libStorageClassName)
@@ -2944,7 +2950,7 @@ spec:
                         >= 0)
                     - message: 'libStorageAccessMode cannot be changed on a live cluster:
                         it is part of a StatefulSet volumeClaimTemplate, which Kubernetes
-                        forbids changing in place. Delete the MemgraphCluster (its
+                        forbids changing in place. Delete the MemgraphDBCluster (its
                         claims are retained under the default retention policy) and
                         recreate it with the new value'
                       rule: has(self.libStorageAccessMode) == has(oldSelf.libStorageAccessMode)
@@ -3013,7 +3019,7 @@ spec:
                     x-kubernetes-validations:
                     - message: 'libStorageClassName cannot be changed on a live cluster:
                         it is part of a StatefulSet volumeClaimTemplate, which Kubernetes
-                        forbids changing in place. Delete the MemgraphCluster (its
+                        forbids changing in place. Delete the MemgraphDBCluster (its
                         claims are retained under the default retention policy) and
                         recreate it with the new value'
                       rule: has(self.libStorageClassName) == has(oldSelf.libStorageClassName)
@@ -3026,7 +3032,7 @@ spec:
                         >= 0)
                     - message: 'libStorageAccessMode cannot be changed on a live cluster:
                         it is part of a StatefulSet volumeClaimTemplate, which Kubernetes
-                        forbids changing in place. Delete the MemgraphCluster (its
+                        forbids changing in place. Delete the MemgraphDBCluster (its
                         claims are retained under the default retention policy) and
                         recreate it with the new value'
                       rule: has(self.libStorageAccessMode) == has(oldSelf.libStorageAccessMode)
@@ -3036,7 +3042,7 @@ spec:
                     default: Retain
                     description: |-
                       retentionPolicy decides whether a PersistentVolumeClaim of this cluster
-                      survives being orphaned, which happens two ways: the MemgraphCluster is
+                      survives being orphaned, which happens two ways: the MemgraphDBCluster is
                       deleted, or a lowered replica count retires the pod that used it. Both are
                       the same question — keep this cluster's data, or do not — so the policy
                       maps onto both halves of the StatefulSets'
@@ -3158,11 +3164,23 @@ spec:
             - message: 'tls.intraCluster cannot be added or removed on a live cluster:
                 a member with intra-cluster TLS cannot talk to one without it, so
                 restarting pods one at a time would deadlock waiting for replication
-                that can no longer happen. Delete the MemgraphCluster (its claims
+                that can no longer happen. Delete the MemgraphDBCluster (its claims
                 are retained under the default retention policy) and recreate it with
                 the new setting'
               rule: (has(self.tls) && has(self.tls.intraCluster)) == (has(oldSelf.tls)
                 && has(oldSelf.tls.intraCluster))
+            - message: 'fips cannot be combined with init-file, init-data-file or
+                MEMGRAPH_HA_CLUSTER_INIT_QUERIES: an instance in FIPS mode starts
+                without a license, which the operator sets over Bolt once it runs,
+                and Memgraph refuses to start an unlicensed FIPS instance with init
+                queries it could not run'
+              rule: '!has(self.fips) || ((!has(self.flags) || ((!has(self.flags.coordinators)
+                || self.flags.coordinators.all(k, !(k.replace(''-'', ''_'') in [''init_file'',
+                ''init_data_file'']))) && (!has(self.flags.data) || self.flags.data.all(k,
+                !(k.replace(''-'', ''_'') in [''init_file'', ''init_data_file''])))))
+                && (!has(self.extraEnv) || ((!has(self.extraEnv.coordinators) || self.extraEnv.coordinators.all(e,
+                e.name != ''MEMGRAPH_HA_CLUSTER_INIT_QUERIES'')) && (!has(self.extraEnv.data)
+                || self.extraEnv.data.all(e, e.name != ''MEMGRAPH_HA_CLUSTER_INIT_QUERIES'')))))'
             - message: 'fixOwnershipInitContainer needs securityContext to name runAsUser
                 and one of runAsGroup or fsGroup: the container can only chown the
                 volumes to an identity the cluster names, not to one the platform
@@ -3171,11 +3189,11 @@ spec:
                 || (has(self.securityContext.runAsUser) && (has(self.securityContext.runAsGroup)
                 || has(self.securityContext.fsGroup)))'
           status:
-            description: status defines the observed state of MemgraphCluster
+            description: status defines the observed state of MemgraphDBCluster
             properties:
               conditions:
                 description: |-
-                  conditions represent the current state of the MemgraphCluster resource.
+                  conditions represent the current state of the MemgraphDBCluster resource.
                   Each condition has a unique type and reflects the status of a specific aspect of the resource.
 
                   Standard condition types include:
